@@ -7,5 +7,5 @@
     "singleQuote": false,
     "trailingComma": "none",
     "bracketSpacing": true,
-    "endOfLine": "auto"
+    "endOfLine": "lf"
 }

@@ -10,10 +10,9 @@
     },
     "scripts": {
         "log": "node -e \"console.log(`\\n ► ${process.argv[1]}...\\n`);\"",
-        "eslint:check": "npm run log -s \"ESLint Checking\" && eslint --ext=ts src",
-        "eslint:fix": "npm run log -s \"ESLint Fixing\" && eslint --fix --ext=ts src && npm run eslint:check -s",
-        "prettier:check": "npm run log -s \"Prettier Checking\" && prettier --check .",
-        "prettier:fix": "npm run log -s \"Prettier Fixing\" && prettier --write . && npm run prettier:check -s",
+        "eslint:fix": "npm run log -s \"ESLint Fixing\" && eslint --fix --ext=ts src",
+        "prettier:fix": "npm run log -s \"Prettier Fixing\" && prettier --write .",
+        "fix:all": "npm run eslint:fix -s && npm run prettier:fix -s",
         "ts-node-dev": "ts-node-dev --cache-directory \"./build\" --respawn --",
         "start:audio": "npm run ts-node-dev -s src/audio/app.ts"
     },
