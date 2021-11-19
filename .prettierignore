@@ -1,0 +1,9 @@
+# Ignore Doc files
+**/README.md
+
+# Ignore auto-generated files
+**/package-lock.json
+
+# Ignore built ts files
+**/dist/**/*
+**/build/**/*

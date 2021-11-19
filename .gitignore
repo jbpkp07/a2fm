@@ -1,0 +1,16 @@
+# Dependency directory
+**/node_modules/**/*
+
+# Ignore built ts files
+**/dist/**/*
+**/build/**/*
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# VS Code stuff
+/.vscode/**/*
+!/.vscode/launch.json
+!/.vscode/tasks.json
