@@ -2,17 +2,20 @@
     "name": "a2fm",
     "version": "1.0.0",
     "description": "Aspera 2 Facilis Migration",
-    "author": "Spafax",
+    "author": "Jeremy Barnes",
     "license": "MIT",
     "repository": {
         "type": "git",
         "url": "https://github.com/jbpkp07/a2fm.git"
     },
     "scripts": {
+        "dist": "npm run clean -s && tsc",
+        "clean": "del-cli ./dist/* ./build/* -f",
+        "fix:all": "npm run fix:eslint -s && npm run fix:prettier -s",
+        "fix:eslint": "npm run log -s \"ESLint Fixing\" && eslint --fix --ext=ts src",
+        "fix:prettier": "npm run log -s \"Prettier Fixing\" && prettier --write .",
         "log": "node -e \"console.log(`\\n ► ${process.argv[1]}...\\n`);\"",
-        "eslint:fix": "npm run log -s \"ESLint Fixing\" && eslint --fix --ext=ts src",
-        "prettier:fix": "npm run log -s \"Prettier Fixing\" && prettier --write .",
-        "fix:all": "npm run eslint:fix -s && npm run prettier:fix -s",
+        "postinstall": "mkdirp ./build ./dist",
         "ts-node-dev": "ts-node-dev --cache-directory \"./build\" --respawn --",
         "start:audio": "npm run ts-node-dev -s src/audio/app.ts"
     },
@@ -21,10 +24,12 @@
         "@types/node": "^16.11.8",
         "@typescript-eslint/eslint-plugin": "^5.4.0",
         "@typescript-eslint/parser": "^5.4.0",
+        "del-cli": "^3.0.1",
         "eslint": "^7.32.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-import": "^2.25.3",
         "eslint-plugin-prettier": "^4.0.0",
+        "mkdirp": "^1.0.4",
         "prettier": "^2.4.1",
         "ts-node-dev": "^1.1.8",
         "typescript": "^3.9.7"
