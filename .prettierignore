@@ -1,9 +1,12 @@
-# Ignore Doc files
-**/README.md
+# Dependency directory
+**/node_modules/**/*
+
+# Ignore built ts files
+**/cache/**/*
+**/dist/**/*
 
 # Ignore auto-generated files
 **/package-lock.json
 
-# Ignore built ts files
-**/dist/**/*
-**/build/**/*
+# Ignore Doc files
+**/README.md

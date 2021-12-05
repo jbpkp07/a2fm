@@ -1,19 +1,24 @@
 {
+    "root": true,
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
+        "ecmaFeatures": { "jsx": true },
         "ecmaVersion": 2020,
+        "project": ["./tsconfig.json", "./webpack/tsconfig.json"],
         "sourceType": "module"
     },
-    "plugins": ["@typescript-eslint", "import"],
+    "plugins": ["@typescript-eslint", "import", "jsx-a11y", "prettier", "promise", "react", "react-hooks", "sonarjs"],
     "extends": [
+        "airbnb",
+        "airbnb/hooks",
+        "airbnb-typescript",
         "plugin:@typescript-eslint/recommended",
-        "plugin:import/errors",
-        "plugin:import/warnings",
-        "plugin:import/typescript",
-        "plugin:prettier/recommended" // This will display prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:sonarjs/recommended",
+        "plugin:promise/recommended",
+        "plugin:prettier/recommended"
     ],
     "rules": {
-        "prettier/prettier": ["warn", { "usePrettierrc": true }],
         "import/order": [
             "warn",
             {
@@ -25,17 +30,20 @@
                 "newlines-between": "always"
             }
         ],
-        "@typescript-eslint/no-empty-function": "warn",
-        "@typescript-eslint/no-empty-interface": "warn",
-        "camelcase": "warn",
-        "no-shadow": "warn",
-        "no-underscore-dangle": "warn",
-        "require-await": "warn"
+        "import/prefer-default-export": "off",
+        "newline-before-return": "warn",
+        "no-console": "off",
+        "prettier/prettier": ["warn", {}, { "usePrettierrc": true }],
+        "promise/prefer-await-to-callbacks": "warn",
+        "promise/prefer-await-to-then": "warn"
     },
     "overrides": [
         {
             "files": [""],
             "rules": {}
         }
-    ]
+    ],
+    "settings": {
+        "react": { "version": "17.0.2" } // Change this to "detect" if "react" package is installed
+    }
 }
