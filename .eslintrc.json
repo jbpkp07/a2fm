@@ -33,6 +33,7 @@
         "import/prefer-default-export": "off",
         "newline-before-return": "warn",
         "no-console": "off",
+        "no-plusplus": ["warn", { "allowForLoopAfterthoughts": true }],
         "prettier/prettier": ["warn", {}, { "usePrettierrc": true }],
         "promise/prefer-await-to-callbacks": "warn",
         "promise/prefer-await-to-then": "warn"
