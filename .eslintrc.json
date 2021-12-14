@@ -1,5 +1,6 @@
 {
     "root": true,
+    "reportUnusedDisableDirectives": true,
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaFeatures": { "jsx": true },
@@ -7,44 +8,64 @@
         "project": ["./tsconfig.json", "./webpack/tsconfig.json"],
         "sourceType": "module"
     },
-    "plugins": ["@typescript-eslint", "import", "jsx-a11y", "prettier", "promise", "react", "react-hooks", "sonarjs"],
-    "extends": [
-        "airbnb",
-        "airbnb/hooks",
-        "airbnb-typescript",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@typescript-eslint/recommended-requiring-type-checking",
-        "plugin:sonarjs/recommended",
-        "plugin:promise/recommended",
-        "plugin:prettier/recommended"
+    "plugins": [
+        "@typescript-eslint",
+        "import",
+        "jest",
+        "jsx-a11y",
+        "prettier",
+        "promise",
+        "react",
+        "react-hooks",
+        "sonarjs"
     ],
-    "rules": {
-        "import/order": [
-            "warn",
-            {
-                "alphabetize": { "order": "asc", "caseInsensitive": true },
-                "groups": [
-                    ["builtin", "external", "internal"],
-                    ["parent", "sibling", "index"]
-                ],
-                "newlines-between": "always"
-            }
-        ],
-        "import/prefer-default-export": "off",
-        "newline-before-return": "warn",
-        "no-console": "off",
-        "no-plusplus": ["warn", { "allowForLoopAfterthoughts": true }],
-        "prettier/prettier": ["warn", {}, { "usePrettierrc": true }],
-        "promise/prefer-await-to-callbacks": "warn",
-        "promise/prefer-await-to-then": "warn"
-    },
     "overrides": [
         {
-            "files": [""],
-            "rules": {}
+            "files": ["*.ts", "*.tsx"],
+            "extends": [
+                "airbnb",
+                "airbnb/hooks",
+                "airbnb-typescript",
+                "plugin:@typescript-eslint/recommended",
+                "plugin:@typescript-eslint/recommended-requiring-type-checking"
+            ]
+        },
+        {
+            "files": ["*.js", "*.jsx"],
+            "extends": ["airbnb", "airbnb/hooks", "eslint:recommended"]
+        },
+        {
+            "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+            "extends": [
+                "plugin:sonarjs/recommended",
+                "plugin:promise/recommended",
+                "plugin:jest/recommended",
+                "plugin:jest/style",
+                "plugin:prettier/recommended"
+            ],
+            "rules": {
+                "import/order": [
+                    "warn",
+                    {
+                        "alphabetize": { "order": "asc", "caseInsensitive": true },
+                        "groups": [
+                            ["builtin", "external", "internal"],
+                            ["parent", "sibling", "index"]
+                        ],
+                        "newlines-between": "always"
+                    }
+                ],
+                "import/prefer-default-export": "off",
+                "newline-before-return": "warn",
+                "no-console": "off",
+                "no-plusplus": ["warn", { "allowForLoopAfterthoughts": true }],
+                "prettier/prettier": ["warn", {}, { "usePrettierrc": true }],
+                "promise/prefer-await-to-callbacks": "warn",
+                "promise/prefer-await-to-then": "warn"
+            },
+            "settings": {
+                "react": { "version": "17.0.2" } // Change this to "detect" if "react" package is installed
+            }
         }
-    ],
-    "settings": {
-        "react": { "version": "17.0.2" } // Change this to "detect" if "react" package is installed
-    }
+    ]
 }
