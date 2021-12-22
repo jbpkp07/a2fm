@@ -1,6 +1,7 @@
 import ESLintWebpackPlugin from "eslint-webpack-plugin";
 import { resolve } from "path";
 import { env } from "process";
+import TerserPlugin from "terser-webpack-plugin";
 import { Configuration as WebpackConfig } from "webpack";
 
 const toExtensionsRegExp = (exts: string[]) => {
@@ -20,6 +21,7 @@ const config: WebpackConfig = {
     devtool: "source-map",
     entry: entryPath,
     externals: [],
+    ignoreWarnings: [/('fsevents')/],
     mode: "production",
     module: {
         rules: [
@@ -35,7 +37,17 @@ const config: WebpackConfig = {
         __filename: false
     },
     optimization: {
-        minimize: true
+        minimize: true,
+        minimizer: [
+            new TerserPlugin({
+                extractComments: false,
+                terserOptions: {
+                    format: {
+                        comments: false
+                    }
+                }
+            })
+        ]
     },
     output: {
         filename: "index.js",
@@ -49,9 +61,6 @@ const config: WebpackConfig = {
     resolve: {
         extensions,
         modules: [nodeModulesPath]
-    },
-    stats: {
-        warningsFilter: []
     },
     target: "node"
 };
