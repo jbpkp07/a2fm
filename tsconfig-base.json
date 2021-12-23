@@ -23,7 +23,7 @@
         "noImplicitReturns": true,
         "noImplicitThis": true,
         "noUncheckedIndexedAccess": true,
-        "noUnusedLocals": true,
+        "noUnusedLocals": false,
         "noUnusedParameters": true,
         "strictBindCallApply": true,
         "strictFunctionTypes": true,

@@ -21,7 +21,7 @@
         "log:begin": "node -e \"console.log(`\\n ► ${(process.argv[1] + ' ').padEnd(76, '─')}┐\\n`)\"",
         "log:end": "node -e \"console.log(`   Completed.\\n`)\"",
         "postinstall": "npm run create:dirs -s",
-        "prebuild:dist": "npm run check:all -s && npm run start:tests -s && npm run clean:dirs -s",
+        "prebuild:dist": "npm run check:prettier -s && npm run start:tests -s && npm run clean:dirs -s",
         "prestart": "path-exists \"./dist/index.js\" || npm run build:dist -s",
         "start": "npm run log:begin -s \"Starting App\" && node --enable-source-maps ./dist/index.js",
         "start:dev": "ts-node-dev --cache-directory ./cache --respawn ./src/index.ts",
