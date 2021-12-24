@@ -9,7 +9,7 @@
         "url": "https://github.com/jbpkp07/a2fm.git"
     },
     "scripts": {
-        "build:dist": "npm run log:begin -s \"Building Dist\" && cross-env TS_NODE_PROJECT=\"./webpack/tsconfig.json\" webpack --config ./webpack/webpack.config.ts",
+        "build": "npm run log:begin -s \"Building Dist\" && cross-env TS_NODE_PROJECT=\"./webpack/tsconfig.json\" webpack --config ./webpack/webpack.config.ts",
         "check:all": "npm run check:eslint -s && npm run check:prettier -s",
         "check:eslint": "npm run log:begin -s \"ESLint Checking\" && eslint --ext=.js,.ts,.jsx,.tsx . && npm run log:end -s",
         "check:prettier": "npm run log:begin -s \"Prettier Checking\" && prettier --check .",
@@ -21,11 +21,11 @@
         "log:begin": "node -e \"console.log(`\\n ► ${(process.argv[1] + ' ').padEnd(76, '─')}┐\\n`)\"",
         "log:end": "node -e \"console.log(`   Completed.\\n`)\"",
         "postinstall": "npm run create:dirs -s",
-        "prebuild:dist": "npm run check:prettier -s && npm run start:tests -s && npm run clean:dirs -s",
-        "prestart": "path-exists \"./dist/index.js\" || npm run build:dist -s",
+        "prebuild": "npm run check:prettier -s && npm run test -s && npm run clean:dirs -s",
+        "prestart": "path-exists \"./dist/index.js\" || npm run build -s",
         "start": "npm run log:begin -s \"Starting App\" && node --enable-source-maps ./dist/index.js",
         "start:dev": "ts-node-dev --cache-directory ./cache --respawn ./src/index.ts",
-        "start:tests": "npm run log:begin -s \"Running Tests\" && jest",
+        "test": "npm run log:begin -s \"Running Tests\" && jest",
         "update:check-latest": "npm run log:begin -s \"Checking Latest Updates\" && npm-check-updates",
         "update:install-latest-unsafe": "npm run log:begin -s \"Updating Latest (Unsafe)\" && npm-check-updates -u && npm install",
         "update:install-safe": "npm run log:begin -s \"Updating (Safe)\" && npm update && npm run log:end -s"
@@ -43,7 +43,7 @@
     },
     "devDependencies": {
         "@types/jest": "^27.0.3",
-        "@types/node": "^16.11.15",
+        "@types/node": "^14.18.2",
         "@typescript-eslint/eslint-plugin": "^5.8.0",
         "@typescript-eslint/parser": "^5.8.0",
         "cross-env": "^7.0.3",
@@ -57,7 +57,7 @@
         "eslint-plugin-jsx-a11y": "^6.5.1",
         "eslint-plugin-prettier": "^4.0.0",
         "eslint-plugin-promise": "^6.0.0",
-        "eslint-plugin-react": "^7.27.1",
+        "eslint-plugin-react": "^7.28.0",
         "eslint-plugin-react-hooks": "^4.3.0",
         "eslint-plugin-sonarjs": "^0.11.0",
         "eslint-webpack-plugin": "^3.1.1",
