@@ -2,12 +2,12 @@ import { CopyParams, CopyParamsError } from "./CopyParams";
 import SimplifiedEventEmitter from "./SimplifiedEventEmitter";
 
 type EventValues = {
-    active: undefined;
-    change: CopyParams[];
-    error: CopyParamsError;
-    finish: CopyParams;
-    idle: undefined;
-    start: CopyParams;
+    readonly active: undefined;
+    readonly change: readonly CopyParams[];
+    readonly error: CopyParamsError;
+    readonly finish: CopyParams;
+    readonly idle: undefined;
+    readonly start: CopyParams;
 };
 type Events = keyof EventValues;
 type EventListener<E extends Events> = (value: EventValues[E]) => void;

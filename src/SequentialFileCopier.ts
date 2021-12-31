@@ -5,7 +5,7 @@ import Queue from "./Queue";
 type CopyFileAsync = (copyParams: CopyParams) => Promise<void>;
 
 interface SequentialFileCopierParams {
-    copyFileAsync: CopyFileAsync;
+    readonly copyFileAsync: CopyFileAsync;
 }
 
 export class SequentialFileCopier extends FileCopyEventEmitter {
@@ -39,6 +39,24 @@ export class SequentialFileCopier extends FileCopyEventEmitter {
         this.updateIsIdle();
     }
 
+    private async tryCopyFileAsync(copyParams: CopyParams): Promise<void> {
+        try {
+            await this.copyFileAsync(copyParams);
+        } catch (error) {
+            this.emit("error", { ...copyParams, error });
+        }
+    }
+
+    private updateEnqueue(copyParams: CopyParams): void {
+        this.queue.enqueue(copyParams);
+        this.emit("change", this.queue.peekQueue());
+    }
+
+    private updateDequeue(): void {
+        this.isActive = false;
+        this.emit("idle", undefined);
+    }
+
     private updateIsActive(): void {
         this.isActive = true;
         this.emit("active", undefined);
@@ -47,14 +65,6 @@ export class SequentialFileCopier extends FileCopyEventEmitter {
     private updateIsIdle(): void {
         this.isActive = false;
         this.emit("idle", undefined);
-    }
-
-    private async tryCopyFileAsync(copyParams: CopyParams): Promise<void> {
-        try {
-            await this.copyFileAsync(copyParams);
-        } catch (error) {
-            this.emit("error", { ...copyParams, error });
-        }
     }
 
     public copyFile(copyParams: CopyParams): this {

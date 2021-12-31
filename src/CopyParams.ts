@@ -1,11 +1,11 @@
 export interface CopyParams {
-    srcPath: string;
-    destPath: string;
-    error?: never;
+    readonly srcPath: string;
+    readonly destPath: string;
+    readonly error?: never;
 }
 
 export interface CopyParamsError {
-    srcPath: string;
-    destPath: string;
-    error: unknown;
+    readonly srcPath: string;
+    readonly destPath: string;
+    readonly error: unknown;
 }

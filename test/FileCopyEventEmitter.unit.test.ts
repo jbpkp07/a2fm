@@ -17,7 +17,7 @@ const extractAllListeners = (): Function[] => {
 let results: unknown[] = [];
 
 const activeListener = () => results.push("active");
-const changeListener = (upcoming: CopyParams[]) => results.push(upcoming);
+const changeListener = (upcoming: readonly CopyParams[]) => results.push(upcoming);
 const errorListener = (error: CopyParamsError) => results.push(error);
 const finishListener = (copyParams: CopyParams) => results.push(copyParams);
 const idleListener = () => results.push("idle");
