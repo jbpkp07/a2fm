@@ -6,6 +6,7 @@ const eventEmitter = new FileCopyEventEmitter();
 const extractAllListeners = (): Function[] => {
     return ([] as Function[]).concat(
         eventEmitter.listeners("active"),
+        eventEmitter.listeners("change"),
         eventEmitter.listeners("error"),
         eventEmitter.listeners("finish"),
         eventEmitter.listeners("idle"),
@@ -16,6 +17,7 @@ const extractAllListeners = (): Function[] => {
 let results: unknown[] = [];
 
 const activeListener = () => results.push("active");
+const changeListener = (upcoming: CopyParams[]) => results.push(upcoming);
 const errorListener = (error: CopyParamsError) => results.push(error);
 const finishListener = (copyParams: CopyParams) => results.push(copyParams);
 const idleListener = () => results.push("idle");
@@ -31,6 +33,7 @@ describe("FileCopyEventEmitter", () => {
     test("on", () => {
         eventEmitter
             .on("active", activeListener)
+            .on("change", changeListener)
             .on("error", errorListener)
             .on("finish", finishListener)
             .on("idle", idleListener)
@@ -38,8 +41,14 @@ describe("FileCopyEventEmitter", () => {
 
         const listeners = extractAllListeners();
 
-        expect(listeners).toHaveLength(5);
-        expect(listeners).toEqual([activeListener, errorListener, finishListener, idleListener, startListener]);
+        expect(listeners).toEqual([
+            activeListener,
+            changeListener,
+            errorListener,
+            finishListener,
+            idleListener,
+            startListener
+        ]);
     });
 
     test("emit returns true w/ listener", () => {
@@ -49,11 +58,15 @@ describe("FileCopyEventEmitter", () => {
     });
 
     test("emit and capture events", () => {
-        const error = new Error("test");
-
         results = [];
 
+        const error = new Error("test");
+
         eventEmitter.emit("active", undefined);
+        eventEmitter.emit("change", [
+            { srcPath: "c1", destPath: "c1" },
+            { srcPath: "c2", destPath: "c2" }
+        ]);
         eventEmitter.emit("error", { srcPath: "e", destPath: "e", error });
         eventEmitter.emit("finish", { srcPath: "f", destPath: "f" });
         eventEmitter.emit("idle", undefined);
@@ -61,6 +74,10 @@ describe("FileCopyEventEmitter", () => {
 
         expect(results).toEqual([
             "active",
+            [
+                { srcPath: "c1", destPath: "c1" },
+                { srcPath: "c2", destPath: "c2" }
+            ],
             { srcPath: "e", destPath: "e", error },
             { srcPath: "f", destPath: "f" },
             "idle",
@@ -69,21 +86,25 @@ describe("FileCopyEventEmitter", () => {
     });
 
     test("wait", async () => {
-        results = [];
-
         process.nextTick(() => {
-            eventEmitter.emit("start", { srcPath: "s", destPath: "s" });
+            eventEmitter.emit("change", [
+                { srcPath: "c3", destPath: "c3" },
+                { srcPath: "c4", destPath: "c4" }
+            ]);
         });
 
-        const result = await eventEmitter.wait("start");
+        const result = await eventEmitter.wait("change");
 
-        expect(result).toEqual({ srcPath: "s", destPath: "s" });
-        expect(results).toEqual([{ srcPath: "s", destPath: "s" }]);
+        expect(result).toEqual([
+            { srcPath: "c3", destPath: "c3" },
+            { srcPath: "c4", destPath: "c4" }
+        ]);
     });
 
     test("off", () => {
         eventEmitter
             .off("active", activeListener)
+            .off("change", changeListener)
             .off("error", errorListener)
             .off("finish", finishListener)
             .off("idle", idleListener)
@@ -91,7 +112,6 @@ describe("FileCopyEventEmitter", () => {
 
         const listeners = extractAllListeners();
 
-        expect(listeners).toHaveLength(0);
         expect(listeners).toEqual([]);
     });
 });

@@ -13,7 +13,7 @@ export class SequentialFileCopier extends FileCopyEventEmitter {
 
     private readonly queue = new Queue<CopyParams>();
 
-    private isWorking = false;
+    private isActive = false;
 
     constructor(params: SequentialFileCopierParams) {
         super();
@@ -25,10 +25,10 @@ export class SequentialFileCopier extends FileCopyEventEmitter {
         };
     }
 
-    private async startWorker(): Promise<void> {
-        if (this.isWorking) return;
+    private async activateWorker(): Promise<void> {
+        if (this.isActive) return;
 
-        this.setIsWorking(true);
+        this.updateIsActive();
 
         while (!this.queue.isEmpty) {
             const copyParams = this.queue.dequeue() as CopyParams;
@@ -36,17 +36,17 @@ export class SequentialFileCopier extends FileCopyEventEmitter {
             await this.tryCopyFileAsync(copyParams);
         }
 
-        this.setIsWorking(false);
+        this.updateIsIdle();
     }
 
-    private setIsWorking(isWorking: boolean): void {
-        if (isWorking) {
-            this.isWorking = true;
-            this.emit("active", undefined);
-        } else {
-            this.isWorking = false;
-            this.emit("idle", undefined);
-        }
+    private updateIsActive(): void {
+        this.isActive = true;
+        this.emit("active", undefined);
+    }
+
+    private updateIsIdle(): void {
+        this.isActive = false;
+        this.emit("idle", undefined);
     }
 
     private async tryCopyFileAsync(copyParams: CopyParams): Promise<void> {
@@ -60,8 +60,8 @@ export class SequentialFileCopier extends FileCopyEventEmitter {
     public copyFile(copyParams: CopyParams): this {
         this.queue.enqueue(copyParams);
 
-        if (!this.isWorking) {
-            void this.startWorker();
+        if (!this.isActive) {
+            void this.activateWorker();
         }
 
         return this;

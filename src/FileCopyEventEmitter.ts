@@ -3,6 +3,7 @@ import SimplifiedEventEmitter from "./SimplifiedEventEmitter";
 
 type EventValues = {
     active: undefined;
+    change: CopyParams[];
     error: CopyParamsError;
     finish: CopyParams;
     idle: undefined;
