@@ -2,16 +2,8 @@ import { EventEmitter } from "events";
 
 type Listener = (value?: unknown) => void;
 
-interface EventEmitterOptions {
-    captureRejections?: boolean | undefined;
-}
-
 abstract class SimplifiedEventEmitter {
-    private readonly eventEmitter: EventEmitter;
-
-    constructor(options?: EventEmitterOptions) {
-        this.eventEmitter = new EventEmitter(options);
-    }
+    private readonly eventEmitter = new EventEmitter();
 
     protected emit(event: string, value?: unknown): boolean {
         return this.eventEmitter.emit(event, value);

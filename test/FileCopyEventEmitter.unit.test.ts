@@ -17,9 +17,9 @@ let results: unknown[] = [];
 
 const activeListener = () => results.push("active");
 const errorListener = (error: CopyParamsError) => results.push(error);
-const finishListener = (params: CopyParams) => results.push(params);
+const finishListener = (copyParams: CopyParams) => results.push(copyParams);
 const idleListener = () => results.push("idle");
-const startListener = (params: CopyParams) => results.push(params);
+const startListener = (copyParams: CopyParams) => results.push(copyParams);
 
 describe("FileCopyEventEmitter", () => {
     test("emit returns false w/o listener", () => {

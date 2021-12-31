@@ -2,7 +2,11 @@ import { CopyParams, CopyParamsError } from "./CopyParams";
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
 import Queue from "./Queue";
 
-type CopyFileAsync = (params: CopyParams) => Promise<void>;
+type CopyFileAsync = (copyParams: CopyParams) => Promise<void>;
+
+interface SequentialFileCopierParams {
+    copyFileAsync: CopyFileAsync;
+}
 
 export class SequentialFileCopier extends FileCopyEventEmitter {
     private readonly copyFileAsync: CopyFileAsync;
@@ -11,13 +15,13 @@ export class SequentialFileCopier extends FileCopyEventEmitter {
 
     private isWorking = false;
 
-    constructor(copyFileAsync: CopyFileAsync) {
+    constructor(params: SequentialFileCopierParams) {
         super();
 
-        this.copyFileAsync = async (params: CopyParams) => {
-            this.emit("start", params);
-            await copyFileAsync(params);
-            this.emit("finish", params);
+        this.copyFileAsync = async (copyParams: CopyParams) => {
+            this.emit("start", copyParams);
+            await params.copyFileAsync(copyParams);
+            this.emit("finish", copyParams);
         };
     }
 
@@ -27,9 +31,9 @@ export class SequentialFileCopier extends FileCopyEventEmitter {
         this.setIsWorking(true);
 
         while (!this.queue.isEmpty) {
-            const params = this.queue.dequeue() as CopyParams;
+            const copyParams = this.queue.dequeue() as CopyParams;
             // eslint-disable-next-line no-await-in-loop
-            await this.tryCopyFileAsync(params);
+            await this.tryCopyFileAsync(copyParams);
         }
 
         this.setIsWorking(false);
@@ -45,16 +49,16 @@ export class SequentialFileCopier extends FileCopyEventEmitter {
         }
     }
 
-    private async tryCopyFileAsync(params: CopyParams): Promise<void> {
+    private async tryCopyFileAsync(copyParams: CopyParams): Promise<void> {
         try {
-            await this.copyFileAsync(params);
+            await this.copyFileAsync(copyParams);
         } catch (error) {
-            this.emit("error", { ...params, error });
+            this.emit("error", { ...copyParams, error });
         }
     }
 
-    public copyFile(params: CopyParams): this {
-        this.queue.enqueue(params);
+    public copyFile(copyParams: CopyParams): this {
+        this.queue.enqueue(copyParams);
 
         if (!this.isWorking) {
             void this.startWorker();
@@ -78,13 +82,13 @@ const mockedCopyFileAsync = async (): Promise<void> => {
     }
 };
 
-const fileCopier = new SequentialFileCopier(mockedCopyFileAsync);
+const fileCopier = new SequentialFileCopier({ copyFileAsync: mockedCopyFileAsync });
 
 const activeListener = () => console.log("Active...");
 const errorListener = (error: CopyParamsError) => console.log("Error: ", error);
-const finishListener = (params: CopyParams) => console.log("Finish: ", params);
+const finishListener = (copyParams: CopyParams) => console.log("Finish: ", copyParams);
 const idleListener = () => console.log("Idle...");
-const startListener = (params: CopyParams) => console.log("Start: ", params);
+const startListener = (copyParams: CopyParams) => console.log("Start: ", copyParams);
 
 fileCopier
     .on("active", activeListener)
