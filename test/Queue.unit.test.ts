@@ -8,7 +8,7 @@ const expectQueueToEqual = <T>(queueContents: T[]) => {
 
     expect(queue).toEqual({ queue: queueContents });
     expect(queue).toHaveLength(length);
-    expect(queue.isEmpty).toEqual(isEmpty);
+    expect(queue.isEmpty).toBe(isEmpty);
 };
 
 describe("Queue", () => {
@@ -32,7 +32,7 @@ describe("Queue", () => {
     test("peekQueue", () => {
         const contents = queue.peekQueue();
 
-        expect(contents).toEqual([1, 2, 3]);
+        expect(contents).toStrictEqual([1, 2, 3]);
         expectQueueToEqual([1, 2, 3]);
     });
 
@@ -59,8 +59,8 @@ describe("Queue", () => {
         peeked.push(queue.peek());
         dequeued.push(queue.dequeue());
 
-        expect(peeked).toEqual([2, 3, 4, undefined, 5]);
-        expect(dequeued).toEqual([2, 3, 4, undefined, 5]);
+        expect(peeked).toStrictEqual([2, 3, 4, undefined, 5]);
+        expect(dequeued).toStrictEqual([2, 3, 4, undefined, 5]);
         expectQueueToEqual([6]);
     });
 });

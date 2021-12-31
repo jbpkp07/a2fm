@@ -41,7 +41,7 @@ describe("FileCopyEventEmitter", () => {
 
         const listeners = extractAllListeners();
 
-        expect(listeners).toEqual([
+        expect(listeners).toStrictEqual([
             activeListener,
             changeListener,
             errorListener,
@@ -72,7 +72,7 @@ describe("FileCopyEventEmitter", () => {
         eventEmitter.emit("idle", undefined);
         eventEmitter.emit("start", { srcPath: "s", destPath: "s" });
 
-        expect(results).toEqual([
+        expect(results).toStrictEqual([
             "active",
             [
                 { srcPath: "c1", destPath: "c1" },
@@ -95,7 +95,7 @@ describe("FileCopyEventEmitter", () => {
 
         const result = await eventEmitter.wait("change");
 
-        expect(result).toEqual([
+        expect(result).toStrictEqual([
             { srcPath: "c3", destPath: "c3" },
             { srcPath: "c4", destPath: "c4" }
         ]);
@@ -112,6 +112,6 @@ describe("FileCopyEventEmitter", () => {
 
         const listeners = extractAllListeners();
 
-        expect(listeners).toEqual([]);
+        expect(listeners).toStrictEqual([]);
     });
 });
