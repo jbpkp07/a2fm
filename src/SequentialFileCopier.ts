@@ -1,126 +1,125 @@
-/* eslint-disable no-await-in-loop */
-import { EventEmitter } from "events";
-
+import { CopyParams, CopyParamsError } from "./CopyParams";
+import FileCopyEventEmitter from "./FileCopyEventEmitter";
 import Queue from "./Queue";
 
-interface CopyParams {
-    srcPath: string;
-    destPath: string;
-}
+type CopyFileAsync = (params: CopyParams) => Promise<void>;
 
-interface CopyParamsError {
-    error: Error;
-    params: CopyParams;
-}
-
-interface SequentialFileCopier extends EventEmitter {
-    emit(event: "copied", params: CopyParams): boolean;
-    emit(event: "error", error: CopyParamsError): boolean;
-
-    on(event: "copied", listener: (params: CopyParams) => void): this;
-    on(event: "error", listener: (error: CopyParamsError) => void): this;
-}
-
-type CopyFile = (params: CopyParams) => Promise<void>;
-
-class SequentialFileCopier extends EventEmitter {
-    private readonly copyFileAsync: CopyFile;
+export class SequentialFileCopier extends FileCopyEventEmitter {
+    private readonly copyFileAsync: CopyFileAsync;
 
     private readonly queue = new Queue<CopyParams>();
 
-    private worker: Promise<void> | null = null;
+    private isWorking = false;
 
-    constructor(copyFileAsync: CopyFile) {
+    constructor(copyFileAsync: CopyFileAsync) {
         super();
 
         this.copyFileAsync = async (params: CopyParams) => {
-            try {
-                await copyFileAsync(params);
-                this.emit("copied", params);
-                throw new Error("crap");
-            } catch (err) {
-                const error = err as Error;
-                this.emit("error", { error, params });
-            }
+            this.emit("start", params);
+            await copyFileAsync(params);
+            this.emit("finish", params);
         };
     }
 
     private async startWorker(): Promise<void> {
-        if (this.worker) return;
+        if (this.isWorking) return;
+
+        this.setIsWorking(true);
 
         while (!this.queue.isEmpty) {
             const params = this.queue.dequeue() as CopyParams;
-
-            await this.copyFileAsync(params);
+            // eslint-disable-next-line no-await-in-loop
+            await this.tryCopyFileAsync(params);
         }
 
-        this.worker = null;
+        this.setIsWorking(false);
+    }
+
+    private setIsWorking(isWorking: boolean): void {
+        if (isWorking) {
+            this.isWorking = true;
+            this.emit("active", undefined);
+        } else {
+            this.isWorking = false;
+            this.emit("idle", undefined);
+        }
+    }
+
+    private async tryCopyFileAsync(params: CopyParams): Promise<void> {
+        try {
+            await this.copyFileAsync(params);
+        } catch (error) {
+            this.emit("error", { ...params, error });
+        }
     }
 
     public copyFile(params: CopyParams): this {
         this.queue.enqueue(params);
 
-        this.worker ??= this.startWorker();
+        if (!this.isWorking) {
+            void this.startWorker();
+        }
 
         return this;
     }
-
-    public wait(): Promise<void> {
-        return this.worker ?? Promise.resolve();
-    }
 }
 
-const results: string[] = [];
+export default SequentialFileCopier;
 
-const copyFn = async (params: CopyParams): Promise<void> => {
-    return new Promise((resolve) => {
-        results.push(params.srcPath);
-        console.log(params.srcPath);
-        setTimeout(() => {
-            results.push(params.srcPath);
-            console.log(params.srcPath);
-            resolve();
-        }, Math.ceil(Math.random() * 1000));
-    });
+const mockedCopyFileAsync = async (): Promise<void> => {
+    try {
+        await new Promise((resolve) => {
+            // setTimeout(reject, 10);
+
+            setTimeout(resolve, 10);
+        });
+    } catch (error) {
+        throw new Error("Copy Failed");
+    }
 };
 
-const blah = new SequentialFileCopier(copyFn);
+const fileCopier = new SequentialFileCopier(mockedCopyFileAsync);
 
-const listener = (error: CopyParamsError) => {
-    console.log(error.params);
-};
+const activeListener = () => console.log("Active...");
+const errorListener = (error: CopyParamsError) => console.log("Error: ", error);
+const finishListener = (params: CopyParams) => console.log("Finish: ", params);
+const idleListener = () => console.log("Idle...");
+const startListener = (params: CopyParams) => console.log("Start: ", params);
 
-const listener2 = (params: CopyParams) => {
-    console.log(params);
-};
-
-blah.on("error", listener);
-
-blah.on("copied", listener2);
+fileCopier
+    .on("active", activeListener)
+    .on("error", errorListener)
+    .on("finish", finishListener)
+    .on("idle", idleListener)
+    .on("start", startListener);
 
 async function doStuff() {
-    await blah.wait();
-
-    console.log(results);
-
-    await blah
+    fileCopier
         .copyFile({ srcPath: "a", destPath: "x" })
         .copyFile({ srcPath: "b", destPath: "y" })
-        .copyFile({ srcPath: "c", destPath: "z" })
-        .wait();
+        .copyFile({ srcPath: "c", destPath: "z" });
 
-    console.log(results);
+    // fileCopier.emit("drained", undefined); // -----------------
+
+    try {
+        const result = await fileCopier.wait("idle");
+
+        console.log("\nResult: ", result, "\n");
+    } catch (error) {
+        console.log("\n--------Awaited error: ", error, "\n");
+    }
 
     setTimeout(() => {
-        blah.copyFile({ srcPath: "d", destPath: "x" })
-            .copyFile({ srcPath: "e", destPath: "y" })
-            .copyFile({ srcPath: "f", destPath: "z" })
-            .wait()
-            .then(() => console.log(results))
-            .catch((err) => console.log(err));
-    }, 10000);
+        fileCopier
+            .copyFile({ srcPath: "d", destPath: "j" })
+            .copyFile({ srcPath: "e", destPath: "k" })
+            .copyFile({ srcPath: "f", destPath: "l" })
+            .wait("idle")
+            .then(() => console.log("------------Done"))
+            .catch((error) => {
+                console.log("\n--------ThenC error: ", error, "\n");
+            });
+    }, 500);
 }
 
 void doStuff();
-
-export default SequentialFileCopier;

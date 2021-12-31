@@ -44,6 +44,7 @@
                 "plugin:prettier/recommended"
             ],
             "rules": {
+                "@typescript-eslint/ban-types": ["error", { "types": { "Function": false } }],
                 "@typescript-eslint/no-unused-vars": "error",
                 "import/order": [
                     "warn",
@@ -56,13 +57,12 @@
                         "newlines-between": "always"
                     }
                 ],
+                "jest/expect-expect": ["warn", { "assertFunctionNames": ["expect*"] }],
                 "newline-before-return": "warn",
                 "no-console": "off",
                 "no-plusplus": ["warn", { "allowForLoopAfterthoughts": true }],
                 "no-void": "off",
-                "prettier/prettier": ["warn", {}, { "usePrettierrc": true }],
-                "promise/prefer-await-to-callbacks": "warn",
-                "promise/prefer-await-to-then": "warn"
+                "prettier/prettier": ["warn", {}, { "usePrettierrc": true }]
             },
             "settings": {
                 "react": { "version": "17.0.2" } // Change this to "detect" if "react" package is installed

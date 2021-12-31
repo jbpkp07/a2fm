@@ -22,6 +22,10 @@ class Queue<T> {
     public peek(): T | undefined {
         return this.queue[0];
     }
+
+    public peekQueue(): readonly T[] {
+        return this.queue;
+    }
 }
 
 export default Queue;
