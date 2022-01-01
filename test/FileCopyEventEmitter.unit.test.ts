@@ -60,14 +60,12 @@ describe("FileCopyEventEmitter", () => {
     test("emit and capture events", () => {
         results = [];
 
-        const error = new Error("test");
-
         eventEmitter.emit("active", undefined);
         eventEmitter.emit("change", [
             { srcPath: "c1", destPath: "c1" },
             { srcPath: "c2", destPath: "c2" }
         ]);
-        eventEmitter.emit("error", { srcPath: "e", destPath: "e", error });
+        eventEmitter.emit("error", new CopyParamsError({ srcPath: "e", destPath: "e" }));
         eventEmitter.emit("finish", { srcPath: "f", destPath: "f" });
         eventEmitter.emit("idle", undefined);
         eventEmitter.emit("start", { srcPath: "s", destPath: "s" });
@@ -78,7 +76,7 @@ describe("FileCopyEventEmitter", () => {
                 { srcPath: "c1", destPath: "c1" },
                 { srcPath: "c2", destPath: "c2" }
             ],
-            { srcPath: "e", destPath: "e", error },
+            new CopyParamsError({ srcPath: "e", destPath: "e" }),
             { srcPath: "f", destPath: "f" },
             "idle",
             { srcPath: "s", destPath: "s" }

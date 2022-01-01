@@ -24,8 +24,9 @@
         "prebuild": "npm run check:prettier -s && npm run test -s && npm run clean:dirs -s",
         "prestart": "path-exists \"./dist/index.js\" || npm run build -s",
         "start": "npm run log:begin -s \"Starting App\" && node --enable-source-maps ./dist/index.js",
-        "start:dev": "ts-node-dev --cache-directory ./cache --respawn ./src/index.ts",
-        "test": "npm run log:begin -s \"Running Tests\" && jest",
+        "start:dev": "npm run log:begin -s \"Starting Dev\" && ts-node-dev --cache-directory ./cache --respawn --",
+        "test": "npm run log:begin -s \"Running All Tests\" && jest",
+        "test:dev": "npm run log:begin -s \"Running Dev Test\" && jest --",
         "update:check-latest": "npm run log:begin -s \"Checking Latest Updates\" && npm-check-updates",
         "update:install-latest-unsafe": "npm run log:begin -s \"Updating Latest (Unsafe)\" && npm-check-updates -u && npm install",
         "update:install-safe": "npm run log:begin -s \"Updating (Safe)\" && npm update && npm run log:end -s"
