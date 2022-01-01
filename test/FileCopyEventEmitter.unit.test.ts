@@ -1,4 +1,5 @@
-import { CopyParams, CopyParamsError } from "../src/CopyParams";
+import CopyParams from "../src/CopyParams";
+import CopyParamsError from "../src/CopyParamsError";
 import FileCopyEventEmitter from "../src/FileCopyEventEmitter";
 
 const eventEmitter = new FileCopyEventEmitter();

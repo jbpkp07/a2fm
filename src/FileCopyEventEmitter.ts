@@ -1,4 +1,5 @@
-import { CopyParams, CopyParamsError } from "./CopyParams";
+import CopyParams from "./CopyParams";
+import CopyParamsError from "./CopyParamsError";
 import SimplifiedEventEmitter from "./SimplifiedEventEmitter";
 
 type EventValues = {

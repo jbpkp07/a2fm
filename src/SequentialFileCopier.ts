@@ -1,4 +1,5 @@
-import { CopyParams, CopyParamsError } from "./CopyParams";
+import CopyParams from "./CopyParams";
+import CopyParamsError from "./CopyParamsError";
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
 import Queue from "./Queue";
 
@@ -54,7 +55,7 @@ export class SequentialFileCopier extends FileCopyEventEmitter {
             }
 
             if (error instanceof Error) {
-                this.emit("error", { ...error, ...copyParams });
+                this.emit("error", { ...error, copyParams });
             }
         }
     }
