@@ -7,7 +7,7 @@ const params: CopyParams = {
 };
 
 //-----------------------------------------------------------------------------
-/* lineNumber 10 */ const copyParamsError1 = new CopyParamsError(params);
+/* lineNumber 10 */ const copyParamsError1 = new CopyParamsError(params, { msg: "" });
 /* lineNumber 11 */ const copyParamsError2 = new CopyParamsError(params, { msg: "123" });
 /* lineNumber 12 */ const fromError1 = new Error();
 /* lineNumber 13 */ const fromError2 = new TypeError("456");
@@ -90,8 +90,11 @@ describe("CopyParamsError", () => {
             copyParamsError7 = CopyParamsError.from(params, error);
         }
 
+        const { name, message, copyParams } = copyParamsError7;
+
         expect(copyParamsError7).not.toBe(err);
-        expect(copyParamsError7.name).toBe(defaultName);
-        expect(copyParamsError7.message).toBe(defaultMessage);
+        expect(name).toBe(defaultName);
+        expect(message).toBe(defaultMessage);
+        expect(copyParams).toStrictEqual({ srcPath: "a", destPath: "b" });
     });
 });
