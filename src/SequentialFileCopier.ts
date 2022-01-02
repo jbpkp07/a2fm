@@ -9,7 +9,7 @@ interface FileCopier {
     readonly copyFileAsync: CopyFileAsync;
 }
 
-export class SequentialFileCopier extends SequentialFileCopyEventEmitter {
+class SequentialFileCopier extends SequentialFileCopyEventEmitter {
     private readonly copyFileAsync: CopyFileAsync;
 
     private readonly queue = new Queue<CopyParams>();
