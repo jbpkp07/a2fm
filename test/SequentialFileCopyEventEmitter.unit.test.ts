@@ -74,7 +74,7 @@ describe("SequentialFileCopyEventEmitter", () => {
             destPath: "p",
             bytesPerSecond: 10,
             bytesWritten: 100,
-            srcSizeBytes: 1000
+            srcFileSizeBytes: 1000
         });
         eventEmitter.emit("copy:finish", { srcPath: "f", destPath: "f" });
         eventEmitter.emit("error", new CopyParamsError({ srcPath: "e", destPath: "e" }));
@@ -92,7 +92,7 @@ describe("SequentialFileCopyEventEmitter", () => {
                 destPath: "p",
                 bytesPerSecond: 10,
                 bytesWritten: 100,
-                srcSizeBytes: 1000
+                srcFileSizeBytes: 1000
             },
             { srcPath: "f", destPath: "f" },
             new CopyParamsError({ srcPath: "e", destPath: "e" }),
