@@ -1,6 +1,6 @@
 interface CopyParams {
-    readonly srcPath: string;
-    readonly destPath: string;
+    readonly srcFilePath: string;
+    readonly destFilePath: string;
 }
 
 export default CopyParams;

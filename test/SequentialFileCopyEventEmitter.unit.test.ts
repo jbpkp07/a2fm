@@ -68,38 +68,38 @@ describe("SequentialFileCopyEventEmitter", () => {
         results = [];
 
         eventEmitter.emit("active", undefined);
-        eventEmitter.emit("copy:start", { srcPath: "s", destPath: "s" });
+        eventEmitter.emit("copy:start", { srcFilePath: "s", destFilePath: "s" });
         eventEmitter.emit("copy:progress", {
-            srcPath: "p",
-            destPath: "p",
+            srcFilePath: "p",
+            destFilePath: "p",
             bytesPerSecond: 10,
             bytesWritten: 100,
             srcFileSizeBytes: 1000
         });
-        eventEmitter.emit("copy:finish", { srcPath: "f", destPath: "f" });
-        eventEmitter.emit("error", new CopyParamsError({ srcPath: "e", destPath: "e" }));
+        eventEmitter.emit("copy:finish", { srcFilePath: "f", destFilePath: "f" });
+        eventEmitter.emit("error", new CopyParamsError({ srcFilePath: "e", destFilePath: "e" }));
         eventEmitter.emit("idle", undefined);
         eventEmitter.emit("queue", [
-            { srcPath: "c1", destPath: "c1" },
-            { srcPath: "c2", destPath: "c2" }
+            { srcFilePath: "c1", destFilePath: "c1" },
+            { srcFilePath: "c2", destFilePath: "c2" }
         ]);
 
         expect(results).toStrictEqual([
             "active",
-            { srcPath: "s", destPath: "s" },
+            { srcFilePath: "s", destFilePath: "s" },
             {
-                srcPath: "p",
-                destPath: "p",
+                srcFilePath: "p",
+                destFilePath: "p",
                 bytesPerSecond: 10,
                 bytesWritten: 100,
                 srcFileSizeBytes: 1000
             },
-            { srcPath: "f", destPath: "f" },
-            new CopyParamsError({ srcPath: "e", destPath: "e" }),
+            { srcFilePath: "f", destFilePath: "f" },
+            new CopyParamsError({ srcFilePath: "e", destFilePath: "e" }),
             "idle",
             [
-                { srcPath: "c1", destPath: "c1" },
-                { srcPath: "c2", destPath: "c2" }
+                { srcFilePath: "c1", destFilePath: "c1" },
+                { srcFilePath: "c2", destFilePath: "c2" }
             ]
         ]);
     });
@@ -107,16 +107,16 @@ describe("SequentialFileCopyEventEmitter", () => {
     test("wait", async () => {
         process.nextTick(() => {
             eventEmitter.emit("queue", [
-                { srcPath: "c3", destPath: "c3" },
-                { srcPath: "c4", destPath: "c4" }
+                { srcFilePath: "c3", destFilePath: "c3" },
+                { srcFilePath: "c4", destFilePath: "c4" }
             ]);
         });
 
         const result = await eventEmitter.wait("queue");
 
         expect(result).toStrictEqual([
-            { srcPath: "c3", destPath: "c3" },
-            { srcPath: "c4", destPath: "c4" }
+            { srcFilePath: "c3", destFilePath: "c3" },
+            { srcFilePath: "c4", destFilePath: "c4" }
         ]);
     });
 

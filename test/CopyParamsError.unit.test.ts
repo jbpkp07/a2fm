@@ -2,8 +2,8 @@ import CopyParams from "../src/CopyParams";
 import CopyParamsError from "../src/CopyParamsError";
 
 const params: CopyParams = {
-    srcPath: "a",
-    destPath: "b"
+    srcFilePath: "a",
+    destFilePath: "b"
 };
 
 //-----------------------------------------------------------------------------
@@ -27,7 +27,7 @@ const expectCopyParamsErrorToEqual = (error: CopyParamsError, expected: unknown[
     expect(name).toBe(expected[0]);
     expect(message).toBe(expected[1]);
     expect(lineNumber).toBe(expected[2]);
-    expect(copyParams).toStrictEqual({ srcPath: "a", destPath: "b" });
+    expect(copyParams).toStrictEqual(params);
 };
 
 const defaultName = copyParamsError1.constructor.name;
@@ -95,6 +95,6 @@ describe("CopyParamsError", () => {
         expect(copyParamsError7).not.toBe(err);
         expect(name).toBe(defaultName);
         expect(message).toBe(defaultMessage);
-        expect(copyParams).toStrictEqual({ srcPath: "a", destPath: "b" });
+        expect(copyParams).toStrictEqual(params);
     });
 });
