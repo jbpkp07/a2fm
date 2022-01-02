@@ -1,14 +1,17 @@
 import CopyParams from "./CopyParams";
 import CopyParamsError from "./CopyParamsError";
+import CopyProgress from "./CopyProgress";
 import SimplifiedEventEmitter from "./SimplifiedEventEmitter";
 
+// prettier-ignore
 type EventValues = {
-    readonly active: undefined;
-    readonly change: readonly CopyParams[];
-    readonly error: CopyParamsError;
-    readonly finish: CopyParams;
-    readonly idle: undefined;
-    readonly start: CopyParams;
+    readonly "active": undefined;
+    readonly "copy:start": CopyParams;
+    readonly "copy:progress": CopyProgress;
+    readonly "copy:finish": CopyParams;
+    readonly "error": CopyParamsError; 
+    readonly "idle": undefined;
+    readonly "queue": readonly CopyParams[];
 };
 type Events = keyof EventValues;
 type EventListener<E extends Events> = (value: EventValues[E]) => void;
