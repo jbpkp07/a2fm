@@ -13,7 +13,7 @@ type EventValues = {
 type Events = keyof EventValues;
 type EventListener<E extends Events> = (value: EventValues[E]) => void;
 
-interface FileCopyEventEmitter {
+interface SequentialFileCopyEventEmitter {
     emit<E extends Events>(event: E, value: EventValues[E]): boolean;
     listeners<E extends Events>(event: E): EventListener<E>[];
     off<E extends Events>(event: E, listener: EventListener<E>): this;
@@ -21,6 +21,6 @@ interface FileCopyEventEmitter {
     wait<E extends Events>(event: E): Promise<EventValues[E]>;
 }
 
-class FileCopyEventEmitter extends SimplifiedEventEmitter {}
+class SequentialFileCopyEventEmitter extends SimplifiedEventEmitter {}
 
-export default FileCopyEventEmitter;
+export default SequentialFileCopyEventEmitter;

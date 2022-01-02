@@ -1,7 +1,7 @@
 import CopyParams from "./CopyParams";
 import CopyParamsError from "./CopyParamsError";
-import FileCopyEventEmitter from "./FileCopyEventEmitter";
 import Queue from "./Queue";
+import SequentialFileCopyEventEmitter from "./SequentialFileCopyEventEmitter";
 
 type CopyFileAsync = (copyParams: CopyParams) => Promise<void>;
 
@@ -9,7 +9,7 @@ interface FileCopier {
     readonly copyFileAsync: CopyFileAsync;
 }
 
-export class SequentialFileCopier extends FileCopyEventEmitter {
+export class SequentialFileCopier extends SequentialFileCopyEventEmitter {
     private readonly copyFileAsync: CopyFileAsync;
 
     private readonly queue = new Queue<CopyParams>();

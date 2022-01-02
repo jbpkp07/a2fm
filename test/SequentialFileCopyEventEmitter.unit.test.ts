@@ -1,8 +1,8 @@
 import CopyParams from "../src/CopyParams";
 import CopyParamsError from "../src/CopyParamsError";
-import FileCopyEventEmitter from "../src/FileCopyEventEmitter";
+import SequentialFileCopyEventEmitter from "../src/SequentialFileCopyEventEmitter";
 
-const eventEmitter = new FileCopyEventEmitter();
+const eventEmitter = new SequentialFileCopyEventEmitter();
 
 const extractAllListeners = (): Function[] => {
     return ([] as Function[]).concat(
@@ -24,7 +24,7 @@ const finishListener = (copyParams: CopyParams) => results.push(copyParams);
 const idleListener = () => results.push("idle");
 const startListener = (copyParams: CopyParams) => results.push(copyParams);
 
-describe("FileCopyEventEmitter", () => {
+describe("SequentialFileCopyEventEmitter", () => {
     test("emit returns false w/o listener", () => {
         const result = eventEmitter.emit("active", undefined);
 
