@@ -45,6 +45,7 @@
             ],
             "rules": {
                 "@typescript-eslint/ban-types": ["error", { "types": { "Function": false } }],
+                "class-methods-use-this": "off",
                 "import/order": [
                     "warn",
                     {
