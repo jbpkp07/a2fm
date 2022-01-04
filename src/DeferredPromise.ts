@@ -2,7 +2,7 @@ type Resolve<T> = (value: T | PromiseLike<T>) => void;
 type Reject = (error: Error) => void;
 type Executor<T> = (resolve: Resolve<T>, reject: Reject) => void;
 
-class ExternalPromise<T> {
+class DeferredPromise<T> {
     public readonly promise: Promise<T>;
 
     public resolve!: Resolve<T>;
@@ -19,4 +19,4 @@ class ExternalPromise<T> {
     }
 }
 
-export default ExternalPromise;
+export default DeferredPromise;

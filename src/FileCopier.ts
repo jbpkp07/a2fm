@@ -15,6 +15,7 @@ class FileCopier extends FileCopyEventEmitter {
 
         const tearDownListener = () => {
             console.log("TEARDOWN CALLED");
+            readStream.unpipe(writeStream);
             readStream.destroy();
             writeStream.destroy();
             rmSync(destFilePath, { force: true });
