@@ -50,11 +50,10 @@
                     "warn",
                     {
                         "alphabetize": { "order": "asc", "caseInsensitive": true },
-                        "groups": [
-                            ["builtin", "external", "internal"],
-                            ["parent", "sibling", "index"]
-                        ],
-                        "newlines-between": "always"
+                        "groups": [["builtin"], ["external", "internal"], ["parent", "sibling", "index"]],
+                        "newlines-between": "always",
+                        "pathGroups": [{ "pattern": "react*", "position": "before", "group": "builtin" }],
+                        "pathGroupsExcludedImportTypes": ["react*"]
                     }
                 ],
                 "jest/expect-expect": ["warn", { "assertFunctionNames": ["expect*"] }],
@@ -62,7 +61,8 @@
                 "no-console": "off",
                 "no-plusplus": ["warn", { "allowForLoopAfterthoughts": true }],
                 "no-void": "off",
-                "prettier/prettier": ["warn", {}, { "usePrettierrc": true }]
+                "prettier/prettier": ["warn", {}, { "usePrettierrc": true }],
+                "sort-imports": ["warn", { "ignoreCase": true, "ignoreDeclarationSort": true }]
             },
             "settings": {
                 "react": { "version": "17.0.2" } // Change this to "detect" if "react" package is installed

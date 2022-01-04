@@ -1,5 +1,5 @@
 import { once } from "events";
-import { createReadStream, createWriteStream, ReadStream, WriteStream, rmSync } from "fs";
+import { createReadStream, createWriteStream, ReadStream, rmSync, WriteStream } from "fs";
 
 import CopyParams from "./CopyParams";
 import CopyParamsError from "./CopyParamsError";
