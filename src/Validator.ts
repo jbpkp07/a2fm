@@ -8,7 +8,7 @@ export class Validator {
     public get isPositiveSafeInteger(): boolean {
         if (typeof this.value !== "number") return false;
 
-        return this.isSafeInteger && this.value > 0;
+        return Number.isSafeInteger(this.value) && this.value > 0;
     }
 
     public get isSafeInteger(): boolean {
@@ -20,7 +20,10 @@ export class Validator {
     public get isSafeNumber(): boolean {
         if (typeof this.value !== "number") return false;
 
-        return this.value >= Number.MIN_SAFE_INTEGER && this.value <= Number.MAX_SAFE_INTEGER;
+        const isAboveMin = this.value >= Number.MIN_SAFE_INTEGER;
+        const isBelowMax = this.value <= Number.MAX_SAFE_INTEGER;
+
+        return isAboveMin && isBelowMax;
     }
 }
 
@@ -29,23 +32,3 @@ const validate = (value: unknown): Validator => {
 };
 
 export default validate;
-
-const value = Number.MIN_SAFE_INTEGER;
-
-if (validate(value).isPositiveSafeInteger) {
-    console.log("valid");
-} else {
-    console.log("Invalid");
-}
-
-if (validate(value).isSafeInteger) {
-    console.log("valid");
-} else {
-    console.log("Invalid");
-}
-
-if (validate(value).isSafeNumber) {
-    console.log("valid");
-} else {
-    console.log("Invalid");
-}

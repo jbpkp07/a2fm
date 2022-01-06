@@ -29,7 +29,7 @@ class MovingAverage {
     private getTotal(): number {
         const history = this.history.peekQueue();
 
-        return history.reduce((total, num) => total + num);
+        return history.reduce((total, num) => total + num, 0);
     }
 
     private setAverage(): void {
