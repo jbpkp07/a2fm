@@ -70,11 +70,12 @@ describe("SequentialFileCopyEventEmitter", () => {
         eventEmitter.emit("active", undefined);
         eventEmitter.emit("copy:start", { srcFilePath: "s", destFilePath: "s" });
         eventEmitter.emit("copy:progress", {
-            srcFilePath: "p",
-            destFilePath: "p",
             bytesPerSecond: 10,
             bytesWritten: 100,
-            srcFileSizeBytes: 1000
+            elapsedSeconds: 10,
+            srcFileSizeBytes: 1000,
+            srcFilePath: "p",
+            destFilePath: "p"
         });
         eventEmitter.emit("copy:finish", { srcFilePath: "f", destFilePath: "f" });
         eventEmitter.emit("error", new CopyParamsError({ srcFilePath: "e", destFilePath: "e" }));
@@ -88,11 +89,12 @@ describe("SequentialFileCopyEventEmitter", () => {
             "active",
             { srcFilePath: "s", destFilePath: "s" },
             {
-                srcFilePath: "p",
-                destFilePath: "p",
                 bytesPerSecond: 10,
                 bytesWritten: 100,
-                srcFileSizeBytes: 1000
+                elapsedSeconds: 10,
+                srcFileSizeBytes: 1000,
+                srcFilePath: "p",
+                destFilePath: "p"
             },
             { srcFilePath: "f", destFilePath: "f" },
             new CopyParamsError({ srcFilePath: "e", destFilePath: "e" }),

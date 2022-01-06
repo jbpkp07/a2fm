@@ -1,11 +1,11 @@
 class Queue<T> {
     private readonly queue: T[] = [];
 
-    get isEmpty(): boolean {
+    public get isEmpty(): boolean {
         return this.queue.length === 0;
     }
 
-    get length(): number {
+    public get length(): number {
         return this.queue.length;
     }
 

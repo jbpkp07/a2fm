@@ -5,8 +5,8 @@ import { stat } from "fs/promises";
 import CopyParams from "./CopyParams";
 import CopyParamsError from "./CopyParamsError";
 import CopyProgress from "./CopyProgress";
-import CumulativeAverage from "./CumulativeAverage";
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
+import MovingAverage from "./MovingAverage";
 
 interface StreamOptions {
     readonly highWaterMark: number;
@@ -74,7 +74,7 @@ class FileCopier extends FileCopyEventEmitter {
         this.assignErrorListeners(readStream, writeStream);
 
         let startTime: number;
-        const cumulativeAverage = new CumulativeAverage(20); // if throws here, readStream and writeStream are not destroyed. perhpas abort should be called in catch/finally for copyFileAsync to protect agains this?
+        const cumulativeAverage = new MovingAverage(20); // if throws here, readStream and writeStream are not destroyed. perhpas abort should be called in catch/finally for copyFileAsync to protect agains this?
         let count = 0;
 
         writeStream.on("ready", () => {
