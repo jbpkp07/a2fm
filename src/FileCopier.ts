@@ -6,7 +6,7 @@ import CopyParams from "./CopyParams";
 import CopyParamsError from "./CopyParamsError";
 import CopyProgress from "./CopyProgress";
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
-import MovingAverage from "./MovingAverage";
+import MovingMedian from "./MovingAverage";
 
 interface StreamOptions {
     readonly highWaterMark: number;
@@ -74,8 +74,8 @@ class FileCopier extends FileCopyEventEmitter {
         this.assignErrorListeners(readStream, writeStream);
 
         let startTime: number;
-        const cumulativeAverage = new MovingAverage(20); // if throws here, readStream and writeStream are not destroyed. perhpas abort should be called in catch/finally for copyFileAsync to protect agains this?
-        let count = 0;
+        const movingAverage = new MovingMedian(15); // if throws here, readStream and writeStream are not destroyed. perhpas abort should be called in catch/finally for copyFileAsync to protect agains this?
+        const consec = new Set<number>();
 
         writeStream.on("ready", () => {
             startTime = Date.now();
@@ -84,24 +84,24 @@ class FileCopier extends FileCopyEventEmitter {
         writeStream.on("drain", () => {
             const { bytesWritten } = writeStream;
             const elapsedSeconds = (Date.now() - startTime) / 1000;
-            const bytesPerSecond = bytesWritten / elapsedSeconds;
+            const bytesPerSecond = bytesWritten / elapsedSeconds; // Need to validate that elapsed time > 0 or it results in a bytesPsec rate of "Infinity"... throws error in MovingAverage
 
-            const bytesPerSecondAve = cumulativeAverage.push(bytesPerSecond);
+            const bytesPerSecondAverage = movingAverage.push(bytesPerSecond);
 
             const progress: CopyProgress = {
-                bytesPerSecond: Math.floor(bytesPerSecondAve),
+                bytesPerSecond: Math.floor(bytesPerSecondAverage),
                 bytesWritten,
                 elapsedSeconds,
                 srcFileSizeBytes,
                 srcFilePath,
                 destFilePath
             };
-            count += 1;
+
             this.emit("progress", progress);
         });
 
         writeStream.on("finish", () => {
-            console.log("WriteStream finish.");
+            // console.log("WriteStream finish.");
             const { bytesWritten } = writeStream;
             const elapsedSeconds = (Date.now() - startTime) / 1000;
             const bytesPerSecond = bytesWritten / elapsedSeconds;
@@ -114,21 +114,27 @@ class FileCopier extends FileCopyEventEmitter {
                 srcFilePath,
                 destFilePath
             };
-            count += 1;
+
+            console.log("unique-----: ", consec.size);
+
             this.emit("progress", progress);
         });
 
         this.on("progress", (progress: CopyProgress) => {
-            const { bytesPerSecond, elapsedSeconds } = progress;
+            const { bytesPerSecond } = progress;
 
-            let megaBytesPerSecond = Math.floor(bytesPerSecond / 1024 ** 2);
-            megaBytesPerSecond = Math.floor(megaBytesPerSecond / 10) * 10;
+            const megaBytesPerSecond = Math.floor(bytesPerSecond / 1024 ** 2);
+            // megaBytesPerSecond = Math.floor(megaBytesPerSecond / 10) * 10;
 
-            console.log("______________________________");
+            consec.add(megaBytesPerSecond);
+
+            // console.log("______________________________");
+
             console.log("byte/s: ", megaBytesPerSecond);
-            console.log("elap/s: ", elapsedSeconds);
-            console.log("flSize: ", parseFloat(((elapsedSeconds * bytesPerSecond) / 1024 ** 3).toFixed(2)), "GB");
-            console.log("count:  ", count);
+            // process.stdout.moveCursor(0, -1);
+            // console.log("elap/s: ", elapsedSeconds);
+            // console.log("flSize: ", parseFloat(((elapsedSeconds * bytesPerSecond) / 1024 ** 3).toFixed(2)), "GB");
+            // console.log("count:  ", count);
         });
 
         // readStream.on("ready", () => {
@@ -228,11 +234,11 @@ async function app() {
 
 void app();
 
-setInterval(() => {
-    console.log("alive");
-    console.log(copier.rs?.destroyed);
-    console.log(copier.ws?.destroyed);
-    console.log(copier.ws?.path);
-}, 5000);
+// setInterval(() => {
+//     console.log("alive");
+//     console.log(copier.rs?.destroyed);
+//     console.log(copier.ws?.destroyed);
+//     console.log(copier.ws?.path);
+// }, 5000);
 
 console.log("End of code file");

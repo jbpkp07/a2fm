@@ -1,15 +1,15 @@
 import Queue from "./Queue";
 import validate from "./Validator";
 
-class MovingAverage {
+class MovingMedian {
     private readonly history = new Queue<number>();
 
     private readonly maxLength: number = 1;
 
-    private average = 0;
+    private historyMedian = 0;
 
-    public get ave() {
-        return this.average;
+    public get median(): number {
+        return this.historyMedian;
     }
 
     constructor(maxLength: number) {
@@ -26,32 +26,37 @@ class MovingAverage {
         }
     }
 
-    private getTotal(): number {
-        const history = this.history.peekQueue();
+    private extractMedian(sorted: number[]): number {
+        const medianIndex = (sorted.length - 1) / 2;
 
-        return history.reduce((total, num) => total + num, 0);
-    }
-
-    private setAverage(): void {
-        const total = this.getTotal();
-
-        if (!validate(total).isSafeNumber) {
-            throw new Error("total is out-of-range");
+        if (validate(medianIndex).isSafeInteger) {
+            return sorted[medianIndex] as number;
         }
 
-        this.average = total / this.history.length;
+        const leftValue = sorted[Math.floor(medianIndex)] as number;
+        const rightValue = sorted[Math.ceil(medianIndex)] as number;
+
+        return (leftValue + rightValue) / 2;
+    }
+
+    private getSortedHistory(): number[] {
+        const history = [...this.history.peekQueue()];
+        const byAscOrder = (a: number, b: number) => (a > b ? 1 : -1);
+
+        return history.sort(byAscOrder);
+    }
+
+    private setHistoryMedian(): void {
+        const sorted = this.getSortedHistory();
+        this.historyMedian = this.extractMedian(sorted);
     }
 
     public push(next: number): number {
         this.addToHistory(next);
-        this.setAverage();
+        this.setHistoryMedian();
 
-        return this.average;
+        return this.historyMedian;
     }
 }
 
-export default MovingAverage;
-
-const bytesPerSecond = new MovingAverage(10);
-bytesPerSecond.push(20);
-console.log(bytesPerSecond.ave);
+export default MovingMedian;
