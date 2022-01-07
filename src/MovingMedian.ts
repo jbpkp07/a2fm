@@ -1,6 +1,8 @@
 import Queue from "./Queue";
 import validate from "./Validator";
 
+const { floor, ceil } = Math;
+
 class MovingMedian {
     private readonly history = new Queue<number>();
 
@@ -29,12 +31,16 @@ class MovingMedian {
     private extractMedian(sorted: number[]): number {
         const medianIndex = (sorted.length - 1) / 2;
 
+        if (medianIndex < 0) {
+            throw new Error("medianIndex is negative");
+        }
+
         if (validate(medianIndex).isSafeInteger) {
             return sorted[medianIndex] as number;
         }
 
-        const leftValue = sorted[Math.floor(medianIndex)] as number;
-        const rightValue = sorted[Math.ceil(medianIndex)] as number;
+        const leftValue = sorted[floor(medianIndex)] as number;
+        const rightValue = sorted[ceil(medianIndex)] as number;
 
         return (leftValue + rightValue) / 2;
     }

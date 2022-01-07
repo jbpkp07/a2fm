@@ -6,7 +6,7 @@ import CopyParams from "./CopyParams";
 import CopyParamsError from "./CopyParamsError";
 import CopyProgress from "./CopyProgress";
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
-import MovingMedian from "./MovingAverage";
+import MovingMedian from "./MovingMedian";
 
 interface StreamOptions {
     readonly highWaterMark: number;
