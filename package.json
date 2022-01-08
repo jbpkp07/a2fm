@@ -35,6 +35,7 @@
         "passWithNoTests": true,
         "preset": "ts-jest",
         "rootDir": "./test",
+        "slowTestThreshold": 10,
         "testEnvironment": "node",
         "testRegex": "([A-Za-z0-9_]+\\.test\\.[jt]s)$",
         "verbose": true
