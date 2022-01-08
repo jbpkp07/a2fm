@@ -1,7 +1,7 @@
+import NumberUtils from "./NumberUtils";
 import Queue from "./Queue";
-import validate from "./Validator";
 
-const { floor, ceil } = Math;
+const { ceil, floor, isInteger, isNegative, isPositiveArrayIndex } = NumberUtils;
 
 class MovingMedian {
     private readonly history = new Queue<number>();
@@ -15,7 +15,7 @@ class MovingMedian {
     }
 
     constructor(maxLength: number) {
-        if (validate(maxLength).isPositiveSafeInteger) {
+        if (isPositiveArrayIndex(maxLength)) {
             this.maxLength = maxLength;
         }
     }
@@ -31,11 +31,11 @@ class MovingMedian {
     private extractMedian(sorted: number[]): number {
         const medianIndex = (sorted.length - 1) / 2;
 
-        if (medianIndex < 0) {
+        if (isNegative(medianIndex)) {
             throw new Error("medianIndex is negative");
         }
 
-        if (validate(medianIndex).isSafeInteger) {
+        if (isInteger(medianIndex)) {
             return sorted[medianIndex] as number;
         }
 
