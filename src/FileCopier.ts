@@ -13,21 +13,51 @@ interface StreamOptions {
 }
 
 class FileCopier extends FileCopyEventEmitter {
+    // private readonly copyParams: CopyParams;
+
     public rs!: ReadStream;
 
     public ws!: WriteStream;
 
-    private assignErrorListeners(readStream: ReadStream, writeStream: WriteStream): void {
-        const abortCopy = () => {
-            console.log("TEARDOWN CALLED");
-            readStream.unpipe(writeStream);
-            readStream.destroy();
-            writeStream.destroy();
-            rmSync(writeStream.path, { force: true });
-        };
+    // private constructor(copyParams: CopyParams) {
+    //     super();
 
-        readStream.on("error", abortCopy);
-        writeStream.on("error", abortCopy);
+    //     // this.copyParams = copyParams;
+    // }
+
+    private abortCopy(): void {
+        console.log("TEARDOWN CALLED");
+        this.rs.unpipe(this.ws);
+
+        // copier.ws?.removeAllListeners("drain");
+        // copier.ws?.removeAllListeners("finish");
+        // etc.
+
+        this.rs.destroy();
+        this.ws.destroy();
+        rmSync(this.ws.path, { force: true });
+    }
+
+    private assignErrorListeners(readStream: ReadStream, writeStream: WriteStream): void {
+        // const abortCopy = () => {
+        //     console.log("TEARDOWN CALLED");
+        //     readStream.unpipe(writeStream);
+
+        //     copier.ws?.removeAllListeners("drain");
+        //     copier.ws?.removeAllListeners("finish");
+        //     // etc.
+
+        //     readStream.destroy();
+        //     writeStream.destroy();
+        //     rmSync(writeStream.path, { force: true });
+        // };
+
+        readStream.on("error", () => {
+            this.abortCopy();
+        });
+        writeStream.on("error", () => {
+            this.abortCopy();
+        });
     }
 
     private calcHighWaterMark(srcFileSizeBytes: number): number {
@@ -234,11 +264,13 @@ async function app() {
 
 void app();
 
-// setInterval(() => {
-//     console.log("alive");
-//     console.log(copier.rs?.destroyed);
-//     console.log(copier.ws?.destroyed);
-//     console.log(copier.ws?.path);
-// }, 5000);
+setInterval(() => {
+    console.log("alive");
+    console.log(copier.rs?.destroyed);
+    console.log(copier.ws?.destroyed);
+    console.log(copier.ws?.listeners("drain"));
+    console.log(copier.ws?.removeAllListeners("drain"));
+    console.log(copier.ws?.path);
+}, 5000);
 
 console.log("End of code file");

@@ -1,6 +1,7 @@
-import ESLintWebpackPlugin from "eslint-webpack-plugin";
 import { resolve } from "path";
 import { env } from "process";
+
+import ESLintWebpackPlugin from "eslint-webpack-plugin";
 import TerserPlugin from "terser-webpack-plugin";
 import { Configuration as WebpackConfig } from "webpack";
 
@@ -57,7 +58,13 @@ const config: WebpackConfig = {
         },
         path: outputPath
     },
-    plugins: [new ESLintWebpackPlugin({ extensions })],
+    plugins: [
+        new ESLintWebpackPlugin({
+            extensions,
+            failOnError: true,
+            failOnWarning: true
+        })
+    ],
     resolve: {
         extensions,
         modules: [nodeModulesPath]

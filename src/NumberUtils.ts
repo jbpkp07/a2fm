@@ -1,4 +1,6 @@
-abstract class NumberUtils {
+class NumberUtils {
+    private constructor() {}
+
     public static ceil(this: void, num: number): number {
         return Math.ceil(num);
     }

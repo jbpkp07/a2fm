@@ -45,6 +45,7 @@
             ],
             "rules": {
                 "@typescript-eslint/ban-types": ["error", { "types": { "Function": false } }],
+                "@typescript-eslint/no-empty-function": ["warn", { "allow": ["private-constructors"] }],
                 "class-methods-use-this": "off",
                 "import/order": [
                     "warn",
