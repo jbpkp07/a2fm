@@ -5,9 +5,10 @@ import NumberUtils from "./NumberUtils";
 interface CopyProgressParams {
     readonly copyParams: CopyParams;
     readonly fileSizeBytes: number;
+    readonly startTimeMs: number;
 }
 
-const { isZero, round, toIntegerPercentage, toSeconds } = NumberUtils;
+const { isInteger, isZero, round, toIntegerPercentage, toSeconds } = NumberUtils;
 
 class CopyProgress {
     private readonly _bytesPerSecond = new MovingMedian(15);
@@ -33,12 +34,17 @@ class CopyProgress {
     constructor(params: CopyProgressParams) {
         this.copyParams = params.copyParams;
         this.fileSizeBytes = params.fileSizeBytes;
-        this.startTimeMs = Date.now();
+        this.startTimeMs = params.startTimeMs;
     }
 
-    private updateElapsedSeconds(): void {
-        const currentTimeMs = Date.now() + 0.5; // average current time
-        const elapsedMs = currentTimeMs - this.startTimeMs;
+    private updateElapsedSeconds(currentTimeMs: number): void {
+        let aveCurrentTimeMs = currentTimeMs;
+
+        if (isInteger(currentTimeMs)) {
+            aveCurrentTimeMs += 0.5;
+        }
+
+        const elapsedMs = aveCurrentTimeMs - this.startTimeMs;
         this.elapsedSeconds = toSeconds(elapsedMs);
     }
 
@@ -65,10 +71,10 @@ class CopyProgress {
         }
     }
 
-    public update(bytesWritten: number): void {
+    public update(bytesWritten: number, currentTimeMs: number): void {
         this.bytesWritten = bytesWritten;
 
-        this.updateElapsedSeconds();
+        this.updateElapsedSeconds(currentTimeMs);
         this.updatePercentage();
         this.updateInProgress();
         this.updateBytesPerSecond();
