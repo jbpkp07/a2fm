@@ -8,10 +8,10 @@ class MovingMedian {
 
     private readonly maxLength: number = 1;
 
-    private historyMedian = 0;
+    private _median = 0;
 
     public get median(): number {
-        return this.historyMedian;
+        return this._median;
     }
 
     constructor(maxLength: number) {
@@ -52,16 +52,16 @@ class MovingMedian {
         return history.sort(byAscOrder);
     }
 
-    private setHistoryMedian(): void {
+    private setMedian(): void {
         const sorted = this.getSortedHistory();
-        this.historyMedian = this.extractMedian(sorted);
+        this._median = this.extractMedian(sorted);
     }
 
-    public push(next: number): number {
+    public push(next: number): this {
         this.addToHistory(next);
-        this.setHistoryMedian();
+        this.setMedian();
 
-        return this.historyMedian;
+        return this;
     }
 }
 

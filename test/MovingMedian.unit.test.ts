@@ -9,21 +9,21 @@ describe("MovingMedian", () => {
         const movMed5 = new MovingMedian(4294967296);
 
         const results: number[] = [
-            movMed1.push(1),
-            movMed1.push(2),
-            movMed1.push(3),
-            movMed2.push(1),
-            movMed2.push(2),
-            movMed2.push(3),
-            movMed3.push(1),
-            movMed3.push(2),
-            movMed3.push(3),
-            movMed4.push(1),
-            movMed4.push(2),
-            movMed4.push(3),
-            movMed5.push(1),
-            movMed5.push(2),
-            movMed5.push(3)
+            movMed1.push(1).median,
+            movMed1.push(2).median,
+            movMed1.push(3).median,
+            movMed2.push(1).median,
+            movMed2.push(2).median,
+            movMed2.push(3).median,
+            movMed3.push(1).median,
+            movMed3.push(2).median,
+            movMed3.push(3).median,
+            movMed4.push(1).median,
+            movMed4.push(2).median,
+            movMed4.push(3).median,
+            movMed5.push(1).median,
+            movMed5.push(2).median,
+            movMed5.push(3).median
         ];
 
         expect(results).toStrictEqual([1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]);
@@ -33,21 +33,21 @@ describe("MovingMedian", () => {
         const movMed = new MovingMedian(5);
 
         const results: number[] = [
-            movMed.push(5),
-            movMed.push(10),
-            movMed.push(2),
-            movMed.push(8),
-            movMed.push(4),
-            movMed.push(1),
-            movMed.push(6),
-            movMed.push(3),
-            movMed.push(8),
-            movMed.push(7),
-            movMed.push(9999),
-            movMed.push(9999),
-            movMed.push(9),
-            movMed.push(10),
-            movMed.push(9999)
+            movMed.push(5).median,
+            movMed.push(10).median,
+            movMed.push(2).median,
+            movMed.push(8).median,
+            movMed.push(4).median,
+            movMed.push(1).median,
+            movMed.push(6).median,
+            movMed.push(3).median,
+            movMed.push(8).median,
+            movMed.push(7).median,
+            movMed.push(9999).median,
+            movMed.push(9999).median,
+            movMed.push(9).median,
+            movMed.push(10).median,
+            movMed.push(9999).median
         ];
 
         expect(results).toStrictEqual([5, 7.5, 5, 6.5, 5, 4, 4, 4, 4, 6, 7, 8, 9, 10, 9999]);

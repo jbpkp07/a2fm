@@ -67,18 +67,14 @@ describe("SequentialFileCopyEventEmitter", () => {
     test("emit and capture events", () => {
         results = [];
 
+        const progress = new CopyProgress({ copyParams: { srcFilePath: "p", destFilePath: "p" }, fileSizeBytes: 100 });
+        const error = new CopyParamsError({ srcFilePath: "e", destFilePath: "e" });
+
         eventEmitter.emit("active", undefined);
         eventEmitter.emit("copy:start", { srcFilePath: "s", destFilePath: "s" });
-        eventEmitter.emit("copy:progress", {
-            bytesPerSecond: 10,
-            bytesWritten: 100,
-            elapsedSeconds: 10,
-            srcFileSizeBytes: 1000,
-            srcFilePath: "p",
-            destFilePath: "p"
-        });
+        eventEmitter.emit("copy:progress", progress);
         eventEmitter.emit("copy:finish", { srcFilePath: "f", destFilePath: "f" });
-        eventEmitter.emit("error", new CopyParamsError({ srcFilePath: "e", destFilePath: "e" }));
+        eventEmitter.emit("error", error);
         eventEmitter.emit("idle", undefined);
         eventEmitter.emit("queue", [
             { srcFilePath: "c1", destFilePath: "c1" },
@@ -88,16 +84,9 @@ describe("SequentialFileCopyEventEmitter", () => {
         expect(results).toStrictEqual([
             "active",
             { srcFilePath: "s", destFilePath: "s" },
-            {
-                bytesPerSecond: 10,
-                bytesWritten: 100,
-                elapsedSeconds: 10,
-                srcFileSizeBytes: 1000,
-                srcFilePath: "p",
-                destFilePath: "p"
-            },
+            progress,
             { srcFilePath: "f", destFilePath: "f" },
-            new CopyParamsError({ srcFilePath: "e", destFilePath: "e" }),
+            error,
             "idle",
             [
                 { srcFilePath: "c1", destFilePath: "c1" },
