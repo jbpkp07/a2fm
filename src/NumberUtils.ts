@@ -33,8 +33,8 @@ class NumberUtils {
         return Math.floor(ratio * 100);
     }
 
-    public static toSeconds(this: void, milliseconds: number): number {
-        return milliseconds / 1000;
+    public static toSeconds(this: void, microseconds: number): number {
+        return microseconds / 1000000;
     }
 }
 

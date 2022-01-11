@@ -236,21 +236,21 @@ describe("NumberUtils", () => {
 
         const expected = [
             -Infinity, // -Infinity
-            (MIN_SAFE_INTEGER - 1) / 1000, // MIN_SAFE_INTEGER - 1
-            MIN_SAFE_INTEGER / 1000, // MIN_SAFE_INTEGER
-            -4294967296 / 1000, // -4294967296
-            -0.0015, // -1.5
-            -0.001, // -1
-            -0.0005, // -0.5
+            (MIN_SAFE_INTEGER - 1) / 1000000, // MIN_SAFE_INTEGER - 1
+            MIN_SAFE_INTEGER / 1000000, // MIN_SAFE_INTEGER
+            -4294967296 / 1000000, // -4294967296
+            -0.0000015, // -1.5
+            -0.000001, // -1
+            -0.0000005, // -0.5
             -0, // -0
             0, // 0
-            0.0005, // 0.5
-            0.001, // 1
-            0.0015, // 1.5
-            (4294967296 - 1) / 1000, // 4294967296 - 1
-            4294967296 / 1000, // 4294967296
-            MAX_SAFE_INTEGER / 1000, // MAX_SAFE_INTEGER
-            (MAX_SAFE_INTEGER + 1) / 1000, // MAX_SAFE_INTEGER + 1
+            0.0000005, // 0.5
+            0.000001, // 1
+            0.0000015, // 1.5
+            (4294967296 - 1) / 1000000, // 4294967296 - 1
+            4294967296 / 1000000, // 4294967296
+            MAX_SAFE_INTEGER / 1000000, // MAX_SAFE_INTEGER
+            (MAX_SAFE_INTEGER + 1) / 1000000, // MAX_SAFE_INTEGER + 1
             Infinity // Infinity
         ];
 

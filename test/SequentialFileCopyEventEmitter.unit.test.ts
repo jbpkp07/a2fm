@@ -69,8 +69,7 @@ describe("SequentialFileCopyEventEmitter", () => {
 
         const progress = new CopyProgress({
             copyParams: { srcFilePath: "p", destFilePath: "p" },
-            fileSizeBytes: 100,
-            startTimeMs: Date.now()
+            fileSizeBytes: 100
         });
 
         const error = new CopyParamsError({ srcFilePath: "e", destFilePath: "e" });

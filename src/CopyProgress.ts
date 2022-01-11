@@ -5,47 +5,45 @@ import NumberUtils from "./NumberUtils";
 interface CopyProgressParams {
     readonly copyParams: CopyParams;
     readonly fileSizeBytes: number;
-    readonly startTimeMs: number;
 }
 
-const { isInteger, isZero, round, toIntegerPercentage, toSeconds } = NumberUtils;
+const { isZero, round, toIntegerPercentage, toSeconds } = NumberUtils;
 
 class CopyProgress {
     private readonly _bytesPerSecond = new MovingMedian(15);
-
-    private readonly startTimeMs: number;
 
     public readonly copyParams: CopyParams;
 
     public readonly fileSizeBytes: number;
 
+    public bytesPerSecond = 0;
+
     public bytesWritten = 0;
 
     public elapsedSeconds = 0;
 
-    public percentage = 0;
-
     public inProgress = true;
 
-    public get bytesPerSecond(): number {
-        return this._bytesPerSecond.median;
-    }
+    public percentage = 0;
 
     constructor(params: CopyProgressParams) {
         this.copyParams = params.copyParams;
         this.fileSizeBytes = params.fileSizeBytes;
-        this.startTimeMs = params.startTimeMs;
     }
 
-    private updateElapsedSeconds(currentTimeMs: number): void {
-        let aveCurrentTimeMs = currentTimeMs;
-
-        if (isInteger(currentTimeMs)) {
-            aveCurrentTimeMs += 0.5;
+    private updateBytesPerSecond(): void {
+        if (isZero(this.elapsedSeconds)) {
+            this._bytesPerSecond.push(0);
+        } else {
+            const next = round(this.bytesWritten / this.elapsedSeconds);
+            this._bytesPerSecond.push(next);
         }
 
-        const elapsedMs = aveCurrentTimeMs - this.startTimeMs;
-        this.elapsedSeconds = toSeconds(elapsedMs);
+        this.bytesPerSecond = this._bytesPerSecond.median;
+    }
+
+    private updateInProgress(): void {
+        this.inProgress = this.bytesWritten < this.fileSizeBytes;
     }
 
     private updatePercentage(): void {
@@ -57,27 +55,13 @@ class CopyProgress {
         }
     }
 
-    private updateInProgress(): void {
-        this.inProgress = this.bytesWritten < this.fileSizeBytes;
-    }
-
-    private updateBytesPerSecond(): void {
-        if (isZero(this.elapsedSeconds)) {
-            this._bytesPerSecond.push(0);
-        } else {
-            const bytesPerSecond = round(this.bytesWritten / this.elapsedSeconds);
-
-            this._bytesPerSecond.push(bytesPerSecond);
-        }
-    }
-
-    public update(bytesWritten: number, currentTimeMs: number): void {
+    public update(bytesWritten: number, elapsedMicroseconds: number): void {
         this.bytesWritten = bytesWritten;
+        this.elapsedSeconds = toSeconds(elapsedMicroseconds);
 
-        this.updateElapsedSeconds(currentTimeMs);
-        this.updatePercentage();
-        this.updateInProgress();
         this.updateBytesPerSecond();
+        this.updateInProgress();
+        this.updatePercentage();
     }
 }
 
