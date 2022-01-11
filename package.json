@@ -26,7 +26,7 @@
         "start": "npm run log:begin -s \"Starting App\" && node --enable-source-maps ./dist/index.js",
         "start:dev": "npm run log:begin -s \"Starting Dev\" && ts-node-dev --cache-directory ./cache --respawn --",
         "test": "npm run log:begin -s \"Running All Tests\" && jest",
-        "test:dev": "npm run log:begin -s \"Running Dev Test\" && jest --",
+        "test:dev": "npm run log:begin -s \"Running Dev Test\" && jest --watch --",
         "update:check-latest": "npm run log:begin -s \"Checking Latest Updates\" && npm-check-updates",
         "update:install-latest-unsafe": "npm run log:begin -s \"Updating Latest (Unsafe)\" && npm-check-updates -u && npm install",
         "update:install-safe": "npm run log:begin -s \"Updating (Safe)\" && npm update && npm run log:end -s"
@@ -35,7 +35,7 @@
         "passWithNoTests": true,
         "preset": "ts-jest",
         "rootDir": "./test",
-        "slowTestThreshold": 10,
+        "slowTestThreshold": 30,
         "testEnvironment": "node",
         "testRegex": "([A-Za-z0-9_]+\\.test\\.[jt]s)$",
         "verbose": true
