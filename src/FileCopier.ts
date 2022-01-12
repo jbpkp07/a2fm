@@ -1,21 +1,18 @@
 import { once } from "events";
-import { createReadStream, createWriteStream, ReadStream, rmSync, WriteStream } from "fs";
-import { stat } from "fs/promises";
+import { createReadStream, createWriteStream, ReadStream, WriteStream } from "fs";
+import { rm, stat } from "fs/promises";
 
 import CopyParams from "./CopyParams";
 import CopyParamsError from "./CopyParamsError";
 import CopyProgress from "./CopyProgress";
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
 import MicrosecondTimer from "./MicrosecondTimer";
-import NumberUtils from "./NumberUtils";
 
 interface StreamOptions {
     readonly highWaterMark: number;
 }
 
-const { ceil, round } = NumberUtils;
-
-class FileCopy extends FileCopyEventEmitter {
+class FileCopier extends FileCopyEventEmitter {
     private readonly timer = new MicrosecondTimer();
 
     private progress!: CopyProgress;
@@ -26,26 +23,12 @@ class FileCopy extends FileCopyEventEmitter {
 
     public writeStream!: WriteStream; // make private, adjust to Readstream | null once coded to see how many null checks
 
-    private abortCopy(): void {
-        console.log("TEARDOWN CALLED");
-        this.readStream.unpipe(this.writeStream);
-        // copier.ws?.removeAllListeners("drain");
-        this.readStream.destroy();
-        this.writeStream.destroy();
-        rmSync(this.writeStream.path, { force: true });
-    }
-
-    private assignErrorListeners(readStream: ReadStream, writeStream: WriteStream): void {
-        readStream.on("error", () => this.abortCopy());
-        writeStream.on("error", () => this.abortCopy());
-    }
-
     private calcHighWaterMark(fileSizeBytes: number): number {
         const defaultHighWaterMark = 65536; // 64 * 1024
         const drainCount = 100;
         const isLargeFile = fileSizeBytes >= defaultHighWaterMark * drainCount;
 
-        return isLargeFile ? ceil(fileSizeBytes / drainCount) : defaultHighWaterMark;
+        return isLargeFile ? Math.ceil(fileSizeBytes / drainCount) : defaultHighWaterMark;
     }
 
     private createStreamOptions(fileSizeBytes: number): StreamOptions {
@@ -60,161 +43,83 @@ class FileCopy extends FileCopyEventEmitter {
         return size;
     }
 
-    private updateProgress(): void {
-        const { bytesWritten } = this.writeStream;
-        const elapsedMicroseconds = this.timer.elapsed();
+    private async setup(copyParams: CopyParams): Promise<void> {
+        if (this.isActive) return;
 
-        this.progress.update(bytesWritten, elapsedMicroseconds);
-        this.emit("progress", this.progress);
-    }
+        this.isActive = true;
 
-    private async copyFile(copyParams: CopyParams): Promise<void> {
         const { srcFilePath, destFilePath } = copyParams;
 
         const fileSizeBytes = await this.getFileSizeBytes(srcFilePath);
 
         const options = this.createStreamOptions(fileSizeBytes);
 
-        this.progress = new CopyProgress({ copyParams, fileSizeBytes });
+        this.progress = new CopyProgress(copyParams, fileSizeBytes);
         this.readStream = createReadStream(srcFilePath, options);
         this.writeStream = createWriteStream(destFilePath, options);
 
-        this.assignErrorListeners(readStream, writeStream);
+        this.writeStream.on("ready", () => this.timer.start());
 
-        let startTime: number;
-        const movingAverage = new MovingMedian(15); // if throws here, readStream and writeStream are not destroyed. perhpas abort should be called in catch/finally for copyFileAsync to protect agains this?
-        const consec = new Set<number>();
+        this.writeStream.on("drain", () => this.updateProgress());
 
-        writeStream.on("ready", () => {
-            startTime = Date.now();
-        });
+        this.writeStream.on("finish", () => this.updateProgress());
 
-        writeStream.on("drain", () => {
-            const { bytesWritten } = writeStream;
-            const elapsedSeconds = (Date.now() - startTime) / 1000;
-            const bytesPerSecond = bytesWritten / elapsedSeconds; // Need to validate that elapsed time > 0 or it results in a bytesPsec rate of "Infinity"... throws error in MovingAverage
+        this.readStream.pipe(this.writeStream);
+    }
 
-            const bytesPerSecondAverage = movingAverage.push(bytesPerSecond);
+    private async tearDown(): Promise<void> {
+        console.log("TEARDOWN CALLED");
+        if (!this.isActive) return;
 
-            const progress: CopyProgress = {
-                bytesPerSecond: Math.floor(bytesPerSecondAverage),
-                bytesWritten,
-                elapsedSeconds,
-                fileSizeBytes: srcFileSizeBytes,
-                srcFilePath,
-                destFilePath
-            };
+        this.readStream.unpipe(this.writeStream);
+        // copier.ws?.removeAllListeners("drain");
+        this.readStream.destroy();
+        this.writeStream.destroy();
+        await rm(this.writeStream.path, { force: true });
 
-            this.emit("progress", progress);
-        });
+        this.isActive = false;
+    }
 
-        writeStream.on("finish", () => {
-            // console.log("WriteStream finish.");
-            const { bytesWritten } = writeStream;
-            const elapsedSeconds = (Date.now() - startTime) / 1000;
-            const bytesPerSecond = bytesWritten / elapsedSeconds;
+    private updateProgress(): void {
+        const { bytesWritten } = this.writeStream;
+        const elapsed = this.timer.elapsed();
 
-            const progress: CopyProgress = {
-                bytesPerSecond: Math.floor(bytesPerSecond),
-                bytesWritten,
-                elapsedSeconds,
-                fileSizeBytes: srcFileSizeBytes,
-                srcFilePath,
-                destFilePath
-            };
+        this.progress.update(bytesWritten, elapsed);
+        this.emit("progress", this.progress);
+    }
 
-            console.log("unique-----: ", consec.size);
+    private async waitForStreamsToClose(): Promise<void> {
+        const readStreamClose = once(this.readStream, "close");
+        const writeStreamClose = once(this.writeStream, "close");
 
-            this.emit("progress", progress);
-        });
+        await Promise.all([readStreamClose, writeStreamClose]);
+    }
 
-        this.on("progress", (progress: CopyProgress) => {
-            const { bytesPerSecond } = progress;
+    private async copyFile(copyParams: CopyParams): Promise<void> {
+        this.emit("start", copyParams);
+        await this.setup(copyParams);
+        await this.waitForStreamsToClose();
+        this.emit("finish", copyParams);
+    }
 
-            const megaBytesPerSecond = Math.floor(bytesPerSecond / 1024 ** 2);
-            // megaBytesPerSecond = Math.floor(megaBytesPerSecond / 10) * 10;
-
-            consec.add(megaBytesPerSecond);
-
-            // console.log("______________________________");
-
-            console.log("byte/s: ", megaBytesPerSecond);
-            // process.stdout.moveCursor(0, -1);
-            // console.log("elap/s: ", elapsedSeconds);
-            // console.log("flSize: ", parseFloat(((elapsedSeconds * bytesPerSecond) / 1024 ** 3).toFixed(2)), "GB");
-            // console.log("count:  ", count);
-        });
-
-        // readStream.on("ready", () => {
-        //     console.log("ReadStream ready.");
-        // });
-
-        // readStream.on("open", () => {
-        //     console.log("ReadStream open.");
-        // });
-
-        // readStream.on("end", () => {
-        //     console.log("ReadStream end.");
-        // });
-
-        // readStream.on("close", () => {
-        //     console.log("ReadStream close.");
-        // });
-
-        // readStream.on("data", () => {
-        //     console.log("ReadStream data.");
-        // });
-
-        // //
-        // //
-
-        writeStream.on("ready", () => {
-            console.log("WriteStream ready.");
-        });
-
-        writeStream.on("open", () => {
-            console.log("WriteStream open.");
-        });
-
-        // writeStream.on("pipe", () => {
-        //     console.log("WriteStream pipe.");
-        // });
-
-        // writeStream.on("unpipe", () => {
-        //     console.log("WriteStream unpipe.");
-        // });
-
-        // writeStream.on("finish", () => {
-        //     console.log("WriteStream finish.");
-        // });
-
-        // writeStream.on("close", () => {
-        //     console.log("WriteStream close.");
-        // });
-
-        // writeStream.on("drain", () => {
-        //     console.log("WriteStream drain.");
-        // });
-
-        readStream.pipe(writeStream);
-
-        await Promise.all([once(readStream, "close"), once(writeStream, "close")]);
+    private async tryCopyFileAsync(copyParams: CopyParams): Promise<void> {
+        try {
+            await this.copyFile(copyParams);
+        } catch (error) {
+            throw CopyParamsError.from(copyParams, error);
+        } finally {
+            await this.tearDown();
+        }
     }
 
     public async copyFileAsync(copyParams: CopyParams): Promise<void> {
-        try {
-            this.emit("start", copyParams);
+        if (this.isActive) return;
 
-            await this.copyFile(copyParams);
-
-            this.emit("finish", copyParams);
-        } catch (error) {
-            throw CopyParamsError.from(copyParams, error);
-        }
+        await this.tryCopyFileAsync(copyParams);
     }
 }
 
-export default FileCopy;
+export default FileCopier;
 
 // const copyParams = {
 //     // srcFilePath: "----------test.txt",
@@ -223,7 +128,21 @@ export default FileCopy;
 //     destFilePath: "----------testMovieCopy.mp4"
 // };
 
-// const copier = new FileCopy(copyParams);
+// const copier = new FileCopy();
+
+// copier.on("progress", (progress: CopyProgress) => {
+//     const { bytesPerSecond } = progress;
+
+//     const megaBytesPerSecond = Math.floor(bytesPerSecond / 1024 ** 2);
+
+//     // console.log("______________________________");
+
+//     console.log("MB/s: ", megaBytesPerSecond);
+//     // process.stdout.moveCursor(0, -1);
+//     // console.log("elap/s: ", elapsedSeconds);
+//     // console.log("flSize: ", parseFloat(((elapsedSeconds * bytesPerSecond) / 1024 ** 3).toFixed(2)), "GB");
+//     // console.log("count:  ", count);
+// });
 
 // async function app() {
 //     try {
@@ -254,3 +173,54 @@ export default FileCopy;
 // }, 5000);
 
 // console.log("End of code file");
+
+// readStream.on("ready", () => {
+//     console.log("ReadStream ready.");
+// });
+
+// readStream.on("open", () => {
+//     console.log("ReadStream open.");
+// });
+
+// readStream.on("end", () => {
+//     console.log("ReadStream end.");
+// });
+
+// readStream.on("close", () => {
+//     console.log("ReadStream close.");
+// });
+
+// readStream.on("data", () => {
+//     console.log("ReadStream data.");
+// });
+
+// //
+// //
+
+// writeStream.on("ready", () => {
+//     console.log("WriteStream ready.");
+// });
+
+// writeStream.on("open", () => {
+//     console.log("WriteStream open.");
+// });
+
+// writeStream.on("pipe", () => {
+//     console.log("WriteStream pipe.");
+// });
+
+// writeStream.on("unpipe", () => {
+//     console.log("WriteStream unpipe.");
+// });
+
+// writeStream.on("finish", () => {
+//     console.log("WriteStream finish.");
+// });
+
+// writeStream.on("close", () => {
+//     console.log("WriteStream close.");
+// });
+
+// writeStream.on("drain", () => {
+//     console.log("WriteStream drain.");
+// });

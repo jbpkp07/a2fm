@@ -1,5 +1,5 @@
-import DeferredPromise from "../src/DeferredPromise";
 import MicrosecondTimer from "../src/MicrosecondTimer";
+import DeferredPromise from "./utils/DeferredPromise";
 
 let elapsed: number;
 
