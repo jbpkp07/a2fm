@@ -1,41 +1,41 @@
 class NumberUtils {
     private constructor() {}
 
-    public static ceil(this: void, num: number): number {
+    public static ceil = (num: number): number => {
         return Math.ceil(num);
-    }
+    };
 
-    public static floor(this: void, num: number): number {
+    public static floor = (num: number): number => {
         return Math.floor(num);
-    }
+    };
 
-    public static round(this: void, num: number): number {
+    public static round = (num: number): number => {
         return Math.round(num);
-    }
+    };
 
-    public static isInteger(this: void, num: number): boolean {
+    public static isInteger = (num: number): boolean => {
         return Number.isInteger(num);
-    }
+    };
 
-    public static isNegative(this: void, num: number): boolean {
+    public static isNegative = (num: number): boolean => {
         return num < 0;
-    }
+    };
 
-    public static isPositiveArrayIndex(this: void, num: number): boolean {
+    public static isPositiveArrayIndex = (num: number): boolean => {
         return Number.isInteger(num) && num >= 1 && num < 4294967296;
-    }
+    };
 
-    public static isZero(this: void, num: number): boolean {
+    public static isZero = (num: number): boolean => {
         return num === 0;
-    }
+    };
 
-    public static toIntegerPercentage(this: void, ratio: number): number {
+    public static toIntegerPercentage = (ratio: number): number => {
         return Math.floor(ratio * 100);
-    }
+    };
 
-    public static toSeconds(this: void, microseconds: number): number {
+    public static toSeconds = (microseconds: number): number => {
         return microseconds / 1000000;
-    }
+    };
 }
 
 export default NumberUtils;

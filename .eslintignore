@@ -5,6 +5,9 @@
 **/cache/**/*
 **/dist/**/*
 
+# Temporary directories
+**/.tmp/**/*
+
 # Ignore auto-generated files
 **/package-lock.json
 

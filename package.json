@@ -13,8 +13,8 @@
         "check:all": "npm run check:eslint -s && npm run check:prettier -s",
         "check:eslint": "npm run log:begin -s \"ESLint Checking\" && eslint --ext=.js,.ts,.jsx,.tsx . && npm run log:end -s",
         "check:prettier": "npm run log:begin -s \"Prettier Checking\" && prettier --check .",
-        "clean:dirs": "npm run log:begin -s \"Cleaning Build Dirs\" && del-cli ./dist/* ./cache/* -f && npm run log:end -s",
-        "create:dirs": "npm run log:begin -s \"Creating Dirs (If Missing)\" && mkdirp ./cache ./dist ./src ./test && npm run log:end -s",
+        "clean:dirs": "npm run log:begin -s \"Cleaning Dirs\" && del-cli ./dist/* ./cache/* ./test/.tmp/* -f && npm run log:end -s",
+        "create:dirs": "npm run log:begin -s \"Creating Dirs (If Missing)\" && mkdirp ./cache ./dist ./src ./test ./test/.tmp && npm run log:end -s",
         "fix:all": "npm run fix:eslint -s && npm run fix:prettier -s",
         "fix:eslint": "npm run log:begin -s \"ESLint Fixing\" && eslint --fix --ext=.js,.ts,.jsx,.tsx . && npm run log:end -s",
         "fix:prettier": "npm run log:begin -s \"Prettier Fixing\" && prettier --write .",
@@ -38,7 +38,10 @@
         "slowTestThreshold": 30,
         "testEnvironment": "node",
         "testRegex": "([A-Za-z0-9_]+\\.test\\.[jt]s)$",
-        "verbose": true
+        "verbose": true,
+        "watchPathIgnorePatterns": [
+            "(\\.tmp)$"
+        ]
     },
     "dependencies": {
         "chokidar": "^3.5.2"
