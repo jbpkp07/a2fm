@@ -2,7 +2,6 @@ import { createReadStream, createWriteStream, PathLike, ReadStream, Stats, Write
 import { rm, stat } from "fs/promises";
 
 export { ReadStream, WriteStream } from "fs";
-export type Stream = ReadStream | WriteStream;
 
 interface StreamOptions {
     readonly highWaterMark: number;
