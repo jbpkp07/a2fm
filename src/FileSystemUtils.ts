@@ -1,5 +1,8 @@
-import { createReadStream, createWriteStream, ReadStream, Stats, WriteStream } from "fs";
+import { createReadStream, createWriteStream, PathLike, ReadStream, Stats, WriteStream } from "fs";
 import { rm, stat } from "fs/promises";
+
+export { ReadStream, WriteStream } from "fs";
+export type Stream = ReadStream | WriteStream;
 
 interface StreamOptions {
     readonly highWaterMark: number;
@@ -22,44 +25,45 @@ class FileSystemUtils {
         return { highWaterMark };
     };
 
-    private static extractMessage = (error: unknown): string | undefined => {
-        return error instanceof Error ? error.message : undefined;
+    private static newError = (error: unknown, defaultMessage: string): Error => {
+        const msg = error instanceof Error ? error.message : defaultMessage;
+
+        return new Error(msg);
     };
 
-    private static throwIfNotFile = (stats: Stats, path: string): void => {
+    private static throwIfNotFile = (stats: Stats, path: PathLike): void => {
         if (!stats.isFile()) {
-            throw new Error(`Entity is not a file at: ${path}`);
+            throw new Error(`Entity is not a file at: ${String(path)}`);
         }
     };
 
-    public static createReadStream = (filePath: string, fileSizeBytes: number): ReadStream => {
+    public static createReadStream = (filePath: PathLike, fileSizeBytes: number): ReadStream => {
         const options = this.createStreamOptions(fileSizeBytes);
 
         return createReadStream(filePath, options).pause();
     };
 
-    public static createWriteStream = (filePath: string, fileSizeBytes: number): WriteStream => {
+    public static createWriteStream = (filePath: PathLike, fileSizeBytes: number): WriteStream => {
         const options = this.createStreamOptions(fileSizeBytes);
 
         return createWriteStream(filePath, options);
     };
 
-    public static deleteFile = async (filePath: string): Promise<void> => {
+    public static deleteFile = async (filePath: PathLike): Promise<void> => {
         try {
             await rm(filePath, { force: true });
         } catch (error) {
-            const msg = this.extractMessage(error) || `Failed to delete at: ${filePath}`;
-            throw new Error(msg);
+            throw this.newError(error, `Failed to delete at: ${String(filePath)}`);
         }
     };
 
-    public static readFileSizeBytes = async (filePath: string): Promise<number> => {
+    public static readFileSizeBytes = async (filePath: PathLike): Promise<number> => {
         const { size } = await this.readFileStats(filePath);
 
         return size;
     };
 
-    public static readFileStats = async (filePath: string): Promise<Stats> => {
+    public static readFileStats = async (filePath: PathLike): Promise<Stats> => {
         try {
             const stats = await stat(filePath);
 
@@ -67,8 +71,7 @@ class FileSystemUtils {
 
             return stats;
         } catch (error) {
-            const msg = this.extractMessage(error) || `Failed to read stats at: ${filePath}`;
-            throw new Error(msg);
+            throw this.newError(error, `Failed to read stats at: ${String(filePath)}`);
         }
     };
 }

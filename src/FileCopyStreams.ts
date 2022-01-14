@@ -1,34 +1,33 @@
 import { once } from "events";
-import { createReadStream, createWriteStream, ReadStream, WriteStream } from "fs";
-import { rm } from "fs/promises";
 
 import CopyParams from "./CopyParams";
+import FileSystemUtils, { ReadStream, Stream, WriteStream } from "./FileSystemUtils";
 
-interface StreamOptions {
-    readonly highWaterMark: number;
-}
+const { createReadStream, createWriteStream, deleteFile } = FileSystemUtils;
 
 class FileCopyStreams {
     private isDestroyed = false;
 
     public readonly readStream: ReadStream;
 
+    public readonly readStreamClosed: Promise<void>;
+
     public readonly writeStream: WriteStream;
+
+    public readonly writeStreamClosed: Promise<void>;
 
     constructor(copyParams: CopyParams, fileSizeBytes: number) {
         const { srcFilePath, destFilePath } = copyParams;
-        const options = this.createStreamOptions(fileSizeBytes);
 
-        this.readStream = createReadStream(srcFilePath, options);
-        this.writeStream = createWriteStream(destFilePath, options);
+        this.readStream = createReadStream(srcFilePath, fileSizeBytes);
+        this.writeStream = createWriteStream(destFilePath, fileSizeBytes);
 
-        this.readStream.pause();
+        this.readStreamClosed = this.addCloseListener(this.readStream);
+        this.writeStreamClosed = this.addCloseListener(this.writeStream);
     }
 
-    private createStreamOptions(fileSizeBytes: number): StreamOptions {
-        const highWaterMark = this.getHighWaterMark(fileSizeBytes);
-
-        return { highWaterMark };
+    private async addCloseListener(stream: Stream): Promise<void> {
+        await once(stream, "close");
     }
 
     private async destroyAllStreams(): Promise<void> {
@@ -42,28 +41,18 @@ class FileCopyStreams {
 
     private async destroyReadStream(): Promise<void> {
         if (!this.readStream.destroyed) {
-            const closed = once(this.readStream, "close");
             this.readStream.destroy();
 
-            await closed;
+            await this.readStreamClosed;
         }
     }
 
     private async destroyWriteStream(): Promise<void> {
         if (!this.writeStream.destroyed) {
-            const closed = once(this.writeStream, "close");
             this.writeStream.destroy();
 
-            await closed;
+            await this.writeStreamClosed;
         }
-    }
-
-    private getHighWaterMark(fileSizeBytes: number): number {
-        const defaultHighWaterMark = 65536; // 64 * 1024
-        const drainCount = 100;
-        const isLargeFile = fileSizeBytes >= defaultHighWaterMark * drainCount;
-
-        return isLargeFile ? Math.ceil(fileSizeBytes / drainCount) : defaultHighWaterMark;
     }
 
     private removeAllListeners(): void {
@@ -79,7 +68,7 @@ class FileCopyStreams {
     public async abort(): Promise<void> {
         await this.destroy();
 
-        await rm(this.writeStream.path, { force: true });
+        await deleteFile(this.writeStream.path);
     }
 
     public async destroy(): Promise<void> {

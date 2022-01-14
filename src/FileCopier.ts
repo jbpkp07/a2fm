@@ -108,14 +108,21 @@ class FileCopier extends FileCopyEventEmitter {
         } catch (error) {
             throw CopyParamsError.from(copyParams, error);
         } finally {
-            await this.tearDown();
+            // await this.tearDown();
+
+            this.isActive = false;
+            this.emit("finish", copyParams);
+            // then streams.destroy()
         }
     }
 
     public async copyFileAsync(copyParams: CopyParams): Promise<void> {
-        if (this.isActive) return;
+        if (!this.isActive) {
+            this.isActive = true;
+            this.emit("start", copyParams);
 
-        await this.tryCopyFileAsync(copyParams);
+            await this.tryCopyFileAsync(copyParams);
+        }
     }
 }
 
