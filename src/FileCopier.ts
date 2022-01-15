@@ -4,7 +4,7 @@ import { rm, stat } from "fs/promises";
 
 import CopyParams from "./CopyParams";
 import CopyParamsError from "./CopyParamsError";
-import CopyProgress from "./CopyProgress";
+import FileCopyProgress from "./FileCopyProgress";
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
 import MicrosecondTimer from "./MicrosecondTimer";
 
@@ -15,7 +15,7 @@ interface StreamOptions {
 class FileCopier extends FileCopyEventEmitter {
     private readonly timer = new MicrosecondTimer();
 
-    private progress!: CopyProgress;
+    private progress!: FileCopyProgress;
 
     private isActive = false;
 
@@ -54,7 +54,7 @@ class FileCopier extends FileCopyEventEmitter {
 
         const options = this.createStreamOptions(fileSizeBytes);
 
-        this.progress = new CopyProgress(copyParams);
+        this.progress = new FileCopyProgress(copyParams);
         this.readStream = createReadStream(srcFilePath, options);
         this.writeStream = createWriteStream(destFilePath, options);
 

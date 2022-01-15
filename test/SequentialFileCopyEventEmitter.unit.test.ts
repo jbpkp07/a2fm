@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import CopyParams from "../src/CopyParams";
 import CopyParamsError from "../src/CopyParamsError";
-import CopyProgress from "../src/CopyProgress";
+import FileCopyProgress from "../src/FileCopyProgress";
 import SequentialFileCopyEventEmitter from "../src/SequentialFileCopyEventEmitter";
 
 const eventEmitter = new SequentialFileCopyEventEmitter();
@@ -22,7 +22,7 @@ let results: unknown[] = [];
 
 const activeListener = () => results.push("active");
 const startListener = (copyParams: CopyParams) => results.push(copyParams);
-const progressListener = (copyProgress: CopyProgress) => results.push(copyProgress);
+const progressListener = (progress: FileCopyProgress) => results.push(progress);
 const finishListener = (copyParams: CopyParams) => results.push(copyParams);
 const errorListener = (error: CopyParamsError) => results.push(error);
 const idleListener = () => results.push("idle");
@@ -67,7 +67,7 @@ describe("SequentialFileCopyEventEmitter", () => {
     test("emit and capture events", () => {
         results = [];
 
-        const progress = new CopyProgress({ srcFilePath: "p", destFilePath: "p", fileSizeBytes: 1 });
+        const progress = new FileCopyProgress({ srcFilePath: "p", destFilePath: "p", fileSizeBytes: 1 });
 
         const error = new CopyParamsError({ srcFilePath: "e", destFilePath: "e", fileSizeBytes: 2 });
 

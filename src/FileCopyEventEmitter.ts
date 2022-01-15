@@ -1,11 +1,11 @@
 import CopyParams from "./CopyParams";
-import CopyProgress from "./CopyProgress";
+import FileCopyProgress from "./FileCopyProgress";
 import SimplifiedEventEmitter from "./SimplifiedEventEmitter";
 
 // prettier-ignore
 type EventValues = {
     readonly "start": CopyParams;
-    readonly "progress": CopyProgress;
+    readonly "progress": FileCopyProgress;
     readonly "finish": CopyParams;
 };
 type Events = keyof EventValues;

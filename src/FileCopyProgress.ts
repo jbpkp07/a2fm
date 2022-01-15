@@ -4,7 +4,7 @@ import NumberUtils from "./NumberUtils";
 
 const { isZero, round, toIntegerPercentage, toSeconds } = NumberUtils;
 
-class CopyProgress {
+class FileCopyProgress {
     private readonly _bytesPerSecond = new MovingMedian(15);
 
     public readonly copyParams: CopyParams;
@@ -61,4 +61,4 @@ class CopyProgress {
     }
 }
 
-export default CopyProgress;
+export default FileCopyProgress;
