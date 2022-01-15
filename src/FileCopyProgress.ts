@@ -1,11 +1,14 @@
 import FileCopyParams from "./FileCopyParams";
+import MicrosecondTimer from "./MicrosecondTimer";
 import MovingMedian from "./MovingMedian";
 import NumberUtils from "./NumberUtils";
 
-const { isZero, round, toIntegerPercentage, toSeconds } = NumberUtils;
+const { floor, isZero, round, toIntegerPercentage, toSeconds } = NumberUtils;
 
 class FileCopyProgress {
     private readonly _bytesPerSecond = new MovingMedian(15);
+
+    private readonly timer = new MicrosecondTimer();
 
     public readonly fileCopyParams: FileCopyParams;
 
@@ -51,9 +54,15 @@ class FileCopyProgress {
         }
     }
 
-    public update(bytesWritten: number, elapsedMicroseconds: number): void {
-        this.bytesWritten = bytesWritten;
-        this.elapsedSeconds = toSeconds(elapsedMicroseconds);
+    public startTimer(): void {
+        this.timer.start();
+    }
+
+    public update(bytesWritten: number, elapsedMicroseconds?: number): void {
+        const elapsed = this.timer.elapsed();
+
+        this.bytesWritten = floor(bytesWritten);
+        this.elapsedSeconds = toSeconds(elapsedMicroseconds ?? elapsed);
 
         this.updateBytesPerSecond();
         this.updateInProgress();
