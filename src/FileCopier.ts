@@ -3,8 +3,8 @@ import { createReadStream, createWriteStream, ReadStream, WriteStream } from "fs
 import { rm, stat } from "fs/promises";
 
 import CopyParams from "./CopyParams";
-import CopyParamsError from "./CopyParamsError";
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
+import FileCopyParamsError from "./FileCopyParamsError";
 import FileCopyProgress from "./FileCopyProgress";
 import MicrosecondTimer from "./MicrosecondTimer";
 
@@ -106,7 +106,7 @@ class FileCopier extends FileCopyEventEmitter {
         try {
             await this.copyFile(copyParams);
         } catch (error) {
-            throw CopyParamsError.from(copyParams, error);
+            throw FileCopyParamsError.from(copyParams, error);
         } finally {
             // await this.tearDown();
 
@@ -156,7 +156,7 @@ export default FileCopier;
 //         await copier.copyFileAsync(copyParams);
 //     } catch (error) {
 //         console.log("Error Caught ----------------------------");
-//         if (error instanceof CopyParamsError) {
+//         if (error instanceof FileCopyParamsError) {
 //             console.log();
 //             console.log(error.name, "\n");
 //             console.log(error.message, "\n");

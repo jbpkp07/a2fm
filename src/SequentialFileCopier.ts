@@ -1,5 +1,5 @@
 import CopyParams from "./CopyParams";
-import CopyParamsError from "./CopyParamsError";
+import FileCopyParamsError from "./FileCopyParamsError";
 import Queue from "./Queue";
 import SequentialFileCopyEventEmitter from "./SequentialFileCopyEventEmitter";
 
@@ -53,8 +53,8 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
     }
 
     private updateError(copyParams: CopyParams, error: unknown): void {
-        const copyParamsError = CopyParamsError.from(copyParams, error);
-        this.emit("error", copyParamsError);
+        const fileCopyParamsError = FileCopyParamsError.from(copyParams, error);
+        this.emit("error", fileCopyParamsError);
     }
 
     private updateIsActive(): void {
@@ -103,7 +103,7 @@ const fileCopier = new SequentialFileCopier({ copyFileAsync: mockedCopyFileAsync
 
 const activeListener = () => console.log("Active...");
 const queueListener = (upcoming: readonly CopyParams[]) => console.log("Upcoming: ", upcoming);
-// const errorListener = (error: CopyParamsError) => console.log("Error: ", error.message);
+// const errorListener = (error: FileCopyParamsError) => console.log("Error: ", error.message);
 // const finishListener = (copyParams: CopyParams) => console.log("Finish: ", copyParams);
 const idleListener = () => console.log("Idle...");
 // const startListener = (copyParams: CopyParams) => console.log("Start: ", copyParams);
@@ -127,7 +127,7 @@ async function doStuff() {
 
         console.log("\nResult: ", result, "\n");
     } catch (err) {
-        // const error = err instanceof CopyParamsError ? err.error : new Error("Dude");
+        // const error = err instanceof FileCopyParamsError ? err.error : new Error("Dude");
         // const params = JSON.parse(error.message) as CopyParams;
         // // @ts-ignore
         // params.destPath = "zzzzzzzzzzzzzzzzzzzz";
@@ -143,7 +143,7 @@ async function doStuff() {
     //         .copyFile({ srcPath: "f", destPath: "l" })
     //         .wait("idle")
     //         .then(() => console.log("------------Done"))
-    //         .catch((error: CopyParamsError) => {
+    //         .catch((error: FileCopyParamsError) => {
     //             console.log(error);
     //             // console.log("\n--------ThenC error: ", error.error.message, "\n");
     //         });

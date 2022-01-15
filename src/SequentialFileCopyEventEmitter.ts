@@ -1,5 +1,5 @@
 import CopyParams from "./CopyParams";
-import CopyParamsError from "./CopyParamsError";
+import FileCopyParamsError from "./FileCopyParamsError";
 import FileCopyProgress from "./FileCopyProgress";
 import SimplifiedEventEmitter from "./SimplifiedEventEmitter";
 
@@ -9,7 +9,7 @@ type EventValues = {
     readonly "copy:start": CopyParams;
     readonly "copy:progress": FileCopyProgress;
     readonly "copy:finish": CopyParams;
-    readonly "error": CopyParamsError; 
+    readonly "error": FileCopyParamsError; 
     readonly "idle": undefined;
     readonly "queue": readonly CopyParams[];
 };
