@@ -1,12 +1,12 @@
 import CopyParams from "../src/CopyParams";
 import CopyParamsError from "../src/CopyParamsError";
 
-const params: CopyParams = {
-    srcFilePath: "a",
-    destFilePath: "b"
-};
+// prettier-ignore
+const params: CopyParams = { srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10 };
 
 //-----------------------------------------------------------------------------
+// Align errors with line numbers
+//
 /* lineNumber 10 */ const copyParamsError1 = new CopyParamsError(params, { msg: "" });
 /* lineNumber 11 */ const copyParamsError2 = new CopyParamsError(params, { msg: "123" });
 /* lineNumber 12 */ const fromError1 = new Error();

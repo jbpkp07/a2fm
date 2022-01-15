@@ -67,31 +67,31 @@ describe("SequentialFileCopyEventEmitter", () => {
     test("emit and capture events", () => {
         results = [];
 
-        const progress = new CopyProgress({ srcFilePath: "p", destFilePath: "p" }, 100);
+        const progress = new CopyProgress({ srcFilePath: "p", destFilePath: "p", fileSizeBytes: 1 });
 
-        const error = new CopyParamsError({ srcFilePath: "e", destFilePath: "e" });
+        const error = new CopyParamsError({ srcFilePath: "e", destFilePath: "e", fileSizeBytes: 2 });
 
         eventEmitter.emit("active", undefined);
-        eventEmitter.emit("copy:start", { srcFilePath: "s", destFilePath: "s" });
+        eventEmitter.emit("copy:start", { srcFilePath: "s", destFilePath: "s", fileSizeBytes: 3 });
         eventEmitter.emit("copy:progress", progress);
-        eventEmitter.emit("copy:finish", { srcFilePath: "f", destFilePath: "f" });
+        eventEmitter.emit("copy:finish", { srcFilePath: "f", destFilePath: "f", fileSizeBytes: 4 });
         eventEmitter.emit("error", error);
         eventEmitter.emit("idle", undefined);
         eventEmitter.emit("queue", [
-            { srcFilePath: "c1", destFilePath: "c1" },
-            { srcFilePath: "c2", destFilePath: "c2" }
+            { srcFilePath: "q1", destFilePath: "q1", fileSizeBytes: 5 },
+            { srcFilePath: "q2", destFilePath: "q2", fileSizeBytes: 6 }
         ]);
 
         expect(results).toStrictEqual([
             "active",
-            { srcFilePath: "s", destFilePath: "s" },
+            { srcFilePath: "s", destFilePath: "s", fileSizeBytes: 3 },
             progress,
-            { srcFilePath: "f", destFilePath: "f" },
+            { srcFilePath: "f", destFilePath: "f", fileSizeBytes: 4 },
             error,
             "idle",
             [
-                { srcFilePath: "c1", destFilePath: "c1" },
-                { srcFilePath: "c2", destFilePath: "c2" }
+                { srcFilePath: "q1", destFilePath: "q1", fileSizeBytes: 5 },
+                { srcFilePath: "q2", destFilePath: "q2", fileSizeBytes: 6 }
             ]
         ]);
     });
@@ -99,16 +99,16 @@ describe("SequentialFileCopyEventEmitter", () => {
     test("wait", async () => {
         process.nextTick(() => {
             eventEmitter.emit("queue", [
-                { srcFilePath: "c3", destFilePath: "c3" },
-                { srcFilePath: "c4", destFilePath: "c4" }
+                { srcFilePath: "c3", destFilePath: "c3", fileSizeBytes: 1 },
+                { srcFilePath: "c4", destFilePath: "c4", fileSizeBytes: 2 }
             ]);
         });
 
         const result = await eventEmitter.wait("queue");
 
         expect(result).toStrictEqual([
-            { srcFilePath: "c3", destFilePath: "c3" },
-            { srcFilePath: "c4", destFilePath: "c4" }
+            { srcFilePath: "c3", destFilePath: "c3", fileSizeBytes: 1 },
+            { srcFilePath: "c4", destFilePath: "c4", fileSizeBytes: 2 }
         ]);
     });
 

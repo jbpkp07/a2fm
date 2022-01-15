@@ -16,8 +16,8 @@ class FileCopy {
 
     public readonly writeStream: WriteStream;
 
-    constructor(copyParams: CopyParams, fileSizeBytes: number) {
-        const { srcFilePath, destFilePath } = copyParams;
+    constructor(copyParams: CopyParams) {
+        const { srcFilePath, destFilePath, fileSizeBytes } = copyParams;
 
         this.readStream = createReadStream(srcFilePath, fileSizeBytes);
         this.writeStream = createWriteStream(destFilePath, fileSizeBytes);
@@ -92,9 +92,9 @@ export default FileCopy;
 
 const path = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp4";
 
-const copyParams = { srcFilePath: path, destFilePath: "zzzfile.mp4" };
+const copyParams = { srcFilePath: path, destFilePath: "zzzfile.mp4", fileSizeBytes: 1064551156 };
 
-const fileCopy = new FileCopy(copyParams, 1064551156);
+const fileCopy = new FileCopy(copyParams);
 
 const { readStream, writeStream } = fileCopy;
 

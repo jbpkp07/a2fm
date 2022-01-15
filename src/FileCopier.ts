@@ -54,7 +54,7 @@ class FileCopier extends FileCopyEventEmitter {
 
         const options = this.createStreamOptions(fileSizeBytes);
 
-        this.progress = new CopyProgress(copyParams, fileSizeBytes);
+        this.progress = new CopyProgress(copyParams);
         this.readStream = createReadStream(srcFilePath, options);
         this.writeStream = createWriteStream(destFilePath, options);
 

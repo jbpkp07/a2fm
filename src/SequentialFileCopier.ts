@@ -118,9 +118,9 @@ fileCopier
 
 async function doStuff() {
     fileCopier
-        .copyFile({ srcFilePath: "a", destFilePath: "x" })
-        .copyFile({ srcFilePath: "b", destFilePath: "y" })
-        .copyFile({ srcFilePath: "c", destFilePath: "z" });
+        .copyFile({ srcFilePath: "a", destFilePath: "x", fileSizeBytes: 10 })
+        .copyFile({ srcFilePath: "b", destFilePath: "y", fileSizeBytes: 10 })
+        .copyFile({ srcFilePath: "c", destFilePath: "z", fileSizeBytes: 10 });
 
     try {
         const result = await fileCopier.wait("idle");

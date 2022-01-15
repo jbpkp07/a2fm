@@ -9,8 +9,6 @@ class CopyProgress {
 
     public readonly copyParams: CopyParams;
 
-    public readonly fileSizeBytes: number;
-
     public bytesPerSecond = 0;
 
     public bytesWritten = 0;
@@ -21,9 +19,12 @@ class CopyProgress {
 
     public percentage = 0;
 
-    constructor(copyParams: CopyParams, fileSizeBytes: number) {
+    public get fileSizeBytes(): number {
+        return this.copyParams.fileSizeBytes;
+    }
+
+    constructor(copyParams: CopyParams) {
         this.copyParams = copyParams;
-        this.fileSizeBytes = fileSizeBytes;
     }
 
     private updateBytesPerSecond(): void {
