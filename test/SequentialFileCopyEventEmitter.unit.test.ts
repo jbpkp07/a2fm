@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import CopyParams from "../src/CopyParams";
+import FileCopyParams from "../src/FileCopyParams";
 import FileCopyParamsError from "../src/FileCopyParamsError";
 import FileCopyProgress from "../src/FileCopyProgress";
 import SequentialFileCopyEventEmitter from "../src/SequentialFileCopyEventEmitter";
@@ -21,12 +21,12 @@ const extractAllListeners = (): Function[] => {
 let results: unknown[] = [];
 
 const activeListener = () => results.push("active");
-const startListener = (copyParams: CopyParams) => results.push(copyParams);
+const startListener = (fileCopyParams: FileCopyParams) => results.push(fileCopyParams);
 const progressListener = (progress: FileCopyProgress) => results.push(progress);
-const finishListener = (copyParams: CopyParams) => results.push(copyParams);
+const finishListener = (fileCopyParams: FileCopyParams) => results.push(fileCopyParams);
 const errorListener = (error: FileCopyParamsError) => results.push(error);
 const idleListener = () => results.push("idle");
-const queueListener = (upcoming: readonly CopyParams[]) => results.push(upcoming);
+const queueListener = (upcoming: readonly FileCopyParams[]) => results.push(upcoming);
 
 describe("SequentialFileCopyEventEmitter", () => {
     test("emit returns false w/o listener", () => {

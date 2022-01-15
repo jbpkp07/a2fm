@@ -1,8 +1,8 @@
-import CopyParams from "../src/CopyParams";
+import FileCopyParams from "../src/FileCopyParams";
 import FileCopyParamsError from "../src/FileCopyParamsError";
 
 // prettier-ignore
-const params: CopyParams = { srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10 };
+const params: FileCopyParams = { srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10 };
 
 //-----------------------------------------------------------------------------
 // Align errors with line numbers
@@ -21,13 +21,13 @@ const extractLineNumber = (stack?: string): number | undefined => {
 };
 
 const expectErrorToEqual = (error: FileCopyParamsError, expected: unknown[]) => {
-    const { name, message, stack, copyParams } = error;
+    const { name, message, stack, fileCopyParams } = error;
     const lineNumber = extractLineNumber(stack);
 
     expect(name).toBe(expected[0]);
     expect(message).toBe(expected[1]);
     expect(lineNumber).toBe(expected[2]);
-    expect(copyParams).toStrictEqual(params);
+    expect(fileCopyParams).toStrictEqual(params);
 };
 
 const defaultName = "FileCopyParamsError";
@@ -90,11 +90,11 @@ describe("FileCopyParamsError", () => {
             error = FileCopyParamsError.from(params, err);
         }
 
-        const { name, message, copyParams } = error;
+        const { name, message, fileCopyParams } = error;
 
         expect(error).not.toBe(stringError);
         expect(name).toBe(defaultName);
         expect(message).toBe(defaultMessage);
-        expect(copyParams).toStrictEqual(params);
+        expect(fileCopyParams).toStrictEqual(params);
     });
 });

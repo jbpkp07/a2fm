@@ -1,16 +1,16 @@
-import CopyParams from "./CopyParams";
+import FileCopyParams from "./FileCopyParams";
 
 type FileCopyParamsErrorOptions =
     | { readonly fromError: Error; readonly msg?: never }
     | { readonly fromError?: never; readonly msg: string };
 
 class FileCopyParamsError extends Error {
-    public readonly copyParams: CopyParams;
+    public readonly fileCopyParams: FileCopyParams;
 
-    constructor(copyParams: CopyParams, options?: FileCopyParamsErrorOptions) {
+    constructor(fileCopyParams: FileCopyParams, options?: FileCopyParamsErrorOptions) {
         super();
 
-        this.copyParams = copyParams;
+        this.fileCopyParams = fileCopyParams;
 
         this.name = options?.fromError?.name || "FileCopyParamsError";
         this.message = options?.fromError?.message || options?.msg || "File Copy Failed";
@@ -20,16 +20,16 @@ class FileCopyParamsError extends Error {
         }
     }
 
-    public static from(copyParams: CopyParams, caughtError: unknown): FileCopyParamsError {
+    public static from(fileCopyParams: FileCopyParams, caughtError: unknown): FileCopyParamsError {
         if (caughtError instanceof FileCopyParamsError) {
             return caughtError;
         }
 
         if (caughtError instanceof Error) {
-            return new FileCopyParamsError(copyParams, { fromError: caughtError });
+            return new FileCopyParamsError(fileCopyParams, { fromError: caughtError });
         }
 
-        return new FileCopyParamsError(copyParams);
+        return new FileCopyParamsError(fileCopyParams);
     }
 }
 

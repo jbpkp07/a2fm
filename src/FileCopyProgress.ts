@@ -1,4 +1,4 @@
-import CopyParams from "./CopyParams";
+import FileCopyParams from "./FileCopyParams";
 import MovingMedian from "./MovingMedian";
 import NumberUtils from "./NumberUtils";
 
@@ -7,7 +7,7 @@ const { isZero, round, toIntegerPercentage, toSeconds } = NumberUtils;
 class FileCopyProgress {
     private readonly _bytesPerSecond = new MovingMedian(15);
 
-    public readonly copyParams: CopyParams;
+    public readonly fileCopyParams: FileCopyParams;
 
     public bytesPerSecond = 0;
 
@@ -20,11 +20,11 @@ class FileCopyProgress {
     public percentage = 0;
 
     public get fileSizeBytes(): number {
-        return this.copyParams.fileSizeBytes;
+        return this.fileCopyParams.fileSizeBytes;
     }
 
-    constructor(copyParams: CopyParams) {
-        this.copyParams = copyParams;
+    constructor(fileCopyParams: FileCopyParams) {
+        this.fileCopyParams = fileCopyParams;
     }
 
     private updateBytesPerSecond(): void {

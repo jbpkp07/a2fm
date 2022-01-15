@@ -1,7 +1,7 @@
-interface CopyParams {
+interface FileCopyParams {
     readonly srcFilePath: string;
     readonly destFilePath: string;
     readonly fileSizeBytes: number;
 }
 
-export default CopyParams;
+export default FileCopyParams;

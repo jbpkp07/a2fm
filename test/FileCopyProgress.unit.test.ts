@@ -10,7 +10,7 @@ describe("FileCopyProgress", () => {
         expect(progress.fileSizeBytes).toBe(10000);
         expect(progress.inProgress).toBe(true);
         expect(progress.percentage).toBe(0);
-        expect(progress.copyParams).toStrictEqual({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10000 });
+        expect(progress.fileCopyParams).toStrictEqual({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10000 });
     });
 
     test("update (no elapsed time, no bytes written)", () => {

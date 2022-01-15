@@ -2,8 +2,8 @@ import { once } from "events";
 import { createReadStream, createWriteStream, ReadStream, WriteStream } from "fs";
 import { rm, stat } from "fs/promises";
 
-import CopyParams from "./CopyParams";
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
+import FileCopyParams from "./FileCopyParams";
 import FileCopyParamsError from "./FileCopyParamsError";
 import FileCopyProgress from "./FileCopyProgress";
 import MicrosecondTimer from "./MicrosecondTimer";
@@ -43,18 +43,18 @@ class FileCopier extends FileCopyEventEmitter {
         return size;
     }
 
-    private async setup(copyParams: CopyParams): Promise<void> {
+    private async setup(fileCopyParams: FileCopyParams): Promise<void> {
         if (this.isActive) return;
 
         this.isActive = true;
 
-        const { srcFilePath, destFilePath } = copyParams;
+        const { srcFilePath, destFilePath } = fileCopyParams;
 
         const fileSizeBytes = await this.getFileSizeBytes(srcFilePath);
 
         const options = this.createStreamOptions(fileSizeBytes);
 
-        this.progress = new FileCopyProgress(copyParams);
+        this.progress = new FileCopyProgress(fileCopyParams);
         this.readStream = createReadStream(srcFilePath, options);
         this.writeStream = createWriteStream(destFilePath, options);
 
@@ -95,40 +95,40 @@ class FileCopier extends FileCopyEventEmitter {
         await Promise.all([readStreamClose, writeStreamClose]);
     }
 
-    private async copyFile(copyParams: CopyParams): Promise<void> {
-        this.emit("start", copyParams);
-        await this.setup(copyParams);
+    private async copyFile(fileCopyParams: FileCopyParams): Promise<void> {
+        this.emit("start", fileCopyParams);
+        await this.setup(fileCopyParams);
         await this.waitForStreamsToClose();
-        this.emit("finish", copyParams);
+        this.emit("finish", fileCopyParams);
     }
 
-    private async tryCopyFileAsync(copyParams: CopyParams): Promise<void> {
+    private async tryCopyFileAsync(fileCopyParams: FileCopyParams): Promise<void> {
         try {
-            await this.copyFile(copyParams);
+            await this.copyFile(fileCopyParams);
         } catch (error) {
-            throw FileCopyParamsError.from(copyParams, error);
+            throw FileCopyParamsError.from(fileCopyParams, error);
         } finally {
             // await this.tearDown();
 
             this.isActive = false;
-            this.emit("finish", copyParams);
+            this.emit("finish", fileCopyParams);
             // then streams.destroy()
         }
     }
 
-    public async copyFileAsync(copyParams: CopyParams): Promise<void> {
+    public async copyFileAsync(fileCopyParams: FileCopyParams): Promise<void> {
         if (!this.isActive) {
             this.isActive = true;
-            this.emit("start", copyParams);
+            this.emit("start", fileCopyParams);
 
-            await this.tryCopyFileAsync(copyParams);
+            await this.tryCopyFileAsync(fileCopyParams);
         }
     }
 }
 
 export default FileCopier;
 
-// const copyParams = {
+// const fileCopyParams = {
 //     // srcFilePath: "----------test.txt",
 //     // destFilePath: "----------testCopy.txt"
 //     srcFilePath: "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp4",
@@ -153,7 +153,7 @@ export default FileCopier;
 
 // async function app() {
 //     try {
-//         await copier.copyFileAsync(copyParams);
+//         await copier.copyFileAsync(fileCopyParams);
 //     } catch (error) {
 //         console.log("Error Caught ----------------------------");
 //         if (error instanceof FileCopyParamsError) {
@@ -161,7 +161,7 @@ export default FileCopier;
 //             console.log(error.name, "\n");
 //             console.log(error.message, "\n");
 //             console.log(error.stack, "\n");
-//             console.log(error.copyParams, "\n");
+//             console.log(error.fileCopyParams, "\n");
 //         }
 //     }
 

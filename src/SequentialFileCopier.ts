@@ -1,9 +1,9 @@
-import CopyParams from "./CopyParams";
+import FileCopyParams from "./FileCopyParams";
 import FileCopyParamsError from "./FileCopyParamsError";
 import Queue from "./Queue";
 import SequentialFileCopyEventEmitter from "./SequentialFileCopyEventEmitter";
 
-type CopyFileAsync = (copyParams: CopyParams) => Promise<void>;
+type CopyFileAsync = (fileCopyParams: FileCopyParams) => Promise<void>;
 
 interface FileCopier {
     readonly copyFileAsync: CopyFileAsync;
@@ -12,19 +12,19 @@ interface FileCopier {
 class SequentialFileCopier extends SequentialFileCopyEventEmitter {
     private readonly copyFileAsync: CopyFileAsync;
 
-    private readonly queue = new Queue<CopyParams>();
+    private readonly queue = new Queue<FileCopyParams>();
 
     private isActive = false;
 
     constructor(fileCopier: FileCopier) {
         super();
 
-        this.copyFileAsync = async (copyParams: CopyParams) => {
-            this.emit("copy:start", copyParams);
+        this.copyFileAsync = async (fileCopyParams: FileCopyParams) => {
+            this.emit("copy:start", fileCopyParams);
 
-            await fileCopier.copyFileAsync(copyParams);
+            await fileCopier.copyFileAsync(fileCopyParams);
 
-            this.emit("copy:finish", copyParams);
+            this.emit("copy:finish", fileCopyParams);
         };
     }
 
@@ -34,26 +34,26 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
         this.updateIsActive();
 
         while (!this.queue.isEmpty) {
-            const copyParams = this.queue.dequeue() as CopyParams;
+            const fileCopyParams = this.queue.dequeue() as FileCopyParams;
 
             this.updateQueue();
 
-            await this.tryCopyFileAsync(copyParams); // eslint-disable-line no-await-in-loop
+            await this.tryCopyFileAsync(fileCopyParams); // eslint-disable-line no-await-in-loop
         }
 
         this.updateIsIdle();
     }
 
-    private async tryCopyFileAsync(copyParams: CopyParams): Promise<void> {
+    private async tryCopyFileAsync(fileCopyParams: FileCopyParams): Promise<void> {
         try {
-            await this.copyFileAsync(copyParams);
+            await this.copyFileAsync(fileCopyParams);
         } catch (error) {
-            this.updateError(copyParams, error);
+            this.updateError(fileCopyParams, error);
         }
     }
 
-    private updateError(copyParams: CopyParams, error: unknown): void {
-        const fileCopyParamsError = FileCopyParamsError.from(copyParams, error);
+    private updateError(fileCopyParams: FileCopyParams, error: unknown): void {
+        const fileCopyParamsError = FileCopyParamsError.from(fileCopyParams, error);
         this.emit("error", fileCopyParamsError);
     }
 
@@ -72,8 +72,8 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
         this.emit("queue", queue);
     }
 
-    public copyFile(copyParams: CopyParams): this {
-        this.queue.enqueue(copyParams);
+    public copyFile(fileCopyParams: FileCopyParams): this {
+        this.queue.enqueue(fileCopyParams);
 
         if (this.isActive) {
             this.updateQueue();
@@ -102,11 +102,11 @@ const mockedCopyFileAsync = async (): Promise<void> => {
 const fileCopier = new SequentialFileCopier({ copyFileAsync: mockedCopyFileAsync });
 
 const activeListener = () => console.log("Active...");
-const queueListener = (upcoming: readonly CopyParams[]) => console.log("Upcoming: ", upcoming);
+const queueListener = (upcoming: readonly FileCopyParams[]) => console.log("Upcoming: ", upcoming);
 // const errorListener = (error: FileCopyParamsError) => console.log("Error: ", error.message);
-// const finishListener = (copyParams: CopyParams) => console.log("Finish: ", copyParams);
+// const finishListener = (fileCopyParams: FileCopyParams) => console.log("Finish: ", fileCopyParams);
 const idleListener = () => console.log("Idle...");
-// const startListener = (copyParams: CopyParams) => console.log("Start: ", copyParams);
+// const startListener = (fileCopyParams: FileCopyParams) => console.log("Start: ", fileCopyParams);
 
 fileCopier
     .on("active", activeListener)
