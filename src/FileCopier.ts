@@ -4,8 +4,8 @@ import { rm, stat } from "fs/promises";
 
 import CopyParams from "./CopyParams";
 import CopyParamsError from "./CopyParamsError";
-import FileCopyProgress from "./FileCopyProgress";
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
+import FileCopyProgress from "./FileCopyProgress";
 import MicrosecondTimer from "./MicrosecondTimer";
 
 interface StreamOptions {
