@@ -1,11 +1,14 @@
 import { once } from "events";
 
 import FileCopyParams from "./FileCopyParams";
+import FileCopyParamsError from "./FileCopyParamsError";
 import FileSystemUtils, { ReadStream, WriteStream } from "./FileSystemUtils";
 
-const { createReadStream, createWriteStream, deleteFile } = FileSystemUtils;
+const { createReadStream, createWriteStream } = FileSystemUtils;
 
 class FileCopy {
+    private readonly fileCopyParams: FileCopyParams;
+
     private readonly readStreamClosed: Promise<unknown[]>;
 
     private readonly writeStreamClosed: Promise<unknown[]>;
@@ -19,6 +22,8 @@ class FileCopy {
     constructor(fileCopyParams: FileCopyParams) {
         const { srcFilePath, destFilePath, fileSizeBytes } = fileCopyParams;
 
+        this.fileCopyParams = fileCopyParams;
+
         this.readStream = createReadStream(srcFilePath, fileSizeBytes);
         this.writeStream = createWriteStream(destFilePath, fileSizeBytes);
 
@@ -26,23 +31,13 @@ class FileCopy {
         this.writeStreamClosed = once(this.writeStream, "close");
     }
 
-    private async abort(error: unknown): Promise<void> {
-        await this.destroy();
-
-        await deleteFile(this.writeStream.path);
-        console.log("****************************** File Deleted");
-        throw error;
-    }
-
     private async copyFile(): Promise<void> {
         this.readStream.pipe(this.writeStream);
 
         await Promise.all([this.readStreamClosed, this.writeStreamClosed]);
-
-        await this.destroy();
     }
 
-    private async destroy(): Promise<void> {
+    private async tearDown(): Promise<void> {
         this.readStream.unpipe(this.writeStream);
 
         await this.destroyStreams();
@@ -51,14 +46,10 @@ class FileCopy {
     }
 
     private async destroyStreams(): Promise<void> {
-        console.log("RS", this.readStream.destroyed, "WS", this.writeStream.destroyed);
-
         this.readStream.destroy();
         this.writeStream.destroy();
 
         await Promise.allSettled([this.readStreamClosed, this.writeStreamClosed]);
-
-        console.log("RS", this.readStream.destroyed, "WS", this.writeStream.destroyed);
     }
 
     private removeAllListeners(): void {
@@ -67,15 +58,15 @@ class FileCopy {
 
         rsEvents.forEach((event) => this.readStream.removeAllListeners(event));
         wsEvents.forEach((event) => this.writeStream.removeAllListeners(event));
-        console.log("****************************** Listeners Removed");
     }
 
     private async tryCopyFile(): Promise<void> {
         try {
             await this.copyFile();
         } catch (error) {
-            console.log("\n\n****************************** Abort Reached");
-            await this.abort(error);
+            throw FileCopyParamsError.from(this.fileCopyParams, error);
+        } finally {
+            await this.tearDown();
         }
     }
 
@@ -92,7 +83,7 @@ export default FileCopy;
 
 const path = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp4";
 
-const fileCopyParams = { srcFilePath: path, destFilePath: "zzzfile.mp4", fileSizeBytes: 1064551156 };
+const fileCopyParams = { srcFilePath: path, destFilePath: "./zzzfile.mp4", fileSizeBytes: 1064551156 };
 
 const fileCopy = new FileCopy(fileCopyParams);
 
@@ -144,6 +135,7 @@ writeStream.once("pipe", () => {
 writeStream.on("drain", () => {
     // count += 1;
     // if (count === 10) {
+    //     readStream.emit("error", new Error("Crap!"));
     //     writeStream.emit("error");
     // }
     console.log("WriteStream drain.");
@@ -169,33 +161,19 @@ async function start() {
     try {
         await fileCopy.start();
     } catch (error) {
-        console.log("\n\n****************************** Top Level Error Caught");
+        console.log(error);
     }
 
+    console.log("_______________________________________________________");
+    console.log("rs event names", readStream.eventNames());
+    console.log("ws event names", writeStream.eventNames());
+    console.log("_______________________________________________________");
     console.log("Rs is destroyed after", readStream.destroyed);
     console.log("Ws is destroyed after", writeStream.destroyed);
     console.log("Rs is paused", readStream.isPaused());
 }
 
 void start();
-
-// setTimeout(() => {
-//     const destroy = async () => {
-//         console.log("Rs is destroyed before", readStream.destroyed);
-//         console.log("Ws is destroyed before", writeStream.destroyed);
-
-//         try {
-//             await streams.destroy();
-//         } catch (error) {
-//             console.log("------------------Here-----------------");
-//         }
-
-//         console.log("Rs is destroyed after", readStream.destroyed);
-//         console.log("Ws is destroyed after", writeStream.destroyed);
-//     };
-
-//     void destroy();
-// }, 5100);
 
 setInterval(() => {
     console.log("\n...alive...");
