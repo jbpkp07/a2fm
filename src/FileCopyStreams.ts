@@ -6,7 +6,7 @@ import FileSystemUtils, { ReadStream, WriteStream } from "./FileSystemUtils";
 
 const { createReadStream, createWriteStream } = FileSystemUtils;
 
-class FileCopy {
+class FileCopyStreams {
     private readonly fileCopyParams: FileCopyParams;
 
     private readonly readStreamClosed: Promise<unknown[]>;
@@ -31,7 +31,17 @@ class FileCopy {
         this.writeStreamClosed = once(this.writeStream, "close");
     }
 
-    private async copyFile(): Promise<void> {
+    private async tryStartStreaming(): Promise<void> {
+        try {
+            await this.startStreaming();
+        } catch (error) {
+            throw FileCopyParamsError.from(this.fileCopyParams, error);
+        } finally {
+            await this.tearDown();
+        }
+    }
+
+    private async startStreaming(): Promise<void> {
         this.readStream.pipe(this.writeStream);
 
         await Promise.all([this.readStreamClosed, this.writeStreamClosed]);
@@ -60,34 +70,36 @@ class FileCopy {
         wsEvents.forEach((event) => this.writeStream.removeAllListeners(event));
     }
 
-    private async tryCopyFile(): Promise<void> {
-        try {
-            await this.copyFile();
-        } catch (error) {
-            throw FileCopyParamsError.from(this.fileCopyParams, error);
-        } finally {
-            await this.tearDown();
-        }
+    public addStartListener(listener: () => void): void {
+        this.writeStream.once("ready", listener);
     }
 
-    public async start(): Promise<void> {
+    public addProgressListener(listener: () => void): void {
+        this.writeStream.on("drain", listener);
+    }
+
+    public addFinishListener(listener: () => void): void {
+        this.writeStream.once("finish", listener);
+    }
+
+    public async copyFile(): Promise<void> {
         if (this.isStarted) return;
 
         this.isStarted = true;
 
-        await this.tryCopyFile();
+        await this.tryStartStreaming();
     }
 }
 
-export default FileCopy;
+export default FileCopyStreams;
 
 const path = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp4";
 
 const fileCopyParams = { srcFilePath: path, destFilePath: "./zzzfile.mp4", fileSizeBytes: 1064551156 };
 
-const fileCopy = new FileCopy(fileCopyParams);
+const streams = new FileCopyStreams(fileCopyParams);
 
-const { readStream, writeStream } = fileCopy;
+const { readStream, writeStream } = streams;
 
 readStream.once("open", () => {
     console.log("ReadStream open.");
@@ -159,7 +171,7 @@ async function start() {
     console.log("Rs is paused", readStream.isPaused());
 
     try {
-        await fileCopy.start();
+        await streams.copyFile();
     } catch (error) {
         console.log(error);
     }

@@ -1,5 +1,5 @@
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
-import FileCopyParams from "./FileCopyParams";
+// import FileCopyParams from "./FileCopyParams";
 
 class FileCopier extends FileCopyEventEmitter {
     private constructor() {
@@ -30,6 +30,7 @@ class FileCopier extends FileCopyEventEmitter {
 
     // assignWriteStreamListeners(progress, writeStream) {
 
+    //     streams.addStartListener(() => updateStart(progress));
     //     writeStream.once("ready", () => updateStart(progress));
     //     writeStream.on("drain", () => updateProgress(progress, writeStream));
     //     writeStream.once("finish", () => updateFinish(progress, writeStream));
@@ -67,7 +68,7 @@ class FileCopier extends FileCopyEventEmitter {
     //     await mkDir(dir, { recursive: true }};
     // }
 
-    // copyfileAsync(fileCopyParams) {
+    // copyfile(fileCopyParams) {
 
     //     const { destFilePath } = fileCopyParams;
 
