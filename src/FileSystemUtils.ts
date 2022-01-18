@@ -1,6 +1,6 @@
 import { createReadStream, createWriteStream, PathLike, ReadStream, Stats, WriteStream } from "fs";
 import { mkdir, rm, stat } from "fs/promises";
-import { dirname } from "path";
+import { dirname, isAbsolute, normalize } from "path";
 
 export { ReadStream, WriteStream } from "fs";
 
@@ -57,6 +57,14 @@ class FileSystemUtils {
         }
     };
 
+    public static isDriveRoot = (path: string): boolean => {
+        return path === dirname(path);
+    };
+
+    public static isRelative = (path: string): boolean => {
+        return !isAbsolute(path);
+    };
+
     public static makeDestDir = async (destFilePath: string): Promise<string | undefined> => {
         // Needs test -----------------------------------------------------------------------------------------------
         try {
@@ -84,6 +92,27 @@ class FileSystemUtils {
         } catch (error) {
             throw this.newError(error, `Failed to read stats at: ${String(filePath)}`);
         }
+    };
+
+    public static traverseBack = (fromChildPath: string, toParentPath: string): string[] => {
+        // Needs test -----------------------------------------------------------------------------------------------
+        if (this.isRelative(fromChildPath) || this.isRelative(toParentPath)) return [];
+
+        let childPath = normalize(fromChildPath);
+        const parentPath = normalize(toParentPath).toLowerCase();
+        const traversedPaths: string[] = [];
+
+        const canTraverse = () => childPath.toLowerCase().startsWith(parentPath);
+
+        while (canTraverse()) {
+            traversedPaths.push(childPath);
+
+            if (this.isDriveRoot(childPath)) break;
+
+            childPath = dirname(childPath);
+        }
+
+        return traversedPaths;
     };
 }
 
