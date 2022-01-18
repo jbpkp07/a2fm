@@ -1,52 +1,47 @@
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
-// import FileCopyParams from "./FileCopyParams";
+import FileCopyParams from "./FileCopyParams";
+import FileCopyProgress from "./FileCopyProgress";
+import FileCopyStreams from "./FileCopyStreams";
+import FileSystemUtils from "./FileSystemUtils";
+
+const { makeDestDir } = FileSystemUtils;
 
 class FileCopier extends FileCopyEventEmitter {
-    private constructor() {
-        super();
+    private async tryCopyFileAsync(fileCopyParams: FileCopyParams): Promise<void> {
+        try {
+            await this.copyFileAsync(fileCopyParams);
+        } catch (error) {
+            // await abort(abortDeletePath, err);
+        }
     }
 
-    // updateStart(progress) {
-    //     const { fileCopyParams } = progress;
+    private async copyFileAsync(fileCopyParams: FileCopyParams): Promise<void> {
+        const streams = new FileCopyStreams(fileCopyParams);
+        const progress = new FileCopyProgress(fileCopyParams);
 
-    //     progress.startTimer();
-    //     this.emit("start", fileCopyParams);
-    // }
+        this.assignListeners(streams, progress);
 
-    // updateProgress(progress, writeStream) {
-    //     const { bytesWritten } = writeStream;
+        await streams.copyFile();
 
-    //     progress.update(bytesWritten);
-    //     this.emit("progress", progress);
-    // }
+        // await validateCopyWasGood(fileCopyParams); // probably here instead of FileCopy? This does the before (make dirs) and after (delete dirs/file on abort), so should validate copy was good here right?
+    }
 
-    // updateFinish(progress, writeStream) {
-    //     const { fileCopyParams } = progress;
+    private assignListeners(streams: FileCopyStreams, progress: FileCopyProgress): void {
+        streams.addStartListener(() => {
+            progress.startTimer();
+            this.emit("start", progress);
+        });
 
-    //     updateProgress(progress, writeStream);
+        streams.addProgressListener((bytesWritten: number) => {
+            progress.update(bytesWritten);
+            this.emit("progress", progress);
+        });
 
-    //     this.emit("finish", fileCopyParams);
-    // }
-
-    // assignWriteStreamListeners(progress, writeStream) {
-
-    //     streams.addStartListener(() => updateStart(progress));
-    //     writeStream.once("ready", () => updateStart(progress));
-    //     writeStream.on("drain", () => updateProgress(progress, writeStream));
-    //     writeStream.once("finish", () => updateFinish(progress, writeStream));
-    // }
-
-    // copyFile(fileCopyParams) {
-    //     const progress = new FileCopyProgress(fileCopyParams);
-    //     const fileCopy = new FileCopy(fileCopyParams);
-    //     const { writeStream } = fileCopy;
-
-    //     assignWriteStreamListeners(progress, writeStream);
-
-    //     await fileCopy.start();
-
-    //     await validateCopyWasGood(fileCopyParams); // probably here instead of FileCopy? This does the before (make dirs) and after (delete dirs/file on abort), so should validate copy was good here right?
-    // }
+        streams.addFinishListener((bytesWritten: number) => {
+            progress.update(bytesWritten);
+            this.emit("finish", progress);
+        });
+    }
 
     // abort(abortDeletePath, err) {
     //     await rm(abortDeletePath, { force: true, recursive: true }); // can be in FileSystemUtils
@@ -54,28 +49,43 @@ class FileCopier extends FileCopyEventEmitter {
     //     throw err;
     // }
 
-    // tryCopyfile(fileCopyParams, abortDeletPath) {
-    //     try {
-    //         await copyFile(fileCopyParams);
-    //     } catch (err) {
-    //         await abort(abortDeletePath, err);
-    //     }
-    // }
+    public copyFile = async (fileCopyParams: FileCopyParams): Promise<void> => {
+        const { destFilePath } = fileCopyParams;
 
-    // makeDestDir(destFilePath) {              // Cant be in FileSystemUtils
-    //     const dir = dirname(destFilePath);
+        const firstDirPathCreated = await makeDestDir(destFilePath);
 
-    //     await mkDir(dir, { recursive: true }};
-    // }
+        const rollbackToPath = firstDirPathCreated ?? destFilePath;
 
-    // copyfile(fileCopyParams) {
-
-    //     const { destFilePath } = fileCopyParams;
-
-    //     const abortDeletPath = await makeDestDir(destFilePath) ?? destFilePath;
-
-    //     await tryCopyFile(fileCopyParams, abortDeletPath);
-    // }
+        await this.tryCopyFileAsync(fileCopyParams);
+    };
 }
 
 export default FileCopier;
+
+const path = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp4";
+
+const fileCopyParams = { srcFilePath: path, destFilePath: "./zzzfile.mp4", fileSizeBytes: 1064551156 };
+
+const fileCopier = new FileCopier();
+
+fileCopier.on("start", (progress) => {
+    console.log(progress.bytesPerSecond);
+});
+
+fileCopier.on("progress", (progress) => {
+    console.log(progress.bytesPerSecond);
+});
+
+fileCopier.on("finish", (progress) => {
+    console.log(progress.bytesPerSecond);
+});
+
+async function app() {
+    try {
+        await fileCopier.copyFile(fileCopyParams);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+void app();

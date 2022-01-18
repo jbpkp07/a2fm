@@ -4,6 +4,8 @@ import FileCopyParams from "./FileCopyParams";
 import FileCopyParamsError from "./FileCopyParamsError";
 import FileSystemUtils, { ReadStream, WriteStream } from "./FileSystemUtils";
 
+type Listener = (bytesWritten: number) => void;
+
 const { createReadStream, createWriteStream } = FileSystemUtils;
 
 class FileCopyStreams {
@@ -18,6 +20,10 @@ class FileCopyStreams {
     public readonly readStream: ReadStream;
 
     public readonly writeStream: WriteStream;
+
+    public get bytesWritten(): number {
+        return this.writeStream.bytesWritten;
+    }
 
     constructor(fileCopyParams: FileCopyParams) {
         const { srcFilePath, destFilePath, fileSizeBytes } = fileCopyParams;
@@ -70,16 +76,16 @@ class FileCopyStreams {
         wsEvents.forEach((event) => this.writeStream.removeAllListeners(event));
     }
 
-    public addStartListener(listener: () => void): void {
-        this.writeStream.once("ready", listener);
+    public addStartListener(listener: Listener): void {
+        this.writeStream.once("ready", () => listener(this.bytesWritten));
     }
 
-    public addProgressListener(listener: () => void): void {
-        this.writeStream.on("drain", listener);
+    public addProgressListener(listener: Listener): void {
+        this.writeStream.on("drain", () => listener(this.bytesWritten));
     }
 
-    public addFinishListener(listener: () => void): void {
-        this.writeStream.once("finish", listener);
+    public addFinishListener(listener: Listener): void {
+        this.writeStream.once("finish", () => listener(this.bytesWritten));
     }
 
     public async copyFile(): Promise<void> {
@@ -93,109 +99,121 @@ class FileCopyStreams {
 
 export default FileCopyStreams;
 
-const path = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp4";
+// const path = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp4";
 
-const fileCopyParams = { srcFilePath: path, destFilePath: "./zzzfile.mp4", fileSizeBytes: 1064551156 };
+// const fileCopyParams = { srcFilePath: path, destFilePath: "./zzzfile.mp4", fileSizeBytes: 1064551156 };
 
-const streams = new FileCopyStreams(fileCopyParams);
+// const streams = new FileCopyStreams(fileCopyParams);
 
-const { readStream, writeStream } = streams;
+// streams.addStartListener((bytesWritten: number) =>
+//     console.log("----------------------------------------", bytesWritten)
+// );
 
-readStream.once("open", () => {
-    console.log("ReadStream open.");
-});
+// streams.addProgressListener((bytesWritten: number) =>
+//     console.log("****************************************", bytesWritten)
+// );
 
-readStream.once("ready", () => {
-    console.log("ReadStream ready.");
-});
+// streams.addFinishListener((bytesWritten: number) =>
+//     console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", bytesWritten)
+// );
 
-// on -----------------------------------------
-// let count = 0;
-readStream.on("data", () => {
-    // count += 1;
-    // if (count === 10) {
-    //     readStream.emit("error");
-    // }
-    console.log("ReadStream data.");
-});
+// const { readStream, writeStream } = streams;
 
-readStream.once("end", () => {
-    console.log("ReadStream end.");
-});
+// readStream.once("open", () => {
+//     console.log("ReadStream open.");
+// });
 
-readStream.once("close", () => {
-    console.log("ReadStream close.");
-});
+// readStream.once("ready", () => {
+//     console.log("ReadStream ready.");
+// });
 
-//
-//
+// // on -----------------------------------------
+// // let count = 0;
+// readStream.on("data", () => {
+//     // count += 1;
+//     // if (count === 10) {
+//     //     readStream.emit("error");
+//     // }
+//     console.log("ReadStream data.");
+// });
 
-writeStream.once("open", () => {
-    console.log("WriteStream open.");
-});
+// readStream.once("end", () => {
+//     console.log("ReadStream end.");
+// });
 
-writeStream.once("ready", () => {
-    console.log("WriteStream ready.");
-});
+// readStream.once("close", () => {
+//     console.log("ReadStream close.");
+// });
 
-writeStream.once("pipe", () => {
-    console.log("WriteStream pipe.");
-});
+// //
+// //
 
-// on -----------------------------------------
+// writeStream.once("open", () => {
+//     console.log("WriteStream open.");
+// });
 
-writeStream.on("drain", () => {
-    // count += 1;
-    // if (count === 10) {
-    //     readStream.emit("error", new Error("Crap!"));
-    //     writeStream.emit("error");
-    // }
-    console.log("WriteStream drain.");
-});
+// writeStream.once("ready", () => {
+//     console.log("WriteStream ready.");
+// });
 
-writeStream.once("finish", () => {
-    console.log("WriteStream finish.");
-});
+// writeStream.once("pipe", () => {
+//     console.log("WriteStream pipe.");
+// });
 
-writeStream.once("unpipe", () => {
-    console.log("WriteStream unpipe.");
-});
+// // on -----------------------------------------
 
-writeStream.once("close", () => {
-    console.log("WriteStream close.");
-});
+// writeStream.on("drain", () => {
+//     // count += 1;
+//     // if (count === 10) {
+//     //     readStream.emit("error", new Error("Crap!"));
+//     //     writeStream.emit("error");
+//     // }
+//     console.log("WriteStream drain.");
+// });
 
-async function start() {
-    console.log("Rs is destroyed before", readStream.destroyed);
-    console.log("Ws is destroyed before", writeStream.destroyed);
-    console.log("Rs is paused", readStream.isPaused());
+// writeStream.once("finish", () => {
+//     console.log("WriteStream finish.");
+// });
 
-    try {
-        await streams.copyFile();
-    } catch (error) {
-        console.log(error);
-    }
+// writeStream.once("unpipe", () => {
+//     console.log("WriteStream unpipe.");
+// });
 
-    console.log("_______________________________________________________");
-    console.log("rs event names", readStream.eventNames());
-    console.log("ws event names", writeStream.eventNames());
-    console.log("_______________________________________________________");
-    console.log("Rs is destroyed after", readStream.destroyed);
-    console.log("Ws is destroyed after", writeStream.destroyed);
-    console.log("Rs is paused", readStream.isPaused());
-}
+// writeStream.once("close", () => {
+//     console.log("WriteStream close.");
+// });
 
-void start();
+// async function start() {
+//     console.log("Rs is destroyed before", readStream.destroyed);
+//     console.log("Ws is destroyed before", writeStream.destroyed);
+//     console.log("Rs is paused", readStream.isPaused());
 
-setInterval(() => {
-    console.log("\n...alive...");
-    console.log("_______________________________________________________");
-    console.log("rs event names", readStream.eventNames());
-    console.log("ws event names", writeStream.eventNames());
-    console.log("_______________________________________________________");
-    console.log("Rs is destroyed", readStream.destroyed);
-    console.log("Ws is destroyed", writeStream.destroyed);
-    console.log("Rs paused", readStream.isPaused());
-}, 5000);
+//     try {
+//         await streams.copyFile();
+//     } catch (error) {
+//         console.log(error);
+//     }
 
-console.log("End of file");
+//     console.log("_______________________________________________________");
+//     console.log("rs event names", readStream.eventNames());
+//     console.log("ws event names", writeStream.eventNames());
+//     console.log("_______________________________________________________");
+//     console.log("Rs is destroyed after", readStream.destroyed);
+//     console.log("Ws is destroyed after", writeStream.destroyed);
+//     console.log("Rs is paused", readStream.isPaused());
+// }
+
+// void start();
+
+// setInterval(() => {
+//     console.log("\n...alive...");
+//     console.log("_______________________________________________________");
+//     console.log("rs event names", readStream.eventNames());
+//     console.log("ws event names", writeStream.eventNames());
+//     console.log("_______________________________________________________");
+//     console.log("Rs is destroyed", readStream.destroyed);
+//     console.log("Ws is destroyed", writeStream.destroyed);
+//     console.log("Rs paused", readStream.isPaused());
+// }, 5000);
+
+// console.log("End of file");

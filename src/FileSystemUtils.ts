@@ -1,5 +1,6 @@
 import { createReadStream, createWriteStream, PathLike, ReadStream, Stats, WriteStream } from "fs";
-import { rm, stat } from "fs/promises";
+import { mkdir, rm, stat } from "fs/promises";
+import { dirname } from "path";
 
 export { ReadStream, WriteStream } from "fs";
 
@@ -25,7 +26,7 @@ class FileSystemUtils {
     };
 
     private static newError = (error: unknown, defaultMessage: string): Error => {
-        const msg = error instanceof Error ? error.message : defaultMessage;
+        const msg = error instanceof Error ? `\n${defaultMessage}\n${error.message}` : defaultMessage;
 
         return new Error(msg);
     };
@@ -53,6 +54,17 @@ class FileSystemUtils {
             await rm(filePath, { force: true });
         } catch (error) {
             throw this.newError(error, `Failed to delete at: ${String(filePath)}`);
+        }
+    };
+
+    public static makeDestDir = async (destFilePath: string): Promise<string | undefined> => {
+        // Needs test -----------------------------------------------------------------------------------------------
+        try {
+            const destDirectoryPath = dirname(destFilePath);
+
+            return await mkdir(destDirectoryPath, { recursive: true });
+        } catch (error) {
+            throw this.newError(error, `Failed to make directory for: ${destFilePath}`);
         }
     };
 

@@ -38,7 +38,7 @@ class FileCopyProgress {
             this._bytesPerSecond.push(next);
         }
 
-        this.bytesPerSecond = this._bytesPerSecond.median;
+        this.bytesPerSecond = round(this._bytesPerSecond.median);
     }
 
     private updateInProgress(): void {

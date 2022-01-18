@@ -1,53 +1,87 @@
-// import { mkdir, rm, writeFile } from "fs/promises";
-import { createHash } from "crypto";
-import { once } from "events";
+// import { readdir, rename, rm, stat, writeFile } from "fs/promises";
+// import { dirname, normalize } from "path";
 
-import FileSystemUtils from "./FileSystemUtils";
+// import FileSystemUtils from "./FileSystemUtils";
 
-const { readFileStats, createReadStream } = FileSystemUtils;
+// const { deleteFile, makeDestDir } = FileSystemUtils;
 
-// const path = "./.AAA/BBB/CCC";
-// const full = "./.AAA/BBB/CCC/junk.txt";
+// // const path = "./.AAA/BBB/CCC";
+// const destFilePath = "C:/Users/jeremy.barnes/Desktop/code/a2fm/.AAA/BBB/CCC/junk.txt";
 
-async function app() {
-    // const result = await mkdir(path, { recursive: true });
+// async function isDir(path: string) {
+//     const stats = await stat(path);
 
-    // console.log(result);
+//     return stats.isDirectory();
+// }
 
-    // const result2 = await writeFile(full, "abc");
+// async function isEmpty(dirPath: string) {
+//     const dirents = await readdir(dirPath, { withFileTypes: true });
 
-    // console.log(result2);
+//     return dirents.length === 0;
+// }
 
-    // setTimeout(() => {
-    //     if (result?.length) {
-    //         void rm(result, { force: true, recursive: true });
-    //     }
-    // }, 5000);
+// async function rollBack(rootPath: string, childPath: string) {
+//     const normalizedRootPath = normalize(rootPath).toLowerCase().trim();
+//     const normalizedChildPath = normalize(childPath).toLowerCase().trim();
 
-    const stats = await readFileStats("C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp4");
-    console.log(stats);
+//     const isChildPath = normalizedChildPath.startsWith(normalizedRootPath);
 
-    const stats2 = await readFileStats("./zzzfile.mp4");
-    console.log(stats2);
+//     console.log("\n");
+//     console.log("child   ", normalizedChildPath);
+//     console.log("root    ", normalizedRootPath);
 
-    const hash = createHash("sha1");
-    const readStream = createReadStream("./zzzfile.mp4", stats2.size);
+//     if (isChildPath) {
+//         // and empty
+//         // const isDirectory = await isDir(normalizedChildPath);
 
-    readStream.on("data", (chunk) => {
-        hash.update(chunk);
-        // console.log("data read");
-    });
+//         // if (!isDirectory) {
+//         //     console.log("Deleting", normalizedChildPath, "\n\n");
 
-    readStream.resume();
+//         //     await rm(normalizedChildPath, { force: true, recursive: true });
+//         //     console.log("Deleted", normalizedChildPath);
+//         // } else {
+//         //     const isEmptyDirectory = await isEmpty(normalizedChildPath);
+//         //     console.log(isEmptyDirectory);
 
-    await once(readStream, "close");
+//         //     if (isEmptyDirectory) {
+//         //         console.log("Deleting", normalizedChildPath, "\n\n");
 
-    console.log("done reading");
-    const result = hash.digest("hex");
-    console.log(result);
-    console.log(result === "3485d1ff33874ae723921533e0d333e8684fabeb");
-}
+//         //         // await rm(normalizedChildPath, { force: true, recursive: true });
+//         //         console.log("Deleted", normalizedChildPath);
+//         //     } else {
+//         //         return;
+//         //     }
+//         // }
 
-void app();
+//         if (normalizedRootPath === normalizedChildPath) return; // stops infinite loop for "Z:/ , Z:/junk.txt" example
 
-// 3485d1ff33874ae723921533e0d333e8684fabeb
+//         const prevChildPath = dirname(childPath);
+
+//         await rollBack(rootPath, prevChildPath);
+//     }
+// }
+
+// async function app() {
+//     try {
+//         const firstDirPathCreated = await makeDestDir(destFilePath);
+
+//         const rootPath = firstDirPathCreated ?? destFilePath;
+
+//         console.log(rootPath);
+
+//         await writeFile(destFilePath, "abc");
+//         await writeFile(`${dirname(dirname(dirname(destFilePath)))}/junk2.txt`, "abc");
+
+//         await rollBack("Z:/", "Z:/a/b/c/junk.txt");
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+
+// void app();
+
+// const blah = [1, 2, 3];
+
+// blah.forEach((val) => {
+//     break;
+// });
