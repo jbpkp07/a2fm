@@ -50,7 +50,6 @@ class FileSystemUtils {
     };
 
     public static deleteDir = async (dirPath: string): Promise<void> => {
-        // Needs test -----------------------------------------------------------------------------------------------
         try {
             await rm(dirPath, { force: true, recursive: true });
         } catch (error) {
@@ -66,9 +65,12 @@ class FileSystemUtils {
         }
     };
 
-    public static isDriveRoot = (path: string): boolean => {
-        // Needs test -----------------------------------------------------------------------------------------------
-        return path === dirname(path);
+    public static hasParentDir = (path: string): boolean => {
+        if (this.isRelative(path)) return false;
+
+        const normPath = normalize(path);
+
+        return normPath !== dirname(normPath);
     };
 
     public static isEmptyDir = async (dirPath: string): Promise<boolean> => {
@@ -129,7 +131,7 @@ class FileSystemUtils {
         while (canTraverse()) {
             traversedPaths.push(traversedPath);
 
-            if (this.isDriveRoot(traversedPath)) break;
+            if (!this.hasParentDir(traversedPath)) break;
 
             traversedPath = dirname(traversedPath);
         }

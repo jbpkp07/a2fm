@@ -87,6 +87,52 @@ describe("FileSystemUtils", () => {
         expect(hasThrown).toBe(true);
     });
 
+    test("deleteDir", async () => {
+        await writeFile(RANDOM_PATH, "abc");
+
+        let hasPassed = true;
+
+        try {
+            await FileSystemUtils.deleteDir(RANDOM_PATH);
+
+            if (existsSync(RANDOM_PATH)) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        try {
+            await FileSystemUtils.deleteDir(RANDOM_PATH);
+        } catch {
+            hasPassed = false;
+        }
+
+        await rm(RANDOM_PATH, { force: true });
+        await mkdir(`${RANDOM_PATH}/childDir`, { recursive: true });
+        await writeFile(`${RANDOM_PATH}/childDir/file.txt`, "abc");
+
+        try {
+            await FileSystemUtils.deleteDir(RANDOM_PATH);
+
+            if (existsSync(RANDOM_PATH)) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        try {
+            await FileSystemUtils.deleteDir(RANDOM_PATH);
+        } catch {
+            hasPassed = false;
+        }
+
+        await rm(RANDOM_PATH, { force: true, recursive: true });
+
+        expect(hasPassed).toBe(true);
+    });
+
     test("deleteFile", async () => {
         await writeFile(RANDOM_PATH, "abc");
 
@@ -115,13 +161,75 @@ describe("FileSystemUtils", () => {
             await FileSystemUtils.deleteFile(RANDOM_PATH);
 
             hasPassed = false;
-        } catch (error) {
+        } catch {
             // Should throw, not a file, it is a directory
         }
 
         await rm(RANDOM_PATH, { force: true, recursive: true });
 
         expect(hasPassed).toBe(true);
+    });
+
+    test("hasParentDir", () => {
+        const { hasParentDir } = FileSystemUtils;
+
+        const results: boolean[] = [
+            hasParentDir("C:\\a\\"),
+            hasParentDir("C:/a\\/"),
+            hasParentDir("C:/a/b"),
+            hasParentDir("C:/a/b/.."),
+            hasParentDir("C:/a/"),
+            hasParentDir("C:/a"),
+            hasParentDir("/a/b/"),
+            hasParentDir("/a/b"),
+            hasParentDir("/a/"),
+            hasParentDir("/a"),
+
+            hasParentDir("C:/"),
+            hasParentDir("C:\\"),
+            hasParentDir("C:/a/b/c/../../.."),
+            hasParentDir("C:"),
+            hasParentDir("C"),
+            hasParentDir("/"),
+            hasParentDir("\\"),
+            hasParentDir(""),
+            hasParentDir("./"),
+            hasParentDir("../"),
+            hasParentDir("."),
+            hasParentDir(".."),
+            hasParentDir("~/"),
+            hasParentDir("~")
+        ];
+
+        const expected: boolean[] = [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+        ];
+
+        expect(results).toStrictEqual(expected);
     });
 
     test("readFileSizeBytes", async () => {
