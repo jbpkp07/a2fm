@@ -54,6 +54,7 @@ class FileCopier extends FileCopyEventEmitter {
 
         const firstDirPathCreated = await makeDestDir(destFilePath);
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const rollbackToPath = firstDirPathCreated ?? destFilePath;
 
         await this.tryCopyFileAsync(fileCopyParams);

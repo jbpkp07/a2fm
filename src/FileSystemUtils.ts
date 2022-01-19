@@ -1,6 +1,6 @@
-import { createReadStream, createWriteStream, PathLike, ReadStream, Stats, WriteStream } from "fs";
-import { mkdir, rm, stat } from "fs/promises";
-import { dirname, isAbsolute, normalize } from "path";
+import { createReadStream, createWriteStream, ReadStream, Stats, WriteStream } from "fs";
+import { mkdir, readdir, rm, stat } from "fs/promises";
+import { dirname, isAbsolute, normalize, sep } from "path";
 
 export { ReadStream, WriteStream } from "fs";
 
@@ -31,58 +31,80 @@ class FileSystemUtils {
         return new Error(msg);
     };
 
-    private static throwIfNotFile = (stats: Stats, path: PathLike): void => {
+    private static throwIfNotFile = (stats: Stats, path: string): void => {
         if (!stats.isFile()) {
-            throw new Error(`Entity is not a file at: ${String(path)}`);
+            throw new Error(`Entity is not a file at: ${path}`);
         }
     };
 
-    public static createReadStream = (filePath: PathLike, fileSizeBytes: number): ReadStream => {
+    public static createReadStream = (filePath: string, fileSizeBytes: number): ReadStream => {
         const options = this.createStreamOptions(fileSizeBytes);
 
         return createReadStream(filePath, options).pause();
     };
 
-    public static createWriteStream = (filePath: PathLike, fileSizeBytes: number): WriteStream => {
+    public static createWriteStream = (filePath: string, fileSizeBytes: number): WriteStream => {
         const options = this.createStreamOptions(fileSizeBytes);
 
         return createWriteStream(filePath, options);
     };
 
-    public static deleteFile = async (filePath: PathLike): Promise<void> => {
+    public static deleteDir = async (dirPath: string): Promise<void> => {
+        // Needs test -----------------------------------------------------------------------------------------------
+        try {
+            await rm(dirPath, { force: true, recursive: true });
+        } catch (error) {
+            throw this.newError(error, `Failed to delete directory at: ${dirPath}`);
+        }
+    };
+
+    public static deleteFile = async (filePath: string): Promise<void> => {
         try {
             await rm(filePath, { force: true });
         } catch (error) {
-            throw this.newError(error, `Failed to delete at: ${String(filePath)}`);
+            throw this.newError(error, `Failed to delete file at: ${filePath}`);
         }
     };
 
     public static isDriveRoot = (path: string): boolean => {
+        // Needs test -----------------------------------------------------------------------------------------------
         return path === dirname(path);
     };
 
+    public static isEmptyDir = async (dirPath: string): Promise<boolean> => {
+        // Needs test -----------------------------------------------------------------------------------------------
+        try {
+            const contents = await readdir(dirPath);
+
+            return contents.length === 0;
+        } catch (error) {
+            throw this.newError(error, `Failed to read directory contents at: ${dirPath}`);
+        }
+    };
+
     public static isRelative = (path: string): boolean => {
+        // Needs test -----------------------------------------------------------------------------------------------
         return !isAbsolute(path);
     };
 
     public static makeDestDir = async (destFilePath: string): Promise<string | undefined> => {
         // Needs test -----------------------------------------------------------------------------------------------
         try {
-            const destDirectoryPath = dirname(destFilePath);
+            const destDirPath = dirname(destFilePath);
 
-            return await mkdir(destDirectoryPath, { recursive: true });
+            return await mkdir(destDirPath, { recursive: true });
         } catch (error) {
             throw this.newError(error, `Failed to make directory for: ${destFilePath}`);
         }
     };
 
-    public static readFileSizeBytes = async (filePath: PathLike): Promise<number> => {
+    public static readFileSizeBytes = async (filePath: string): Promise<number> => {
         const { size } = await this.readFileStats(filePath);
 
         return size;
     };
 
-    public static readFileStats = async (filePath: PathLike): Promise<Stats> => {
+    public static readFileStats = async (filePath: string): Promise<Stats> => {
         try {
             const stats = await stat(filePath);
 
@@ -90,7 +112,7 @@ class FileSystemUtils {
 
             return stats;
         } catch (error) {
-            throw this.newError(error, `Failed to read stats at: ${String(filePath)}`);
+            throw this.newError(error, `Failed to read stats at: ${filePath}`);
         }
     };
 
@@ -98,18 +120,18 @@ class FileSystemUtils {
         // Needs test -----------------------------------------------------------------------------------------------
         if (this.isRelative(fromChildPath) || this.isRelative(toParentPath)) return [];
 
-        let childPath = normalize(fromChildPath);
-        const parentPath = normalize(toParentPath).toLowerCase();
+        let traversedPath = normalize(fromChildPath);
+        const parentPath = normalize(toParentPath + sep).toLowerCase();
         const traversedPaths: string[] = [];
 
-        const canTraverse = () => childPath.toLowerCase().startsWith(parentPath);
+        const canTraverse = () => (traversedPath + sep).toLowerCase().startsWith(parentPath);
 
         while (canTraverse()) {
-            traversedPaths.push(childPath);
+            traversedPaths.push(traversedPath);
 
-            if (this.isDriveRoot(childPath)) break;
+            if (this.isDriveRoot(traversedPath)) break;
 
-            childPath = dirname(childPath);
+            traversedPath = dirname(traversedPath);
         }
 
         return traversedPaths;
@@ -117,3 +139,28 @@ class FileSystemUtils {
 }
 
 export default FileSystemUtils;
+
+// // const rollbackPaths = FileSystemUtils.traverseBack("G:/a/////\\/////B/../../a/B/c", "g:/A");
+// const rollbackPaths = FileSystemUtils.traverseBack("C:/Users/cool.txt/Desktop/code/a2fm/.AAA/XXX/file.mp4", "/");
+
+// console.log(FileSystemUtils.isDriveRoot("C:\\a\\"));
+// console.log(FileSystemUtils.isDriveRoot("C:\\a"));
+// console.log(FileSystemUtils.isDriveRoot("/a"));
+// console.log(FileSystemUtils.isDriveRoot("C:\\"));
+// console.log(FileSystemUtils.isDriveRoot("C:"));
+// console.log(FileSystemUtils.isDriveRoot("/"));
+// // console.log(rollbackPaths.shift());
+// console.log(rollbackPaths);
+
+// async function app() {
+//     // const blah = await FileSystemUtils.makeDestDir(".AAA/XXX/cool.txt");
+
+//     try {
+//         const blah = await FileSystemUtils.isEmptyDir("./.AAA");
+//         console.log("isEmpty", blah);
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+
+// void app();
