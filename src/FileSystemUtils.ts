@@ -73,8 +73,17 @@ class FileSystemUtils {
         return normPath !== dirname(normPath);
     };
 
+    public static isChildPath = (testPath: string, parentPath: string): boolean => {
+        if (!this.hasParentDir(testPath)) return false;
+
+        const childPath = dirname(testPath);
+        const normChildPath = normalize(childPath + sep).toLowerCase();
+        const normParentPath = normalize(parentPath + sep).toLowerCase();
+
+        return normChildPath.startsWith(normParentPath);
+    };
+
     public static isEmptyDir = async (dirPath: string): Promise<boolean> => {
-        // Needs test -----------------------------------------------------------------------------------------------
         try {
             const contents = await readdir(dirPath);
 
@@ -85,12 +94,10 @@ class FileSystemUtils {
     };
 
     public static isRelative = (path: string): boolean => {
-        // Needs test -----------------------------------------------------------------------------------------------
         return !isAbsolute(path);
     };
 
     public static makeDestDir = async (destFilePath: string): Promise<string | undefined> => {
-        // Needs test -----------------------------------------------------------------------------------------------
         try {
             const destDirPath = dirname(destFilePath);
 
@@ -119,21 +126,16 @@ class FileSystemUtils {
     };
 
     public static traverseBack = (fromChildPath: string, toParentPath: string): string[] => {
-        // Needs test -----------------------------------------------------------------------------------------------
         if (this.isRelative(fromChildPath) || this.isRelative(toParentPath)) return [];
 
         let traversedPath = normalize(fromChildPath);
-        const parentPath = normalize(toParentPath + sep).toLowerCase();
         const traversedPaths: string[] = [];
 
-        const canTraverse = () => (traversedPath + sep).toLowerCase().startsWith(parentPath);
+        const canTraverse = () => this.isChildPath(traversedPath, toParentPath);
 
         while (canTraverse()) {
-            traversedPaths.push(traversedPath);
-
-            if (!this.hasParentDir(traversedPath)) break;
-
             traversedPath = dirname(traversedPath);
+            traversedPaths.push(traversedPath);
         }
 
         return traversedPaths;
@@ -141,28 +143,3 @@ class FileSystemUtils {
 }
 
 export default FileSystemUtils;
-
-// // const rollbackPaths = FileSystemUtils.traverseBack("G:/a/////\\/////B/../../a/B/c", "g:/A");
-// const rollbackPaths = FileSystemUtils.traverseBack("C:/Users/cool.txt/Desktop/code/a2fm/.AAA/XXX/file.mp4", "/");
-
-// console.log(FileSystemUtils.isDriveRoot("C:\\a\\"));
-// console.log(FileSystemUtils.isDriveRoot("C:\\a"));
-// console.log(FileSystemUtils.isDriveRoot("/a"));
-// console.log(FileSystemUtils.isDriveRoot("C:\\"));
-// console.log(FileSystemUtils.isDriveRoot("C:"));
-// console.log(FileSystemUtils.isDriveRoot("/"));
-// // console.log(rollbackPaths.shift());
-// console.log(rollbackPaths);
-
-// async function app() {
-//     // const blah = await FileSystemUtils.makeDestDir(".AAA/XXX/cool.txt");
-
-//     try {
-//         const blah = await FileSystemUtils.isEmptyDir("./.AAA");
-//         console.log("isEmpty", blah);
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }
-
-// void app();

@@ -2,14 +2,14 @@ import { randomUUID } from "crypto";
 import { once } from "events";
 import { existsSync } from "fs";
 import { mkdir, rm, writeFile } from "fs/promises";
-import { resolve } from "path";
+import { normalize, resolve } from "path";
 
 import FileSystemUtils from "../src/FileSystemUtils";
 
 const RANDOM_PATH = resolve(__dirname, ".tmp", randomUUID());
 
 describe("FileSystemUtils", () => {
-    test("createReadStream (initialization)", async () => {
+    test("createReadStream (initialization and destroy)", async () => {
         await writeFile(RANDOM_PATH, "abc");
 
         const readStream1 = FileSystemUtils.createReadStream(RANDOM_PATH, 0);
@@ -29,12 +29,14 @@ describe("FileSystemUtils", () => {
         readStream2.destroy();
         readStream3.destroy();
 
+        status.push(readStream1.destroyed, readStream2.destroyed, readStream3.destroyed);
+
         await rm(RANDOM_PATH, { force: true });
 
         expect(readStream1.readableHighWaterMark).toBe(65536);
         expect(readStream2.readableHighWaterMark).toBe(65536);
         expect(readStream3.readableHighWaterMark).toBe(65537);
-        expect(status).toStrictEqual([true, true, true, false, false, false]);
+        expect(status).toStrictEqual([true, true, true, false, false, false, true, true, true]);
     });
 
     test("createReadStream (bad file path)", async () => {
@@ -180,6 +182,7 @@ describe("FileSystemUtils", () => {
             hasParentDir("C:/a/b/.."),
             hasParentDir("C:/a/"),
             hasParentDir("C:/a"),
+            hasParentDir("C:/a   "),
             hasParentDir("/a/b/"),
             hasParentDir("/a/b"),
             hasParentDir("/a/"),
@@ -190,6 +193,7 @@ describe("FileSystemUtils", () => {
             hasParentDir("C:/a/b/c/../../.."),
             hasParentDir("C:"),
             hasParentDir("C"),
+            hasParentDir("   C:/"),
             hasParentDir("/"),
             hasParentDir("\\"),
             hasParentDir(""),
@@ -202,6 +206,72 @@ describe("FileSystemUtils", () => {
         ];
 
         const expected: boolean[] = [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+        ];
+
+        expect(results).toStrictEqual(expected);
+    });
+
+    test("isChildPath", () => {
+        const { isChildPath } = FileSystemUtils;
+
+        const results: boolean[] = [
+            isChildPath("C:/a/b/c", "C:/a"),
+            isChildPath("C://a\\b///c", "C:/a"),
+            isChildPath("c:/A/B/C", "C:/a"),
+            isChildPath("C:/a/b", "C:/a/"),
+            isChildPath("C:/a/b\\", "C:/a/"),
+            isChildPath("C:/a/b\\", "C:/a"),
+            isChildPath("C:/a", "C:/"),
+            isChildPath("/a/b", "/a"),
+            isChildPath("/a/b", "/"),
+            isChildPath("\\a", "/"),
+            isChildPath("C:/a/b/c/../..", "C:/a/.."),
+
+            isChildPath("C:/", "C:/"),
+            isChildPath("C:/", "C:/a"),
+            isChildPath("C:/", "C:/a/b"),
+            isChildPath("C:/a", "C:/a"),
+            isChildPath("C:/a", "C"),
+            isChildPath("C:/a/b/c/../../..", "C:/a/.."),
+            isChildPath("/", "/a"),
+            isChildPath("", "/"),
+            isChildPath("./", "/"),
+            isChildPath("../", "/"),
+            isChildPath(".", "/"),
+            isChildPath("..", "/"),
+            isChildPath("~/", "/"),
+            isChildPath("~", "/")
+        ];
+
+        const expected: boolean[] = [
+            true,
             true,
             true,
             true,
@@ -230,6 +300,160 @@ describe("FileSystemUtils", () => {
         ];
 
         expect(results).toStrictEqual(expected);
+    });
+
+    test("isEmptyDir", async () => {
+        await mkdir(RANDOM_PATH);
+
+        let hasPassed = true;
+
+        try {
+            const isEmpty = await FileSystemUtils.isEmptyDir(RANDOM_PATH);
+
+            if (!isEmpty) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        await writeFile(`${RANDOM_PATH}/test.txt`, "abc");
+
+        try {
+            const isEmpty = await FileSystemUtils.isEmptyDir(RANDOM_PATH);
+
+            if (isEmpty) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        await rm(`${RANDOM_PATH}/test.txt`, { force: true });
+
+        try {
+            const isEmpty = await FileSystemUtils.isEmptyDir(RANDOM_PATH);
+
+            if (!isEmpty) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        await mkdir(`${RANDOM_PATH}/extraDir`);
+
+        try {
+            const isEmpty = await FileSystemUtils.isEmptyDir(RANDOM_PATH);
+
+            if (isEmpty) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        await rm(RANDOM_PATH, { force: true, recursive: true });
+
+        try {
+            await FileSystemUtils.isEmptyDir(RANDOM_PATH);
+
+            hasPassed = false;
+        } catch {
+            // should throw, directory does not exist now
+        }
+
+        expect(hasPassed).toBe(true);
+    });
+
+    test("isRelative", () => {
+        const { isRelative } = FileSystemUtils;
+
+        const results: boolean[] = [
+            isRelative("C:\\a\\"),
+            isRelative("C:/a\\/"),
+            isRelative("C:/a/b"),
+            isRelative("C:/a/b/c/../.."),
+            isRelative("C:/a/"),
+            isRelative("C:/a"),
+            isRelative("C:/a   "),
+            isRelative("C:/"),
+            isRelative("C:\\"),
+            isRelative("/a/b/"),
+            isRelative("/a/b"),
+            isRelative("/a/"),
+            isRelative("/a"),
+            isRelative("/"),
+            isRelative("\\"),
+
+            isRelative("C:"),
+            isRelative("C"),
+            isRelative("   C:/"),
+            isRelative(""),
+            isRelative("./a"),
+            isRelative("../a"),
+            isRelative("."),
+            isRelative(".."),
+            isRelative("~/"),
+            isRelative("~")
+        ];
+
+        const expected: boolean[] = [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+        ];
+
+        expect(results).toStrictEqual(expected);
+    });
+
+    test("makeDestDir", async () => {
+        let hasPassed = true;
+
+        try {
+            await FileSystemUtils.makeDestDir(`${RANDOM_PATH}/test.txt`);
+
+            if (!existsSync(RANDOM_PATH)) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        try {
+            await FileSystemUtils.makeDestDir(`ABC:/${randomUUID()}/test.txt`);
+
+            hasPassed = false;
+        } catch {
+            // should throw, drive "ABC" does not exist
+        }
+
+        await rm(RANDOM_PATH, { force: true, recursive: true });
+
+        expect(hasPassed).toBe(true);
     });
 
     test("readFileSizeBytes", async () => {
@@ -286,5 +510,59 @@ describe("FileSystemUtils", () => {
 
         expect(bytes).toBe(10);
         expect(hasPassed).toBe(true);
+    });
+
+    test("traverseBack", () => {
+        const { traverseBack } = FileSystemUtils;
+
+        const results: string[][] = [
+            traverseBack("C:/a/b/c", "C:/a/b"),
+            traverseBack("C:/a/b/c", "C:/a"),
+            traverseBack("C:/a/b/c", "C:/"),
+            traverseBack("C:/a/b/c/", "C:/"),
+            traverseBack("C:/a\\b///c///", "C:/\\\\"),
+            traverseBack("/a/b/c", "/"),
+            traverseBack("/a/b/c/..", "/"),
+            traverseBack("/a/b/c/..", "/../.."),
+
+            traverseBack("C:/a/b/c", "C:/a/b/c"),
+            traverseBack("C:/a/b/c", "C:/a/b/c/d"),
+            traverseBack("C:/a/b/c", "D:/a"),
+            traverseBack("C:/a/b/c", "C:"),
+            traverseBack("C:/a/b/c", "C"),
+            traverseBack("C:/a/b/c", ""),
+            traverseBack("C:/", "C:/"),
+            traverseBack("/", "/"),
+            traverseBack("C:/abc/def", "C:/ab"),
+            traverseBack("a/b/c", "a"),
+            traverseBack("./a/b/c", "./a"),
+            traverseBack("./a/b/c", ".")
+        ];
+
+        const expected: string[][] = [
+            [normalize("C:/a/b")],
+            [normalize("C:/a/b"), normalize("C:/a")],
+            [normalize("C:/a/b"), normalize("C:/a"), normalize("C:/")],
+            [normalize("C:/a/b"), normalize("C:/a"), normalize("C:/")],
+            [normalize("C:/a/b"), normalize("C:/a"), normalize("C:/")],
+            [normalize("/a/b"), normalize("/a"), normalize("/")],
+            [normalize("/a"), normalize("/")],
+            [normalize("/a"), normalize("/")],
+
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+
+        expect(results).toStrictEqual(expected);
     });
 });
