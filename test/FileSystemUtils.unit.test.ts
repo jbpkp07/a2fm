@@ -135,6 +135,70 @@ describe("FileSystemUtils", () => {
         expect(hasPassed).toBe(true);
     });
 
+    test("deleteDirIfEmpty", async () => {
+        let hasPassed = true;
+
+        try {
+            await FileSystemUtils.deleteDirIfEmpty(RANDOM_PATH);
+        } catch {
+            hasPassed = false; // nothing to delete, should not throw
+        }
+
+        await writeFile(RANDOM_PATH, "abc");
+
+        try {
+            await FileSystemUtils.deleteDirIfEmpty(RANDOM_PATH);
+
+            if (!existsSync(RANDOM_PATH)) {
+                hasPassed = false; // It is a file, should not delete
+            }
+        } catch {
+            hasPassed = false; // should not throw
+        }
+
+        await rm(RANDOM_PATH, { force: true });
+        await mkdir(`${RANDOM_PATH}/childDir`, { recursive: true });
+        await writeFile(`${RANDOM_PATH}/childDir/file.txt`, "abc");
+
+        try {
+            await FileSystemUtils.deleteDirIfEmpty(RANDOM_PATH);
+
+            if (!existsSync(RANDOM_PATH)) {
+                hasPassed = false; // Directory is not empty, should not delete
+            }
+        } catch {
+            hasPassed = false; // should not throw
+        }
+
+        await rm(`${RANDOM_PATH}/childDir/file.txt`, { force: true });
+
+        try {
+            await FileSystemUtils.deleteDirIfEmpty(RANDOM_PATH);
+
+            if (!existsSync(RANDOM_PATH)) {
+                hasPassed = false; // Directory is not empty, should not delete
+            }
+        } catch {
+            hasPassed = false; // should not throw
+        }
+
+        await rm(`${RANDOM_PATH}/childDir`, { force: true, recursive: true });
+
+        try {
+            await FileSystemUtils.deleteDirIfEmpty(RANDOM_PATH);
+
+            if (existsSync(RANDOM_PATH)) {
+                hasPassed = false; // Directory is empty now, should be deleted
+            }
+        } catch {
+            hasPassed = false; // should not throw
+        }
+
+        await rm(RANDOM_PATH, { force: true, recursive: true });
+
+        expect(hasPassed).toBe(true);
+    });
+
     test("deleteFile", async () => {
         await writeFile(RANDOM_PATH, "abc");
 
@@ -362,6 +426,18 @@ describe("FileSystemUtils", () => {
         } catch {
             // should throw, directory does not exist now
         }
+
+        await writeFile(RANDOM_PATH, "abc");
+
+        try {
+            await FileSystemUtils.isEmptyDir(RANDOM_PATH);
+
+            hasPassed = false;
+        } catch {
+            // should throw, not a directory; is a file
+        }
+
+        await rm(RANDOM_PATH, { force: true });
 
         expect(hasPassed).toBe(true);
     });

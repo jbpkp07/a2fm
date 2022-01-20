@@ -1,5 +1,5 @@
 import { createReadStream, createWriteStream, ReadStream, Stats, WriteStream } from "fs";
-import { mkdir, readdir, rm, stat } from "fs/promises";
+import { mkdir, readdir, rm, rmdir, stat } from "fs/promises";
 import { dirname, isAbsolute, normalize, sep } from "path";
 
 export { ReadStream, WriteStream } from "fs";
@@ -55,6 +55,10 @@ class FileSystemUtils {
         } catch (error) {
             throw this.newError(error, `Failed to delete directory at: ${dirPath}`);
         }
+    };
+
+    public static deleteDirIfEmpty = async (dirPath: string): Promise<void> => {
+        await rmdir(dirPath).catch(() => null);
     };
 
     public static deleteFile = async (filePath: string): Promise<void> => {

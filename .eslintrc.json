@@ -61,6 +61,7 @@
                 "newline-before-return": "warn",
                 "no-console": "off",
                 "no-plusplus": ["warn", { "allowForLoopAfterthoughts": true }],
+                "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
                 "no-underscore-dangle": ["warn", { "allowAfterThis": true, "enforceInMethodNames": true }],
                 "no-void": "off",
                 "prettier/prettier": ["warn", {}, { "usePrettierrc": true }],
