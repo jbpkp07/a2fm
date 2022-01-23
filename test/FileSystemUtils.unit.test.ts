@@ -548,24 +548,25 @@ describe("FileSystemUtils", () => {
         expect(bytes).toBe(10);
     });
 
-    test("readFileStats", async () => {
+    test("readStats", async () => {
         await writeFile(RANDOM_PATH, "0123456789");
 
-        let bytes = 0;
+        let fileBytes = 99;
+        let dirBytes = 99;
         let hasPassed = true;
 
         try {
-            const { size } = await FileSystemUtils.readFileStats(RANDOM_PATH);
+            const { size } = await FileSystemUtils.readStats(RANDOM_PATH);
 
-            bytes = size;
+            fileBytes = size;
         } catch {
-            // Do nothing
+            hasPassed = false;
         }
 
         await rm(RANDOM_PATH, { force: true });
 
         try {
-            await FileSystemUtils.readFileStats(RANDOM_PATH);
+            await FileSystemUtils.readStats(RANDOM_PATH);
 
             hasPassed = false;
         } catch {
@@ -573,18 +574,68 @@ describe("FileSystemUtils", () => {
         }
 
         await mkdir(RANDOM_PATH);
+        await writeFile(`${RANDOM_PATH}/file.txt`, "0123456789");
 
         try {
-            await FileSystemUtils.readFileStats(RANDOM_PATH);
+            const { size } = await FileSystemUtils.readStats(RANDOM_PATH);
 
-            hasPassed = false;
+            dirBytes = size;
         } catch {
-            // Should throw, not a file, it is a directory
+            hasPassed = false;
         }
 
         await rm(RANDOM_PATH, { force: true, recursive: true });
 
-        expect(bytes).toBe(10);
+        expect(fileBytes).toBe(10);
+        expect(dirBytes).toBe(0);
+        expect(hasPassed).toBe(true);
+    });
+
+    test("removeFileExt", async () => {
+        let hasPassed = true;
+
+        try {
+            await FileSystemUtils.removeFileExt(`${RANDOM_PATH}.ext1.ext2`);
+
+            hasPassed = false;
+        } catch {
+            // Should throw, file missing
+        }
+
+        await writeFile(`${RANDOM_PATH}.ext1.ext2`, "abc");
+
+        try {
+            await FileSystemUtils.removeFileExt(`${RANDOM_PATH}.ext1.ext2`);
+
+            if (!existsSync(`${RANDOM_PATH}.ext1`)) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        try {
+            await FileSystemUtils.removeFileExt(`${RANDOM_PATH}.ext1`);
+
+            if (!existsSync(RANDOM_PATH)) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        try {
+            await FileSystemUtils.removeFileExt(RANDOM_PATH);
+
+            if (!existsSync(RANDOM_PATH)) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        await rm(RANDOM_PATH, { force: true });
+
         expect(hasPassed).toBe(true);
     });
 

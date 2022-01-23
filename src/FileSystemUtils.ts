@@ -1,6 +1,6 @@
 import { createReadStream, createWriteStream, ReadStream, Stats, WriteStream } from "fs";
-import { mkdir, readdir, rm, rmdir, stat } from "fs/promises";
-import { dirname, isAbsolute, normalize, sep } from "path";
+import { mkdir, readdir, rename, rm, rmdir, stat } from "fs/promises";
+import { dirname, isAbsolute, join, normalize, parse, sep } from "path";
 
 export { ReadStream, WriteStream } from "fs";
 
@@ -29,12 +29,6 @@ class FileSystemUtils {
         const msg = error instanceof Error ? `\n${defaultMessage}\n${error.message}` : defaultMessage;
 
         return new Error(msg);
-    };
-
-    private static throwIfNotFile = (stats: Stats, path: string): void => {
-        if (!stats.isFile()) {
-            throw new Error(`Entity is not a file at: ${path}`);
-        }
     };
 
     public static createReadStream = (filePath: string, fileSizeBytes: number): ReadStream => {
@@ -112,20 +106,31 @@ class FileSystemUtils {
     };
 
     public static readFileSizeBytes = async (filePath: string): Promise<number> => {
-        const { size } = await this.readFileStats(filePath);
+        const { size } = await this.readStats(filePath);
 
         return size;
     };
 
-    public static readFileStats = async (filePath: string): Promise<Stats> => {
+    public static readStats = async (path: string): Promise<Stats> => {
         try {
-            const stats = await stat(filePath);
-
-            this.throwIfNotFile(stats, filePath);
-
-            return stats;
+            return await stat(path);
         } catch (error) {
-            throw this.newError(error, `Failed to read stats at: ${filePath}`);
+            throw this.newError(error, `Failed to read stats at: ${path}`);
+        }
+    };
+
+    public static removeFileExt = async (filePath: string): Promise<void> => {
+        const { dir, name } = parse(filePath);
+        const newPath = join(dir, name);
+
+        await this.renamePath(filePath, newPath);
+    };
+
+    public static renamePath = async (oldPath: string, newPath: string): Promise<void> => {
+        try {
+            await rename(oldPath, newPath);
+        } catch (error) {
+            throw this.newError(error, `Failed to rename file at: ${oldPath}`);
         }
     };
 
