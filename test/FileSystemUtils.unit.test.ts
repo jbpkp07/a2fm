@@ -510,9 +510,13 @@ describe("FileSystemUtils", () => {
         let hasPassed = true;
 
         try {
-            await FileSystemUtils.makeDestDir(`${RANDOM_PATH}/test.txt`);
+            const firstDirCreated = await FileSystemUtils.makeDestDir(`${RANDOM_PATH}/dir1/dir2/test.txt`);
 
             if (!existsSync(RANDOM_PATH)) {
+                hasPassed = false;
+            }
+
+            if (firstDirCreated !== RANDOM_PATH) {
                 hasPassed = false;
             }
         } catch {
@@ -520,11 +524,40 @@ describe("FileSystemUtils", () => {
         }
 
         try {
-            await FileSystemUtils.makeDestDir(`ABC:/${randomUUID()}/test.txt`);
+            const firstDirCreated = await FileSystemUtils.makeDestDir(`${RANDOM_PATH}/dir1/dir2/test-2.txt`);
 
-            hasPassed = false;
+            if (!existsSync(RANDOM_PATH)) {
+                hasPassed = false;
+            }
+
+            if (firstDirCreated !== undefined) {
+                hasPassed = false;
+            }
         } catch {
-            // should throw, drive "ABC" does not exist
+            hasPassed = false;
+        }
+
+        try {
+            const firstDirCreated = await FileSystemUtils.makeDestDir("/test.txt"); // should not create root dir "/"
+
+            if (firstDirCreated !== undefined) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        const driveLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        const badDriveLetter = driveLetters.find((letter) => !existsSync(`${letter}:/`));
+
+        if (badDriveLetter) {
+            try {
+                await FileSystemUtils.makeDestDir(`${badDriveLetter}:/${randomUUID()}/test.txt`);
+
+                hasPassed = false;
+            } catch {
+                // should throw, badDriveLetter does not exist
+            }
         }
 
         await rm(RANDOM_PATH, { force: true, recursive: true });

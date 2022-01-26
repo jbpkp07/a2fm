@@ -1,17 +1,19 @@
 import FileCopyEventEmitter from "./FileCopyEventEmitter";
 import FileCopyParams from "./FileCopyParams";
+import FileCopyParamsError from "./FileCopyParamsError";
 import FileCopyProgress from "./FileCopyProgress";
 import FileCopyStreams from "./FileCopyStreams";
 import FileSystemUtils from "./FileSystemUtils";
 
-const { makeDestDir } = FileSystemUtils;
+const { deleteFile, deleteDirIfEmpty, makeDestDir, traverseBack } = FileSystemUtils;
 
 class FileCopier extends FileCopyEventEmitter {
-    private async tryCopyFileAsync(fileCopyParams: FileCopyParams): Promise<void> {
+    private async tryCopyFileAsync(fileCopyParams: FileCopyParams, rollbackDir?: string): Promise<void> {
         try {
             await this.copyFileAsync(fileCopyParams);
         } catch (error) {
-            // await abort(abortDeletePath, err);
+            await this.rollback(fileCopyParams, rollbackDir);
+            throw FileCopyParamsError.from(fileCopyParams, error);
         }
     }
 
@@ -43,29 +45,39 @@ class FileCopier extends FileCopyEventEmitter {
         });
     }
 
-    // abort(abortDeletePath, err) {
-    //     await rm(abortDeletePath, { force: true, recursive: true }); // can be in FileSystemUtils
-
-    //     throw err;
-    // }
-
-    public copyFile = async (fileCopyParams: FileCopyParams): Promise<void> => {
+    private async rollback(fileCopyParams: FileCopyParams, rollbackDir?: string): Promise<void> {
         const { destFilePath } = fileCopyParams;
 
-        const firstDirPathCreated = await makeDestDir(destFilePath);
+        await deleteFile(destFilePath);
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const rollbackToPath = firstDirPathCreated ?? destFilePath;
+        if (rollbackDir) {
+            await this.rollbackDirs(destFilePath, rollbackDir);
+        }
+    }
 
-        await this.tryCopyFileAsync(fileCopyParams);
-    };
+    private async rollbackDirs(destFilePath: string, rollbackDir: string): Promise<void> {
+        const rollbackDirs = traverseBack(destFilePath, rollbackDir);
+
+        for await (const dir of rollbackDirs) {
+            await deleteDirIfEmpty(dir);
+        }
+    }
+
+    public async copyFile(fileCopyParams: FileCopyParams): Promise<void> {
+        const { destFilePath } = fileCopyParams;
+
+        const firstDirCreated = await makeDestDir(destFilePath);
+
+        await this.tryCopyFileAsync(fileCopyParams, firstDirCreated);
+    }
 }
 
 export default FileCopier;
 
-const path = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp4";
+const srcFilePath = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp42";
+const destFilePath = "C:/Users/jeremy.barnes/Desktop/code/a2fm/test/.tmp/dir1/dir2/zzzfile.mp4";
 
-const fileCopyParams = { srcFilePath: path, destFilePath: "./zzzfile.mp4", fileSizeBytes: 1064551156 };
+const fileCopyParams = { srcFilePath, destFilePath, fileSizeBytes: 1064551156 };
 
 const fileCopier = new FileCopier();
 

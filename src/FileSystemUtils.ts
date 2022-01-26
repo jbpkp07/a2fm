@@ -98,8 +98,9 @@ class FileSystemUtils {
     public static makeDestDir = async (destFilePath: string): Promise<string | undefined> => {
         try {
             const destDirPath = dirname(destFilePath);
+            const isRootDir = !this.hasParentDir(destDirPath);
 
-            return await mkdir(destDirPath, { recursive: true });
+            return !isRootDir ? await mkdir(destDirPath, { recursive: true }) : undefined;
         } catch (error) {
             throw this.newError(error, `Failed to make directory for: ${destFilePath}`);
         }
