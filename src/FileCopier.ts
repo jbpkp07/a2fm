@@ -5,27 +5,27 @@ import FileCopyProgress from "./FileCopyProgress";
 import FileCopyStreams from "./FileCopyStreams";
 import FileSystemUtils from "./FileSystemUtils";
 
-const { deleteFile, deleteDirIfEmpty, makeDestDir, traverseBack } = FileSystemUtils;
+const { deleteDirIfEmpty, deleteFile, makeDestDir, readFileSizeBytes, traverseBack } = FileSystemUtils;
 
 class FileCopier extends FileCopyEventEmitter {
-    private async tryCopyFileAsync(fileCopyParams: FileCopyParams, rollbackDir?: string): Promise<void> {
+    private async tryCopyFileAsync(fileCopyParams: FileCopyParams, rollbackDirPath?: string): Promise<void> {
         try {
             await this.copyFileAsync(fileCopyParams);
         } catch (error) {
-            await this.rollback(fileCopyParams, rollbackDir);
+            await this.rollback(fileCopyParams, rollbackDirPath);
             throw FileCopyParamsError.from(fileCopyParams, error);
         }
     }
 
     private async copyFileAsync(fileCopyParams: FileCopyParams): Promise<void> {
-        const streams = new FileCopyStreams(fileCopyParams);
         const progress = new FileCopyProgress(fileCopyParams);
+        const streams = new FileCopyStreams(fileCopyParams);
 
         this.assignListeners(streams, progress);
 
         await streams.copyFile();
 
-        // await validateCopyWasGood(fileCopyParams); // probably here instead of FileCopy? This does the before (make dirs) and after (delete dirs/file on abort), so should validate copy was good here right?
+        await this.validateFileCopy(fileCopyParams);
     }
 
     private assignListeners(streams: FileCopyStreams, progress: FileCopyProgress): void {
@@ -45,30 +45,51 @@ class FileCopier extends FileCopyEventEmitter {
         });
     }
 
-    private async rollback(fileCopyParams: FileCopyParams, rollbackDir?: string): Promise<void> {
+    private async validateFileCopy(fileCopyParams: FileCopyParams): Promise<void> {
+        const { srcFilePath, destFilePath, fileSizeBytes } = fileCopyParams;
+
+        const [srcFileSizeBytes, destFileSizeBytes] = await this.readFileSizes(srcFilePath, destFilePath);
+
+        if (srcFileSizeBytes !== fileSizeBytes) {
+            throw new Error(`Source file size (${srcFileSizeBytes}) has changed, original size: ${fileSizeBytes}`);
+        }
+
+        if (srcFileSizeBytes !== destFileSizeBytes) {
+            throw new Error(`Source file size (${srcFileSizeBytes}) !== destination file size (${destFileSizeBytes})`);
+        }
+    }
+
+    private async readFileSizes(srcFilePath: string, destFilePath: string): Promise<[number, number]> {
+        const readSrcFileSizeBytes = readFileSizeBytes(srcFilePath);
+        const readDestFileSizeBytes = readFileSizeBytes(destFilePath);
+
+        return Promise.all([readSrcFileSizeBytes, readDestFileSizeBytes]);
+    }
+
+    private async rollback(fileCopyParams: FileCopyParams, rollbackDirPath?: string): Promise<void> {
         const { destFilePath } = fileCopyParams;
 
         await deleteFile(destFilePath);
 
-        if (rollbackDir) {
-            await this.rollbackDirs(destFilePath, rollbackDir);
+        if (rollbackDirPath) {
+            await this.rollbackDirs(destFilePath, rollbackDirPath);
         }
     }
 
-    private async rollbackDirs(destFilePath: string, rollbackDir: string): Promise<void> {
-        const rollbackDirs = traverseBack(destFilePath, rollbackDir);
+    private async rollbackDirs(destFilePath: string, rollbackDirPath: string): Promise<void> {
+        const rollbackDirPaths = traverseBack(destFilePath, rollbackDirPath);
 
-        for await (const dir of rollbackDirs) {
-            await deleteDirIfEmpty(dir);
+        for await (const dirPath of rollbackDirPaths) {
+            await deleteDirIfEmpty(dirPath);
         }
     }
 
     public async copyFile(fileCopyParams: FileCopyParams): Promise<void> {
         const { destFilePath } = fileCopyParams;
 
-        const firstDirCreated = await makeDestDir(destFilePath);
+        const firstDirPathCreated = await makeDestDir(destFilePath);
 
-        await this.tryCopyFileAsync(fileCopyParams, firstDirCreated);
+        await this.tryCopyFileAsync(fileCopyParams, firstDirPathCreated);
     }
 }
 
