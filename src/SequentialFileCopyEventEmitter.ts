@@ -6,9 +6,9 @@ import SimplifiedEventEmitter from "./SimplifiedEventEmitter";
 // prettier-ignore
 type EventValues = {
     readonly "active": undefined;
-    readonly "copy:start": FileCopyParams;
+    readonly "copy:start": FileCopyProgress;
     readonly "copy:progress": FileCopyProgress;
-    readonly "copy:finish": FileCopyParams;
+    readonly "copy:finish": FileCopyProgress;
     readonly "error": FileCopyParamsError; 
     readonly "idle": undefined;
     readonly "queue": readonly FileCopyParams[];
