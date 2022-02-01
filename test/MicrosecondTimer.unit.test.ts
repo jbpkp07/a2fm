@@ -64,7 +64,7 @@ describe("MicrosecondTimer", () => {
             timer.elapsed(),
             timer.elapsed(),
             timer.elapsed(),
-            100
+            1000
         ];
 
         const byAscOrder = (a: number, b: number) => (a > b ? 1 : -1);
