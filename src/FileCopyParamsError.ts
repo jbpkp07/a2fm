@@ -20,6 +20,12 @@ class FileCopyParamsError extends Error {
         }
     }
 
+    private static extractMessageFrom(errorLike: unknown): string {
+        const msg = (errorLike as Error)?.message;
+
+        return typeof msg === "string" ? msg : "";
+    }
+
     public static from(fileCopyParams: FileCopyParams, caughtError: unknown): FileCopyParamsError {
         if (caughtError instanceof FileCopyParamsError) {
             return caughtError;
@@ -29,7 +35,9 @@ class FileCopyParamsError extends Error {
             return new FileCopyParamsError(fileCopyParams, { fromError: caughtError });
         }
 
-        return new FileCopyParamsError(fileCopyParams);
+        const msg = this.extractMessageFrom(caughtError);
+
+        return new FileCopyParamsError(fileCopyParams, { msg });
     }
 }
 

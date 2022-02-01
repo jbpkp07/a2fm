@@ -13,6 +13,7 @@ class FileCopier extends FileCopyEventEmitter {
             await this.copyFileAsync(fileCopyParams);
         } catch (error) {
             await this.rollback(fileCopyParams, rollbackDirPath);
+
             throw FileCopyParamsError.from(fileCopyParams, error);
         }
     }
@@ -94,32 +95,3 @@ class FileCopier extends FileCopyEventEmitter {
 }
 
 export default FileCopier;
-
-const srcFilePath = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp42";
-const destFilePath = "C:/Users/jeremy.barnes/Desktop/code/a2fm/test/.tmp/dir1/dir2/zzzfile.mp4";
-
-const fileCopyParams = { srcFilePath, destFilePath, fileSizeBytes: 1064551156 };
-
-const fileCopier = new FileCopier();
-
-fileCopier.on("start", (progress) => {
-    console.log(progress.bytesPerSecond);
-});
-
-fileCopier.on("progress", (progress) => {
-    console.log(progress.bytesPerSecond);
-});
-
-fileCopier.on("finish", (progress) => {
-    console.log(progress.bytesPerSecond);
-});
-
-async function app() {
-    try {
-        await fileCopier.copyFile(fileCopyParams);
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-void app();

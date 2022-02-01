@@ -11,6 +11,10 @@ const params: FileCopyParams = { srcFilePath: "a", destFilePath: "b", fileSizeBy
 /* lineNumber 11 */ const fileCopyParamsError2 = new FileCopyParamsError(params, { msg: "123" });
 /* lineNumber 12 */ const fromError1 = new Error();
 /* lineNumber 13 */ const fromError2 = new TypeError("456");
+/* lineNumber 14 */ const fromErrorLike1 = { message: 1234 };
+/* lineNumber 15 */ const fromErrorLike2 = { message: "" };
+/* lineNumber 16 */ const fromErrorLike3 = { message: "789" };
+/* lineNumber 17 */ const fromNotErrorLike = { info: "abc" };
 //-----------------------------------------------------------------------------
 
 const extractLineNumber = (stack?: string): number | undefined => {
@@ -80,12 +84,80 @@ describe("FileCopyParamsError", () => {
         expectErrorToEqual(error, ["TypeError", "456", 13]);
     });
 
+    test("from caught Error-like object (message not a string)", () => {
+        let error: FileCopyParamsError;
+
+        try {
+            throw fromErrorLike1 as unknown;
+        } catch (err) {
+            error = FileCopyParamsError.from(params, err);
+        }
+
+        const { name, message, fileCopyParams } = error;
+
+        expect(error).not.toBe(fromErrorLike1);
+        expect(name).toBe(defaultName);
+        expect(message).toBe(defaultMessage);
+        expect(fileCopyParams).toStrictEqual(params);
+    });
+
+    test("from caught Error-like object (empty message)", () => {
+        let error: FileCopyParamsError;
+
+        try {
+            throw fromErrorLike2 as unknown;
+        } catch (err) {
+            error = FileCopyParamsError.from(params, err);
+        }
+
+        const { name, message, fileCopyParams } = error;
+
+        expect(error).not.toBe(fromErrorLike2);
+        expect(name).toBe(defaultName);
+        expect(message).toBe(defaultMessage);
+        expect(fileCopyParams).toStrictEqual(params);
+    });
+
+    test("from caught Error-like object (good message)", () => {
+        let error: FileCopyParamsError;
+
+        try {
+            throw fromErrorLike3 as unknown;
+        } catch (err) {
+            error = FileCopyParamsError.from(params, err);
+        }
+
+        const { name, message, fileCopyParams } = error;
+
+        expect(error).not.toBe(fromErrorLike3);
+        expect(name).toBe(defaultName);
+        expect(message).toBe("789");
+        expect(fileCopyParams).toStrictEqual(params);
+    });
+
+    test("from caught not-Error-like object", () => {
+        let error: FileCopyParamsError;
+
+        try {
+            throw fromNotErrorLike as unknown;
+        } catch (err) {
+            error = FileCopyParamsError.from(params, err);
+        }
+
+        const { name, message, fileCopyParams } = error;
+
+        expect(error).not.toBe(fromNotErrorLike);
+        expect(name).toBe(defaultName);
+        expect(message).toBe(defaultMessage);
+        expect(fileCopyParams).toStrictEqual(params);
+    });
+
     test("from caught string", () => {
         const stringError = "Error!!!";
         let error: FileCopyParamsError;
 
         try {
-            throw stringError as unknown as Error;
+            throw stringError as unknown;
         } catch (err) {
             error = FileCopyParamsError.from(params, err);
         }

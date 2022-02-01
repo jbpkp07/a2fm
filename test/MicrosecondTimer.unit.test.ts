@@ -21,7 +21,7 @@ describe("MicrosecondTimer", () => {
         timer.start();
         elapsed = timer.elapsed();
 
-        expectElapsedToBeBetween(1, 100);
+        expectElapsedToBeBetween(1, 1000);
     });
 
     test("elapsed time with re-start", async () => {
@@ -35,7 +35,7 @@ describe("MicrosecondTimer", () => {
                 timer.start();
                 elapsed = timer.elapsed();
 
-                expectElapsedToBeBetween(1, 100);
+                expectElapsedToBeBetween(1, 1000);
 
                 resolve();
             } catch (error) {

@@ -83,7 +83,8 @@ class FileCopyStreams {
     }
 
     public addFinishListener(listener: Listener): void {
-        this.writeStream.once("finish", () => listener(this.bytesWritten));
+        // setTimeout fixes race condition where "finish" event fires before "ready" event (0 byte copies)
+        this.writeStream.once("finish", () => setTimeout(listener, 0, this.bytesWritten));
     }
 
     public async copyFile(): Promise<void> {
