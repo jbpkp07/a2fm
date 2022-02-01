@@ -21,9 +21,9 @@ const extractAllListeners = (): Function[] => {
 let results: unknown[] = [];
 
 const activeListener = () => results.push("active");
-const startListener = (fileCopyParams: FileCopyParams) => results.push(fileCopyParams);
+const startListener = (progress: FileCopyProgress) => results.push(progress);
 const progressListener = (progress: FileCopyProgress) => results.push(progress);
-const finishListener = (fileCopyParams: FileCopyParams) => results.push(fileCopyParams);
+const finishListener = (progress: FileCopyProgress) => results.push(progress);
 const errorListener = (error: FileCopyParamsError) => results.push(error);
 const idleListener = () => results.push("idle");
 const queueListener = (upcoming: readonly FileCopyParams[]) => results.push(upcoming);
@@ -72,9 +72,9 @@ describe("SequentialFileCopyEventEmitter", () => {
         const error = new FileCopyParamsError({ srcFilePath: "e", destFilePath: "e", fileSizeBytes: 2 });
 
         eventEmitter.emit("active", undefined);
-        eventEmitter.emit("copy:start", { srcFilePath: "s", destFilePath: "s", fileSizeBytes: 3 });
+        eventEmitter.emit("copy:start", progress);
         eventEmitter.emit("copy:progress", progress);
-        eventEmitter.emit("copy:finish", { srcFilePath: "f", destFilePath: "f", fileSizeBytes: 4 });
+        eventEmitter.emit("copy:finish", progress);
         eventEmitter.emit("error", error);
         eventEmitter.emit("idle", undefined);
         eventEmitter.emit("queue", [
@@ -84,9 +84,9 @@ describe("SequentialFileCopyEventEmitter", () => {
 
         expect(results).toStrictEqual([
             "active",
-            { srcFilePath: "s", destFilePath: "s", fileSizeBytes: 3 },
             progress,
-            { srcFilePath: "f", destFilePath: "f", fileSizeBytes: 4 },
+            progress,
+            progress,
             error,
             "idle",
             [
