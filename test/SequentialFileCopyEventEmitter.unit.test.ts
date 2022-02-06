@@ -1,8 +1,8 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import FileCopyParams from "../src/FileCopyParams";
-import FileCopyParamsError from "../src/FileCopyParamsError";
-import FileCopyProgress from "../src/FileCopyProgress";
-import SequentialFileCopyEventEmitter from "../src/SequentialFileCopyEventEmitter";
+import FileCopyParams from "../src/filecopier/FileCopyParams";
+import FileCopyParamsError from "../src/filecopier/FileCopyParamsError";
+import FileCopyProgress from "../src/filecopier/FileCopyProgress";
+import SequentialFileCopyEventEmitter from "../src/filecopier/SequentialFileCopyEventEmitter";
 
 const eventEmitter = new SequentialFileCopyEventEmitter();
 

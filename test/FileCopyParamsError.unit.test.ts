@@ -1,5 +1,5 @@
-import FileCopyParams from "../src/FileCopyParams";
-import FileCopyParamsError from "../src/FileCopyParamsError";
+import FileCopyParams from "../src/filecopier/FileCopyParams";
+import FileCopyParamsError from "../src/filecopier/FileCopyParamsError";
 
 // prettier-ignore
 const params: FileCopyParams = { srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10 };

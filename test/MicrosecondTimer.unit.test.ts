@@ -1,4 +1,4 @@
-import MicrosecondTimer from "../src/MicrosecondTimer";
+import MicrosecondTimer from "../src/filecopier/MicrosecondTimer";
 import DeferredPromise from "./utils/DeferredPromise";
 
 let elapsed: number;

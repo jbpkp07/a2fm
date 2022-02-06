@@ -1,4 +1,4 @@
-import NumberUtils from "./common/NumberUtils";
+import NumberUtils from "../common/NumberUtils";
 import FileCopyParams from "./FileCopyParams";
 import MicrosecondTimer from "./MicrosecondTimer";
 import MovingMedian from "./MovingMedian";

@@ -1,4 +1,4 @@
-import NumberUtils from "./common/NumberUtils";
+import NumberUtils from "../common/NumberUtils";
 import Queue from "./Queue";
 
 const { ceil, floor, isInteger, isNegative, isPositiveArrayIndex } = NumberUtils;

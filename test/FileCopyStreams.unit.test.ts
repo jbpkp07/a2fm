@@ -3,7 +3,7 @@ import { existsSync, writeFileSync } from "fs";
 import { rm } from "fs/promises";
 import { resolve } from "path";
 
-import FileCopyStreams from "../src/FileCopyStreams";
+import FileCopyStreams from "../src/filecopier/FileCopyStreams";
 
 const srcFilePath = resolve(__dirname, ".tmp", randomUUID());
 const destFilePath = resolve(__dirname, ".tmp", randomUUID());

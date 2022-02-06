@@ -4,7 +4,7 @@ import { existsSync } from "fs";
 import { mkdir, rm, writeFile } from "fs/promises";
 import { normalize, resolve } from "path";
 
-import FileSystemUtils from "../src/FileSystemUtils";
+import FileSystemUtils from "../src/filecopier/FileSystemUtils";
 
 const RANDOM_PATH = resolve(__dirname, ".tmp", randomUUID());
 

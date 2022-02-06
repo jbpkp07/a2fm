@@ -3,8 +3,8 @@ import { existsSync, writeFileSync } from "fs";
 import { rm } from "fs/promises";
 import { resolve } from "path";
 
-import FileCopier from "../src/FileCopier";
-import FileCopyProgress from "../src/FileCopyProgress";
+import FileCopier from "../src/filecopier/FileCopier";
+import FileCopyProgress from "../src/filecopier/FileCopyProgress";
 
 let hasPassed: boolean;
 let progressCount: number;

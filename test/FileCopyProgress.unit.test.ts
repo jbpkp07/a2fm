@@ -1,4 +1,4 @@
-import FileCopyProgress from "../src/FileCopyProgress";
+import FileCopyProgress from "../src/filecopier/FileCopyProgress";
 
 describe("FileCopyProgress", () => {
     test("initialization", () => {
