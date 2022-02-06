@@ -1,4 +1,4 @@
-import NumberUtils from "../src/NumberUtils";
+import NumberUtils from "../src/common/NumberUtils";
 
 const { MIN_SAFE_INTEGER, MAX_SAFE_INTEGER } = Number;
 
