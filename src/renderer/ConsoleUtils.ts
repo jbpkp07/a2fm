@@ -6,24 +6,41 @@ const { stdout } = process;
 
 const clearScreenDown = stdout.clearScreenDown.bind(stdout);
 const cursorTo = stdout.cursorTo.bind(stdout);
-const getWindowSize = stdout.getWindowSize.bind(stdout);
+const getScreenSize = stdout.getWindowSize.bind(stdout);
 const write = stdout.write.bind(stdout);
 
-type Listener = () => void;
-type Options = { hideCursor?: boolean };
+export type Options = { hideCursor?: boolean };
 
 class ConsoleUtils {
     private constructor() {}
 
+    private static clearConsoleANSI = "\u001Bc";
+
     private static hideCursorANSI = "\u001B[?25l";
 
-    private static resetConsoleANSI = "\u001Bc";
+    private static setConsoleEncodingUTF8 = (): void => {
+        if (process.platform === "win32") {
+            execSync("chcp 65001");
+        }
+    };
 
-    public static getWindowSize = getWindowSize;
+    public static clearConsole = (options?: Options): void => {
+        if (options?.hideCursor) {
+            cursorTo(0, 0, () => write(this.clearConsoleANSI + this.hideCursorANSI));
+        } else {
+            cursorTo(0, 0, () => write(this.clearConsoleANSI));
+        }
+    };
 
-    public static restoreCursorOnExit = restoreCursorOnExit;
+    public static getScreenSize = getScreenSize;
 
-    public static onResize = (listener: Listener, options?: Options): void => {
+    public static initConsoleUTF8 = (options?: Options): void => {
+        restoreCursorOnExit();
+        this.setConsoleEncodingUTF8();
+        this.clearConsole(options);
+    };
+
+    public static onConsoleResize = (listener: () => void, options?: Options): void => {
         stdout.on("resize", () => {
             if (options?.hideCursor) {
                 write(this.hideCursorANSI);
@@ -35,20 +52,6 @@ class ConsoleUtils {
 
     public static renderScreen = (screen: string): void => {
         cursorTo(0, 0, () => clearScreenDown(() => write(screen)));
-    };
-
-    public static resetConsole = (options?: Options): void => {
-        if (options?.hideCursor) {
-            cursorTo(0, 0, () => write(this.resetConsoleANSI + this.hideCursorANSI));
-        } else {
-            cursorTo(0, 0, () => write(this.resetConsoleANSI));
-        }
-    };
-
-    public static setEncodingUTF8 = (): void => {
-        if (process.platform === "win32") {
-            execSync("chcp 65001");
-        }
     };
 }
 

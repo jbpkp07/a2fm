@@ -1,14 +1,12 @@
 import NumberUtils from "../common/NumberUtils";
 import ConsoleColors from "./ConsoleColors";
 import ConsoleIcons from "./ConsoleIcons";
-import ConsoleUtils from "./ConsoleUtils";
+import ConsoleUtils, { Options } from "./ConsoleUtils";
 
 const { isInteger } = NumberUtils;
 const { gray, green, red, white } = ConsoleColors;
 const { errorIcon, successIcon, warnIcon } = ConsoleIcons;
-const { getWindowSize, onResize, renderScreen, resetConsole, restoreCursorOnExit, setEncodingUTF8 } = ConsoleUtils;
-
-type Options = { hideCursor: boolean };
+const { clearConsole, getScreenSize, initConsoleUTF8, onConsoleResize, renderScreen } = ConsoleUtils;
 
 interface ConsoleRendererParams {
     minCols: number;
@@ -23,7 +21,7 @@ class ConsoleRenderer {
 
     private readonly options: Options;
 
-    private isTooSmall = false;
+    private isScreenTooSmall = false;
 
     private screen = white(`  ${warnIcon} No screen to render\n`);
 
@@ -42,14 +40,9 @@ class ConsoleRenderer {
         this.minRows = minRows;
         this.options = { hideCursor: hideCursor ?? false };
 
-        this.initializeConsole();
-    }
+        initConsoleUTF8(this.options);
 
-    private initializeConsole(): void {
-        setEncodingUTF8();
-        restoreCursorOnExit();
-        onResize(() => this.render(), this.options);
-        resetConsole(this.options);
+        onConsoleResize(() => this.render(), this.options);
     }
 
     private createTooSmallScreen(cols: number, rows: number): string {
@@ -60,35 +53,35 @@ class ConsoleRenderer {
         return gray(`  ${errorIcon} ${message}  (width: ${width}, height: ${height})\n`);
     }
 
-    private renderTooSmallScreen(cols: number, rows: number): void {
-        const tooSmallScreen = this.createTooSmallScreen(cols, rows);
-
-        if (!this.isTooSmall) {
-            this.isTooSmall = true;
-            resetConsole(this.options);
-        }
-
-        renderScreen(tooSmallScreen);
-    }
-
     private renderScreen(): void {
-        if (this.isTooSmall) {
-            this.isTooSmall = false;
-            resetConsole(this.options);
+        if (this.isScreenTooSmall) {
+            this.isScreenTooSmall = false;
+            clearConsole(this.options);
         }
 
         renderScreen(this.screen);
     }
 
+    private renderTooSmallScreen(cols: number, rows: number): void {
+        const tooSmallScreen = this.createTooSmallScreen(cols, rows);
+
+        if (!this.isScreenTooSmall) {
+            this.isScreenTooSmall = true;
+            clearConsole(this.options);
+        }
+
+        renderScreen(tooSmallScreen);
+    }
+
     public render(screen?: string): void {
         if (screen) this.screen = screen;
 
-        const [cols, rows] = getWindowSize();
+        const [cols, rows] = getScreenSize();
 
-        if (cols < this.minCols || rows < this.minRows) {
-            this.renderTooSmallScreen(cols, rows);
-        } else {
+        if (cols >= this.minCols && rows >= this.minRows) {
             this.renderScreen();
+        } else {
+            this.renderTooSmallScreen(cols, rows);
         }
     }
 }
