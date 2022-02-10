@@ -4,7 +4,7 @@ import ConsoleIcons from "./ConsoleIcons";
 import ConsoleUtils, { Options } from "./ConsoleUtils";
 
 const { isInteger } = NumberUtils;
-const { gray, green, red, white } = ConsoleColors;
+const { grayL, green, red, white } = ConsoleColors;
 const { errorIcon, successIcon, warnIcon } = ConsoleIcons;
 const { clearConsole, getScreenSize, initConsoleUTF8, onConsoleResize, renderScreen } = ConsoleUtils;
 
@@ -23,7 +23,7 @@ class ConsoleRenderer {
 
     private isScreenTooSmall = false;
 
-    private screen = white(`  ${warnIcon} No screen to render\n`);
+    private screen = white(` ${warnIcon} No screen to render\n`);
 
     constructor(params: ConsoleRendererParams) {
         const { minCols, minRows, hideCursor } = params;
@@ -50,7 +50,7 @@ class ConsoleRenderer {
         const width = cols < this.minCols ? red(`${cols} ${errorIcon}`) : green(`${cols} ${successIcon}`);
         const height = rows < this.minRows ? red(`${rows} ${errorIcon}`) : green(`${rows} ${successIcon}`);
 
-        return gray(`  ${errorIcon} ${message}  (width: ${width}, height: ${height})\n`);
+        return grayL(` ${errorIcon} ${message}  (width: ${width}, height: ${height})\n`);
     }
 
     private renderScreen(): void {

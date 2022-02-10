@@ -64,6 +64,7 @@
                 "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
                 "no-underscore-dangle": ["warn", { "allowAfterThis": true, "enforceInMethodNames": true }],
                 "no-void": "off",
+                "prefer-template": "off",
                 "prettier/prettier": ["warn", {}, { "usePrettierrc": true }],
                 "sort-imports": ["warn", { "ignoreCase": true, "ignoreDeclarationSort": true }]
             },
