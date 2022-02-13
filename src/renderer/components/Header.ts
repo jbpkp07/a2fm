@@ -2,18 +2,21 @@ import ComponentColors from "./common/ComponentColors";
 
 const { chartL, grayL, purp, white } = ComponentColors;
 
+const logo = process.env.npm_package_name?.toUpperCase() || "???";
+const title = process.env.npm_package_description || "???";
+const version = process.env.npm_package_version || "?.?.?";
+
 interface HeaderProps {
     readonly cols: number;
-    readonly version: string;
 }
 
 const Header = (props: HeaderProps): string => {
-    const { cols, version } = props;
+    const { cols } = props;
 
     const dot = white("·");
-    const logoStyled = chartL(`A${dot}2${dot}F${dot}M`);
+    const logoStyled = chartL(logo.split("").join(dot));
     const sepStyled = grayL(" » ");
-    const titleStyled = white("Aspera To Facilis Migration");
+    const titleStyled = white(title);
     const versionStyled = grayL("v" + version);
 
     const border = "".padEnd(cols - 4, "═");

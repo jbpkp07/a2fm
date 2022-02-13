@@ -3,7 +3,7 @@ import { env } from "process";
 
 import ESLintWebpackPlugin from "eslint-webpack-plugin";
 import TerserPlugin from "terser-webpack-plugin";
-import { Configuration as WebpackConfig } from "webpack";
+import { DefinePlugin, Configuration as WebpackConfig } from "webpack";
 
 const toExtensionsRegExp = (exts: string[]) => {
     const groupAlternatives = exts.join("|").replace(/\./g, "\\.");
@@ -59,6 +59,11 @@ const config: WebpackConfig = {
         path: outputPath
     },
     plugins: [
+        new DefinePlugin({
+            "process.env.npm_package_name": JSON.stringify(env.npm_package_name),
+            "process.env.npm_package_description": JSON.stringify(env.npm_package_description),
+            "process.env.npm_package_version": JSON.stringify(env.npm_package_version)
+        }),
         new ESLintWebpackPlugin({
             extensions,
             failOnError: true,

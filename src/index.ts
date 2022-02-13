@@ -13,7 +13,7 @@ const migrations = [
 ];
 
 setInterval(() => {
-    const screen = Header({ cols, version: "1.0.0" }) + Queue({ cols, migrations });
+    const screen = Header({ cols }) + Queue({ cols, migrations });
 
     renderer.render(screen);
 }, 33);
