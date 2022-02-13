@@ -6,11 +6,11 @@ import ConsoleUtils, { Options } from "./ConsoleUtils";
 const { isInteger } = NumberUtils;
 const { grayL, green, red, white } = ConsoleColors;
 const { errorIcon, successIcon, warnIcon } = ConsoleIcons;
-const { clearConsole, getScreenSize, initConsoleUTF8, onConsoleResize, renderScreen } = ConsoleUtils;
+const { clearConsole, getScreenSize, initConsole, onConsoleResize, renderScreen } = ConsoleUtils;
 
 interface ConsoleRendererParams {
-    minCols: number;
-    minRows: number;
+    cols: number;
+    rows: number;
     hideCursor?: boolean;
 }
 
@@ -26,22 +26,23 @@ class ConsoleRenderer {
     private screen = white(` ${warnIcon} No screen to render\n`);
 
     constructor(params: ConsoleRendererParams) {
-        const { minCols, minRows, hideCursor } = params;
+        const { cols, rows } = params;
+        const hideCursor = params.hideCursor ?? false;
 
-        if (!isInteger(minCols) || minCols < 80) {
-            throw new Error("Argument 'minCols' must be an integer and >= 80");
+        if (!isInteger(cols) || cols < 10) {
+            // ****************************************************************************************************************************************** back to 80
+            throw new Error("Argument 'cols' must be an integer and >= 80");
         }
 
-        if (!isInteger(minRows) || minRows < 3) {
-            throw new Error("Argument 'minRows' must be an integer and >= 3");
+        if (!isInteger(rows) || rows < 3) {
+            throw new Error("Argument 'rows' must be an integer and >= 3");
         }
 
-        this.minCols = minCols;
-        this.minRows = minRows;
-        this.options = { hideCursor: hideCursor ?? false };
+        this.minCols = cols;
+        this.minRows = rows;
+        this.options = { hideCursor };
 
-        initConsoleUTF8(this.options);
-
+        initConsole({ cols, rows, hideCursor });
         onConsoleResize(() => this.render(), this.options);
     }
 

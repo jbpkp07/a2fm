@@ -1,10 +1,19 @@
-import A2fmHeader from "./renderer/components/A2fmHeader";
+import Header from "./renderer/components/Header";
+import Queue from "./renderer/components/Queue";
 import ConsoleRenderer from "./renderer/ConsoleRenderer";
 
-const renderer = new ConsoleRenderer({ minCols: 110, minRows: 42, hideCursor: true });
+const cols = 60;
+
+const renderer = new ConsoleRenderer({ cols, rows: 40, hideCursor: true });
+
+const migrations = [
+    { srcFilePath: "Some_random_file_path_1_abcdefghij_123.mp4", eta: "12m" },
+    { srcFilePath: "Some_random_file_path_1_abcdefghi_123.mp4", eta: "18m" },
+    { srcFilePath: "Some_random_file_path_1_abcdefgh_123.mp4", eta: "24m" }
+];
 
 setInterval(() => {
-    const screen = A2fmHeader({ cols: 120, version: "1.0.0" }) + "   Hello World!";
+    const screen = Header({ cols, version: "1.0.0" }) + Queue({ cols, migrations });
 
     renderer.render(screen);
 }, 33);
@@ -14,7 +23,7 @@ setInterval(() => {
 
 // const renderer = new ConsoleRenderer({ minCols: 104, minRows: 42, hideCursor: true });
 
-// const { darkPink, darkTeal, pink, teal } = ConsoleColors;
+// const { pinkD, tealD, pinkL, tealL } = ConsoleColors;
 
 // let index = 0;
 
@@ -26,12 +35,12 @@ setInterval(() => {
 //     const bar = "".padEnd(length, "■");
 
 //     const lines1 = new Array(10).fill([
-//         pink(`  ${bar}`) + darkPink(`${"".padEnd(100 - length, "■")}\n`),
-//         teal(`  ${index}`)
+//         pinkL(`  ${bar}`) + pinkD(`${"".padEnd(100 - length, "■")}\n`),
+//         tealL(`  ${index}`)
 //     ]) as string[][];
 //     const lines2 = new Array(10).fill([
-//         teal(`  ${bar}`) + darkTeal(`${"".padEnd(100 - length, "■")}\n`),
-//         pink(`  ${index}`)
+//         tealL(`  ${bar}`) + tealD(`${"".padEnd(100 - length, "■")}\n`),
+//         pinkL(`  ${index}`)
 //     ]) as string[][];
 //     const lines: string[][] = [];
 
