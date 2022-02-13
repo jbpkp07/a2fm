@@ -2,6 +2,13 @@ import ComponentColors from "./common/ComponentColors";
 
 const { chartM, chartL, grayD, grayM, grayL, white } = ComponentColors;
 
+interface CreateRowProps {
+    readonly border: string;
+    readonly eta: string;
+    readonly margin: string;
+    readonly path: string;
+}
+
 interface Migration {
     readonly srcFilePath: string;
     readonly eta: string;
@@ -12,55 +19,48 @@ interface QueueProps {
     readonly migrations: Migration[];
 }
 
-const getBorder = (cols: number): string => {
-    return "─".repeat(cols - 2);
-};
+const createStyledFirstRow = (props: CreateRowProps): string => {
+    const { border, eta, margin, path } = props;
 
-const getJustifyRight = (cols: number, path: string, eta: string): string => {
-    return " ".repeat(cols - path.length - eta.length - 4);
-};
+    const styledPath = white(path);
+    const styledEta = chartL(eta);
 
-const getTrimmedPath = (cols: number, path: string, eta: string) => {
-    const length = cols - path.length - eta.length - 4;
-
-    return length < 2 ? path.substring(0, cols - eta.length - 7) + "…" : path;
-};
-
-const firstRow = (migration: Migration, cols: number): string => {
-    const { srcFilePath, eta } = migration;
-
-    const path = getTrimmedPath(cols, srcFilePath, eta);
-    const border = getBorder(cols);
-    const justifyRight = getJustifyRight(cols, path, eta);
-    const pathStyled = white(path);
-    const etaStyled = chartL(eta);
-
-    // prettier-ignore
     const rows = [
-        "   ┌" + border + "┐",
-        "   │ " + pathStyled + justifyRight + etaStyled + " │",
-        "   └" + border + "┘"
+        margin + "┌" + border + "┐" + margin,
+        margin + "│ " + styledPath + margin + styledEta + " │" + margin,
+        margin + "└" + border + "┘" + margin
     ];
 
     return grayL(rows.join("\n"));
 };
 
-const nextRow = (migration: Migration, cols: number): string => {
-    const { srcFilePath, eta } = migration;
+const createStyledNextRow = (props: CreateRowProps): string => {
+    const { border, eta, margin, path } = props;
 
-    const path = getTrimmedPath(cols, srcFilePath, eta);
-    const border = getBorder(cols);
-    const justifyRight = getJustifyRight(cols, path, eta);
-    const pathStyled = grayM(path);
-    const etaStyled = chartM(eta);
+    const styledPath = grayM(path);
+    const styledEta = chartM(eta);
 
-    // prettier-ignore
     const rows = [
-        "   │ " + pathStyled + justifyRight + etaStyled + " │",
-        "   └" + border + "┘"
+        margin + "│ " + styledPath + margin + styledEta + " │" + margin,
+        margin + "└" + border + "┘" + margin
     ];
 
     return grayD(rows.join("\n"));
+};
+
+const createStyledLabel = (margin: string, cols: number): string => {
+    const justifyCenter = " ".padEnd(cols / 2 - 22, " ");
+
+    const styledLabel = grayL("Upcoming migrations");
+    const styledArrow = chartL("↑\n");
+
+    return grayL(margin + styledLabel + justifyCenter + styledArrow);
+};
+
+const padPath = (path: string, length: number): string => {
+    const trimmedPath = length < path.length ? path.substring(0, length - 1) + "…" : path;
+
+    return trimmedPath.padEnd(length, " ");
 };
 
 const Queue = (props: QueueProps): string => {
@@ -70,14 +70,22 @@ const Queue = (props: QueueProps): string => {
         return "";
     }
 
-    const toQueue = (migration: Migration, i: number) => {
-        return i === 0 ? firstRow(migration, cols) : nextRow(migration, cols);
+    const margin = "  ";
+    const border = "".padEnd(cols - 6, "─");
+
+    const toStyledQueue = ({ srcFilePath, eta }: Migration, i: number) => {
+        const length = cols - eta.length - 10;
+        const path = padPath(srcFilePath, length);
+
+        return i === 0
+            ? createStyledFirstRow({ border, eta, margin, path })
+            : createStyledNextRow({ border, eta, margin, path });
     };
 
-    const labelStyled = grayL("\n\n\n\n\n\n  Upcoming migrations\n");
-    const queue = migrations.map(toQueue);
+    const styledLabel = createStyledLabel(margin, cols);
+    const styledQueue = migrations.map(toStyledQueue);
 
-    return labelStyled + queue.join("\n");
+    return styledLabel + styledQueue.join("\n");
 };
 
 export default Queue;

@@ -7,13 +7,13 @@ const cols = 80;
 const renderer = new ConsoleRenderer({ cols, rows: 40, hideCursor: true });
 
 const migrations = [
-    { srcFilePath: "Some_random_file_path_1_abcdefghij_123.mp4", eta: "12m" },
-    { srcFilePath: "Some_random_file_path_1_abcdefghi_123.mp4", eta: "18m" },
-    { srcFilePath: "Some_random_file_path_1_abcdefgh_123.mp4", eta: "24m" }
+    { srcFilePath: "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12.mp4", eta: "123m" },
+    { srcFilePath: "Some_random_file_path_1_abcdefghi_123.mp4", eta: "1800m" },
+    { srcFilePath: "Some_random_file_path_1_abcdefgh_123.mp4", eta: "0123456789m" }
 ];
 
 setInterval(() => {
-    const screen = Header({ cols }) + Queue({ cols, migrations });
+    const screen = Header({ cols }) + "\n\n\n\n\n\n\n\n" + Queue({ cols, migrations });
 
     renderer.render(screen);
 }, 33);

@@ -1,6 +1,6 @@
 import ComponentColors from "./common/ComponentColors";
 
-const { chartL, grayL, purp, white } = ComponentColors;
+const { chartL, grayM, purp, white } = ComponentColors;
 
 const logo = process.env.npm_package_name?.toUpperCase() || "???";
 const title = process.env.npm_package_description || "???";
@@ -13,19 +13,20 @@ interface HeaderProps {
 const Header = (props: HeaderProps): string => {
     const { cols } = props;
 
-    const dot = white("·");
-    const logoStyled = chartL(logo.split("").join(dot));
-    const sepStyled = grayL(" » ");
-    const titleStyled = white(title);
-    const versionStyled = grayL("v" + version);
-
+    const margin = " ";
     const border = "".padEnd(cols - 4, "═");
     const justifyRight = "  ".padEnd(cols - version.length - 44, " ");
 
+    const styledDot = white("·");
+    const styledLogo = chartL(logo.split("").join(styledDot));
+    const styledSep = grayM(" ┃ ");
+    const styledTitle = white(title);
+    const styledVersion = grayM("v" + version);
+
     const header = [
-        " ╔" + border + "╗ ",
-        " ║ " + logoStyled + sepStyled + titleStyled + justifyRight + versionStyled + " ║ ",
-        " ╚" + border + "╝ ",
+        margin + "╔" + border + "╗" + margin,
+        margin + "║ " + styledLogo + styledSep + styledTitle + justifyRight + styledVersion + " ║" + margin,
+        margin + "╚" + border + "╝" + margin,
         ""
     ];
 
