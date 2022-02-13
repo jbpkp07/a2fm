@@ -13,8 +13,6 @@ class ConsoleColors {
 
     public static grayL = rgb(150, 150, 150);
 
-    public static green = chalk.greenBright;
-
     // public static pinkD = rgb(64, 20, 42);
 
     // public static pinkM = rgb(128, 40, 84);
@@ -23,8 +21,6 @@ class ConsoleColors {
 
     public static purp = rgb(127, 28, 255);
 
-    public static red = chalk.redBright;
-
     // public static tealD = rgb(33, 85, 72);
 
     // public static tealM = rgb(80, 204, 173);
@@ -32,8 +28,6 @@ class ConsoleColors {
     // public static tealL = rgb(100, 255, 216);
 
     public static white = rgb(255, 255, 255);
-
-    public static yellow = chalk.yellow;
 }
 
 export default ConsoleColors;

@@ -1,6 +1,6 @@
-import ConsoleColors from "../ConsoleColors";
+import ComponentColors from "./common/ComponentColors";
 
-const { chartM, chartL, grayD, grayM, grayL, white } = ConsoleColors;
+const { chartM, chartL, grayD, grayM, grayL, white } = ComponentColors;
 
 interface Migration {
     readonly srcFilePath: string;

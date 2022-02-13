@@ -1,6 +1,6 @@
-import ConsoleColors from "../ConsoleColors";
+import ComponentColors from "./common/ComponentColors";
 
-const { chartL, grayL, purp, white } = ConsoleColors;
+const { chartL, grayL, purp, white } = ComponentColors;
 
 interface HeaderProps {
     readonly cols: number;

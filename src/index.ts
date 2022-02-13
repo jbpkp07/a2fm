@@ -1,8 +1,8 @@
 import Header from "./renderer/components/Header";
 import Queue from "./renderer/components/Queue";
-import ConsoleRenderer from "./renderer/ConsoleRenderer";
+import ConsoleRenderer from "./renderer/console/ConsoleRenderer";
 
-const cols = 60;
+const cols = 80;
 
 const renderer = new ConsoleRenderer({ cols, rows: 40, hideCursor: true });
 

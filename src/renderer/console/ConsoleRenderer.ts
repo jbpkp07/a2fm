@@ -1,10 +1,10 @@
-import NumberUtils from "../common/NumberUtils";
+import NumberUtils from "../../common/NumberUtils";
 import ConsoleColors from "./ConsoleColors";
 import ConsoleIcons from "./ConsoleIcons";
 import ConsoleUtils, { Options } from "./ConsoleUtils";
 
 const { isInteger } = NumberUtils;
-const { grayL, green, red, white } = ConsoleColors;
+const { gray, green, red, white } = ConsoleColors;
 const { errorIcon, successIcon, warnIcon } = ConsoleIcons;
 const { clearConsole, getScreenSize, initConsole, onConsoleResize, renderScreen } = ConsoleUtils;
 
@@ -29,8 +29,7 @@ class ConsoleRenderer {
         const { cols, rows } = params;
         const hideCursor = params.hideCursor ?? false;
 
-        if (!isInteger(cols) || cols < 10) {
-            // ****************************************************************************************************************************************** back to 80
+        if (!isInteger(cols) || cols < 80) {
             throw new Error("Argument 'cols' must be an integer and >= 80");
         }
 
@@ -51,7 +50,7 @@ class ConsoleRenderer {
         const width = cols < this.minCols ? red(`${cols} ${errorIcon}`) : green(`${cols} ${successIcon}`);
         const height = rows < this.minRows ? red(`${rows} ${errorIcon}`) : green(`${rows} ${successIcon}`);
 
-        return grayL(` ${errorIcon} ${message}  (width: ${width}, height: ${height})\n`);
+        return gray(` ${errorIcon} ${message}  (width: ${width}, height: ${height})\n`);
     }
 
     private renderScreen(): void {

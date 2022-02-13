@@ -26,13 +26,13 @@ class ConsoleUtils {
     private static hideCursorANSI = "\u001B[?25l";
 
     private static initConsoleWin32 = (options?: InitOptions) => {
-        if (platform !== "win32") return;
+        if (platform === "win32") {
+            const cols = options?.cols ?? 80;
+            const rows = options?.rows ?? 25;
 
-        const cols = options?.cols ?? 80;
-        const rows = options?.rows ?? 25;
-
-        execSync(`mode con:cols=${cols} lines=${rows} > nul`, { stdio: "inherit" });
-        execSync("mode con:cp select=65001 > nul", { stdio: "inherit" });
+            execSync(`mode con:cols=${cols} lines=${rows} > nul`, { stdio: "inherit" });
+            execSync("mode con:cp select=65001 > nul", { stdio: "inherit" });
+        }
     };
 
     public static clearConsole = (options?: Options): void => {
@@ -46,9 +46,9 @@ class ConsoleUtils {
     public static getScreenSize = getScreenSize;
 
     public static initConsole = (options?: InitOptions): void => {
-        restoreCursorOnExit();
         this.initConsoleWin32(options);
         this.clearConsole(options);
+        restoreCursorOnExit();
     };
 
     public static onConsoleResize = (listener: () => void, options?: Options): void => {
