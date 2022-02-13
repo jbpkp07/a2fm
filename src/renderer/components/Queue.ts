@@ -5,6 +5,7 @@ const { chartM, chartL, grayD, grayM, grayL, white } = ComponentColors;
 interface CreateRowProps {
     readonly border: string;
     readonly eta: string;
+    readonly isFirstRow: boolean;
     readonly margin: string;
     readonly path: string;
 }
@@ -19,35 +20,6 @@ interface QueueProps {
     readonly migrations: Migration[];
 }
 
-const createStyledFirstRow = (props: CreateRowProps): string => {
-    const { border, eta, margin, path } = props;
-
-    const styledPath = white(path);
-    const styledEta = chartL(eta);
-
-    const rows = [
-        margin + "┌" + border + "┐" + margin,
-        margin + "│ " + styledPath + margin + styledEta + " │" + margin,
-        margin + "└" + border + "┘" + margin
-    ];
-
-    return grayL(rows.join("\n"));
-};
-
-const createStyledNextRow = (props: CreateRowProps): string => {
-    const { border, eta, margin, path } = props;
-
-    const styledPath = grayM(path);
-    const styledEta = chartM(eta);
-
-    const rows = [
-        margin + "│ " + styledPath + margin + styledEta + " │" + margin,
-        margin + "└" + border + "┘" + margin
-    ];
-
-    return grayD(rows.join("\n"));
-};
-
 const createStyledLabel = (margin: string, cols: number): string => {
     const justifyCenter = " ".padEnd(cols / 2 - 22, " ");
 
@@ -55,6 +27,19 @@ const createStyledLabel = (margin: string, cols: number): string => {
     const styledArrow = chartL("↑\n");
 
     return grayL(margin + styledLabel + justifyCenter + styledArrow);
+};
+
+const createStyledRow = (props: CreateRowProps): string => {
+    const { border, eta, isFirstRow, margin, path } = props;
+
+    const styledPath = isFirstRow ? white(path) : grayM(path);
+    const styledEta = isFirstRow ? chartL(eta) : chartM(eta);
+
+    const row1 = margin + "┌" + border + "┐" + margin + "\n";
+    const row2 = margin + "│ " + styledPath + margin + styledEta + " │" + margin + "\n";
+    const row3 = margin + "└" + border + "┘" + margin;
+
+    return isFirstRow ? grayL(row1 + row2 + row3) : grayD(row2 + row3);
 };
 
 const padPath = (path: string, length: number): string => {
@@ -76,10 +61,9 @@ const Queue = (props: QueueProps): string => {
     const toStyledQueue = ({ srcFilePath, eta }: Migration, i: number) => {
         const length = cols - eta.length - 10;
         const path = padPath(srcFilePath, length);
+        const isFirstRow = i === 0;
 
-        return i === 0
-            ? createStyledFirstRow({ border, eta, margin, path })
-            : createStyledNextRow({ border, eta, margin, path });
+        return createStyledRow({ border, eta, isFirstRow, margin, path });
     };
 
     const styledLabel = createStyledLabel(margin, cols);

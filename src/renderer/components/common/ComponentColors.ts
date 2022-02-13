@@ -11,7 +11,7 @@ class ConsoleColors {
 
     public static grayM = rgb(110, 110, 110);
 
-    public static grayL = rgb(150, 150, 150);
+    public static grayL = rgb(160, 160, 160);
 
     // public static pinkD = rgb(64, 20, 42);
 
