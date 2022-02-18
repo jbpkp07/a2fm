@@ -1,36 +1,40 @@
+import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
 
 const { chartL, grayM, purp, white } = ComponentColors;
-
-const logo = process.env.npm_package_name?.toUpperCase() || "???";
-const title = process.env.npm_package_description || "???";
-const version = process.env.npm_package_version || "?.?.?";
 
 interface HeaderProps {
     readonly cols: number;
 }
 
-const Header = (props: HeaderProps): string => {
-    const { cols } = props;
+class Header extends BaseComponent<HeaderProps> {
+    protected render(): string {
+        const { cols } = this.props;
+        const { env } = process;
 
-    const margin = " ";
-    const border = "".padEnd(cols - 4, "═");
-    const justifyRight = "  ".padEnd(cols - version.length - 44, " ");
+        const logo = env.npm_package_name?.toUpperCase() || "???";
+        const title = env.npm_package_description || "???";
+        const version = env.npm_package_version || "?.?.?";
 
-    const styledDot = white("·");
-    const styledLogo = chartL(logo.split("").join(styledDot));
-    const styledSep = grayM(" ┃ ");
-    const styledTitle = white(title);
-    const styledVersion = grayM("v" + version);
+        const styledDot = white("·");
+        const styledLogo = chartL(logo.split("").join(styledDot));
+        const styledSep = grayM(" ┃ ");
+        const styledTitle = white(title);
+        const styledVersion = grayM("v" + version);
 
-    const header = [
-        margin + "╔" + border + "╗" + margin,
-        margin + "║ " + styledLogo + styledSep + styledTitle + justifyRight + styledVersion + " ║" + margin,
-        margin + "╚" + border + "╝" + margin,
-        ""
-    ];
+        const margin = " ";
+        const border = "".padEnd(cols - 4, "═");
+        const justifyRight = "  ".padEnd(cols - version.length - 44, " ");
 
-    return purp(header.join("\n"));
-};
+        const header = [
+            margin + "╔" + border + "╗" + margin,
+            margin + "║ " + styledLogo + styledSep + styledTitle + justifyRight + styledVersion + " ║" + margin,
+            margin + "╚" + border + "╝" + margin,
+            ""
+        ].join("\n");
+
+        return purp(header);
+    }
+}
 
 export default Header;

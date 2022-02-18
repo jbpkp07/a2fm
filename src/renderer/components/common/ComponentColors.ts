@@ -13,19 +13,19 @@ class ConsoleColors {
 
     public static grayL = rgb(160, 160, 160);
 
-    // public static pinkD = rgb(64, 20, 42);
+    public static pinkD = rgb(64, 20, 42);
 
-    // public static pinkM = rgb(128, 40, 84);
+    public static pinkM = rgb(128, 40, 84);
 
-    // public static pinkL = rgb(255, 80, 168);
+    public static pinkL = rgb(255, 80, 168);
 
     public static purp = rgb(127, 28, 255);
 
-    // public static tealD = rgb(33, 85, 72);
+    public static tealD = rgb(33, 85, 72);
 
-    // public static tealM = rgb(80, 204, 173);
+    public static tealM = rgb(80, 204, 173);
 
-    // public static tealL = rgb(100, 255, 216);
+    public static tealL = rgb(100, 255, 216);
 
     public static white = rgb(255, 255, 255);
 }
