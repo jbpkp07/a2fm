@@ -1,17 +1,14 @@
+import { isDeepStrictEqual as isEqual } from "util";
+
 abstract class BaseComponent<P extends object> {
     private component = "";
-
-    private stringProps?: string = undefined;
 
     protected props: P = {} as P;
 
     protected abstract render(): string;
 
     public create(props: P): string {
-        const stringProps = JSON.stringify(props);
-
-        if (this.stringProps !== stringProps) {
-            this.stringProps = stringProps;
+        if (!isEqual(this.props, props)) {
             this.props = props;
             this.component = this.render();
         }

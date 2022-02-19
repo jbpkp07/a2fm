@@ -1,3 +1,5 @@
+import { isDeepStrictEqual as isEqual } from "util";
+
 import FileCopier from "./FileCopier";
 import FileCopyParams from "./FileCopyParams";
 import FileCopyParamsError from "./FileCopyParamsError";
@@ -8,6 +10,8 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
     private readonly fileCopier = new FileCopier();
 
     private readonly queue = new Queue<FileCopyParams>();
+
+    private inProgressParams: FileCopyParams | undefined;
 
     private isActive = false;
 
@@ -27,14 +31,31 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
         this.updateIsActive();
 
         while (!this.queue.isEmpty) {
-            const fileCopyParams = this.queue.dequeue() as FileCopyParams;
+            this.inProgressParams = this.dequeue() as FileCopyParams;
 
-            this.updateQueue();
+            await this.tryCopyFile(this.inProgressParams); // eslint-disable-line no-await-in-loop
 
-            await this.tryCopyFile(fileCopyParams); // eslint-disable-line no-await-in-loop
+            this.inProgressParams = undefined;
         }
 
         this.updateIsIdle();
+    }
+
+    private dequeue(): FileCopyParams | undefined {
+        const fileCopyParams = this.queue.dequeue();
+        this.updateQueue();
+
+        return fileCopyParams;
+    }
+
+    private enqueue(fileCopyParams: FileCopyParams): void {
+        const queue = this.queue.peekQueue();
+        const isNotInQueue = !queue.find((inQueueParams) => isEqual(inQueueParams, fileCopyParams));
+        const isNotInProgress = !isEqual(this.inProgressParams, fileCopyParams);
+
+        if (isNotInQueue && isNotInProgress) {
+            this.queue.enqueue(fileCopyParams);
+        }
     }
 
     private async tryCopyFile(fileCopyParams: FileCopyParams): Promise<void> {
@@ -66,7 +87,7 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
     }
 
     public copyFile(fileCopyParams: FileCopyParams): this {
-        this.queue.enqueue(fileCopyParams);
+        this.enqueue(fileCopyParams);
 
         if (this.isActive) {
             this.updateQueue();
