@@ -1,11 +1,15 @@
 import { isDeepStrictEqual as isEqual } from "util";
 
-abstract class BaseComponent<P extends object> {
+interface BaseComponentProps {
+    readonly cols: number;
+}
+
+abstract class BaseComponent<P extends BaseComponentProps> {
     private component = "";
 
     protected props: P = {} as P;
 
-    protected abstract createComponent(): string;
+    protected abstract createComponent: () => string;
 
     public create = (props: P): string => {
         if (!isEqual(this.props, props)) {

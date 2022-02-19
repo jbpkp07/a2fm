@@ -6,8 +6,8 @@ const { isInteger } = NumberUtils;
 const { chartM, chartL, grayD, grayM, grayL, pinkM, pinkL, white } = ComponentColors;
 
 interface Migration {
-    readonly srcFilePath: string;
     readonly eta: string;
+    readonly srcFilePath: string;
 }
 
 interface MigrationQueueProps {
@@ -42,7 +42,7 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
 
     private createStyledMigration = (migration: Migration, i: number): string => {
         const { cols } = this.props;
-        const { srcFilePath, eta } = migration;
+        const { eta, srcFilePath } = migration;
 
         const number = this.padNumber(i + 1);
         const length = cols - number.length - eta.length - 12;
@@ -92,7 +92,7 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
         return trimmedPath.padEnd(length, " ");
     };
 
-    protected createComponent(): string {
+    protected createComponent = (): string => {
         const { limit, migrations } = this.props;
 
         if (!isInteger(limit) || limit < 0) {
@@ -104,7 +104,7 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
         }
 
         return this.createStyledLabel() + this.createStyledQueue() + this.createStyledLimit();
-    }
+    };
 }
 
 export default MigrationQueue;

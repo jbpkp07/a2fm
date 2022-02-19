@@ -1,4 +1,5 @@
 import Header from "./renderer/components/Header";
+import MigrationProgress from "./renderer/components/MigrationProgress";
 import MigrationQueue from "./renderer/components/MigrationQueue";
 import ConsoleRenderer from "./renderer/console/ConsoleRenderer";
 
@@ -21,11 +22,21 @@ const migrations = [
     { srcFilePath: "Some_random_file_path_1_abcdefgh_123.mp4", eta: "0123456789m" }
 ];
 
+const props = {
+    cols,
+    destFilePath: "I:/Some_random_long_path_that_will_be_the_destination_file_path.mp4.a2fm",
+    eta: "38s",
+    fileSize: "20.2 GB",
+    percentage: 72,
+    srcFilePath: "S:/Some_random_long_path_that_will_be_the_destination_file_path.mp4.a2fm"
+};
+
 const header = new Header();
+const progress = new MigrationProgress();
 const queue = new MigrationQueue();
 
 setInterval(() => {
-    const screen = header.create({ cols }) + "\n\n\n\n\n\n\n\n" + queue.create({ cols, limit: 10, migrations });
+    const screen = header.create({ cols }) + progress.create(props) + queue.create({ cols, limit: 10, migrations });
 
     renderer.render(screen);
 }, 33);

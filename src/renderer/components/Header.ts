@@ -8,7 +8,7 @@ interface HeaderProps {
 }
 
 class Header extends BaseComponent<HeaderProps> {
-    protected createComponent(): string {
+    protected createComponent = (): string => {
         const { cols } = this.props;
         const { env } = process;
 
@@ -34,7 +34,7 @@ class Header extends BaseComponent<HeaderProps> {
         ].join("\n");
 
         return purp(header);
-    }
+    };
 }
 
 export default Header;
