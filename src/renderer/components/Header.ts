@@ -1,7 +1,9 @@
 import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
+import ComponentUtils from "./common/ComponentUtils";
 
 const { chartL, grayM, purp, white } = ComponentColors;
+const { createBottomBorder, createTopBorder, justifyRight } = ComponentUtils;
 
 interface HeaderProps {
     readonly cols: number;
@@ -23,13 +25,14 @@ class Header extends BaseComponent<HeaderProps> {
         const styledVersion = grayM("v" + version);
 
         const margin = " ";
-        const border = "".padEnd(cols - 4, "═");
-        const justifyRight = "  ".padEnd(cols - version.length - 44, " ");
+        const topBorder = createTopBorder("═", cols - 4);
+        const botBorder = createBottomBorder("═", cols - 4);
+        const justified = justifyRight(cols, version.length + 45);
 
         const header = [
-            margin + "╔" + border + "╗" + margin,
-            margin + "║ " + styledLogo + styledSep + styledTitle + justifyRight + styledVersion + " ║" + margin,
-            margin + "╚" + border + "╝" + margin,
+            margin + topBorder + margin,
+            margin + "║ " + styledLogo + styledSep + styledTitle + justified + margin + styledVersion + " ║" + margin,
+            margin + botBorder + margin,
             ""
         ].join("\n");
 

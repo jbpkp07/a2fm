@@ -3,7 +3,7 @@ import MigrationProgress from "./renderer/components/MigrationProgress";
 import MigrationQueue from "./renderer/components/MigrationQueue";
 import ConsoleRenderer from "./renderer/console/ConsoleRenderer";
 
-const cols = 160;
+const cols = 161;
 
 const renderer = new ConsoleRenderer({ cols, rows: 40, hideCursor: true });
 

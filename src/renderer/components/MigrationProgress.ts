@@ -1,7 +1,9 @@
 import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
+import ComponentUtils from "./common/ComponentUtils";
 
 const { chartL, grayM, purp, white } = ComponentColors;
+const { justifyCenter, padNumber, padText } = ComponentUtils;
 
 interface MigrationProgressProps {
     readonly cols: number;
@@ -14,9 +16,11 @@ interface MigrationProgressProps {
 
 class MigrationProgress extends BaseComponent<MigrationProgressProps> {
     private createStyledPaths = (): string => {
-        const { srcFilePath, destFilePath } = this.props;
+        const { cols, srcFilePath, destFilePath } = this.props;
 
-        return "blah\n\n\n\n";
+        const justified = justifyCenter(cols, 0);
+
+        return justified + "|\n\n\n\n";
     };
 
     protected createComponent = (): string => {
