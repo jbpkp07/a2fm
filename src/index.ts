@@ -3,7 +3,7 @@ import MigrationProgress from "./renderer/components/MigrationProgress";
 import MigrationQueue from "./renderer/components/MigrationQueue";
 import ConsoleRenderer from "./renderer/console/ConsoleRenderer";
 
-const cols = 161;
+const cols = 181;
 
 const renderer = new ConsoleRenderer({ cols, rows: 40, hideCursor: true });
 
@@ -24,11 +24,12 @@ const migrations = [
 
 const props = {
     cols,
-    destFilePath: "I:/Some_random_long_path_that_will_be_the_destination_file_path.mp4.a2fm",
+    destFilePath: "I:/Some_random_long_path_that_will_be_the_destination_file_path_12345.mp4.a2fm",
     eta: "38s",
     fileSize: "20.2 GB",
     percentage: 72,
-    srcFilePath: "S:/Some_random_long_path_that_will_be_the_destination_file_path.mp4.a2fm"
+    rate: { value: "161", units: "MB/s" },
+    srcFilePath: "S:/Some_random_long_path_that_will_be_the_destination_file_path_12345.mp4.a2fm"
 };
 
 const header = new Header();

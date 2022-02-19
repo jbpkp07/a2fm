@@ -4,7 +4,7 @@ import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 
 const { isInteger } = NumberUtils;
-const { chartM, chartL, grayD, grayM, grayL, pinkM, pinkL, white } = ComponentColors;
+const { chartM, chartL, grayD, grayM, grayL, pinkM, pinkL, whiteD } = ComponentColors;
 const { createBottomBorder, createTopBorder, justifyCenter, padNumber, padText } = ComponentUtils;
 
 interface Migration {
@@ -23,7 +23,7 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
         const { cols } = this.props;
 
         const styledLabel = grayL("Upcoming migrations");
-        const styledArrow = chartL("↑\n");
+        const styledArrow = whiteD("▲\n");
 
         const margin = "  ";
         const justified = justifyCenter(cols, 21);
@@ -38,7 +38,7 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
             return "";
         }
 
-        const styledNotShownCount = grayL(migrations.length - limit);
+        const styledNotShownCount = pinkM(migrations.length - limit);
         const justified = justifyCenter(cols, 5);
 
         return grayM(justified + "plus " + styledNotShownCount + " more…\n");
@@ -55,7 +55,7 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
         const path = padText(srcFilePath, pathLength);
 
         const styledNumber = i === 0 ? pinkL(number) : pinkM(number);
-        const styledPath = i === 0 ? white(path) : grayM(path);
+        const styledPath = i === 0 ? whiteD(path) : grayM(path);
         const styledEta = i === 0 ? chartL(eta) : chartM(eta);
 
         const margin = "  ";

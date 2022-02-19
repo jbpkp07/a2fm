@@ -2,7 +2,7 @@ import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 
-const { chartL, grayM, purp, white } = ComponentColors;
+const { chartL, grayM, purpL, whiteL } = ComponentColors;
 const { createBottomBorder, createTopBorder, justifyRight } = ComponentUtils;
 
 interface HeaderProps {
@@ -18,10 +18,10 @@ class Header extends BaseComponent<HeaderProps> {
         const title = env.npm_package_description || "???";
         const version = env.npm_package_version || "?.?.?";
 
-        const styledDot = white("·");
+        const styledDot = whiteL("·");
         const styledLogo = chartL(logo.split("").join(styledDot));
         const styledSep = grayM(" ┃ ");
-        const styledTitle = white(title);
+        const styledTitle = whiteL(title);
         const styledVersion = grayM("v" + version);
 
         const margin = " ";
@@ -36,7 +36,7 @@ class Header extends BaseComponent<HeaderProps> {
             ""
         ].join("\n");
 
-        return purp(header);
+        return purpL(header);
     };
 }
 

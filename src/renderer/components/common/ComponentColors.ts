@@ -11,17 +11,19 @@ class ComponentColors {
 
     public static grayD = rgb(60, 60, 60);
 
-    public static grayM = rgb(110, 110, 110);
+    public static grayM = rgb(105, 105, 105);
 
-    public static grayL = rgb(160, 160, 160);
+    public static grayL = rgb(150, 150, 150);
 
     public static pinkD = rgb(64, 20, 42);
 
-    public static pinkM = rgb(128, 40, 84);
+    public static pinkM = rgb(153, 48, 100);
 
     public static pinkL = rgb(255, 80, 168);
 
-    public static purp = rgb(127, 28, 255);
+    public static purpM = rgb(96, 21, 192);
+
+    public static purpL = rgb(128, 28, 255);
 
     public static tealD = rgb(33, 85, 72);
 
@@ -29,7 +31,9 @@ class ComponentColors {
 
     public static tealL = rgb(100, 255, 216);
 
-    public static white = rgb(255, 255, 255);
+    public static whiteD = rgb(192, 192, 192);
+
+    public static whiteL = rgb(255, 255, 255);
 }
 
 export default ComponentColors;
