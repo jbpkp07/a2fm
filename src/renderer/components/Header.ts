@@ -8,7 +8,7 @@ interface HeaderProps {
 }
 
 class Header extends BaseComponent<HeaderProps> {
-    protected render(): string {
+    protected createComponent(): string {
         const { cols } = this.props;
         const { env } = process;
 

@@ -92,7 +92,7 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
         return trimmedPath.padEnd(length, " ");
     };
 
-    protected render(): string {
+    protected createComponent(): string {
         const { limit, migrations } = this.props;
 
         if (!isInteger(limit) || limit < 0) {
