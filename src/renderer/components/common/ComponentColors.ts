@@ -2,7 +2,9 @@ import * as chalk from "chalk";
 
 const rgb = chalk.rgb.bind(chalk);
 
-class ConsoleColors {
+class ComponentColors {
+    private constructor() {}
+
     public static chartM = rgb(85, 153, 17);
 
     public static chartL = rgb(142, 255, 28);
@@ -30,4 +32,4 @@ class ConsoleColors {
     public static white = rgb(255, 255, 255);
 }
 
-export default ConsoleColors;
+export default ComponentColors;

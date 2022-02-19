@@ -13,10 +13,14 @@ interface MigrationProgressProps {
 }
 
 class MigrationProgress extends BaseComponent<MigrationProgressProps> {
-    // private createStyledPaths
+    private createStyledPaths = (): string => {
+        const { srcFilePath, destFilePath } = this.props;
+
+        return "blah\n\n\n\n";
+    };
 
     protected createComponent = (): string => {
-        return "cool\n\n\n\n";
+        return this.createStyledPaths();
     };
 }
 

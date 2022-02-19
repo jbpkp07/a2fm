@@ -1,6 +1,8 @@
 import * as chalk from "chalk";
 
 class ConsoleColors {
+    private constructor() {}
+
     public static gray = chalk.gray;
 
     public static green = chalk.green;
