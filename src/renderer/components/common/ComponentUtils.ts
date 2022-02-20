@@ -26,7 +26,7 @@ class ComponentUtils {
     };
 
     public static padNumber = (num: number, length: number): string => {
-        return String(num).padEnd(length, " ");
+        return String(num).padStart(length, " ");
     };
 
     public static padText = (text: string, length: number): string => {

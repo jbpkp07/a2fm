@@ -1,67 +1,136 @@
+import { basename, dirname } from "path";
+
 import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
+import ValueUnits from "./common/ValueUnits";
 
-const { chartL, grayL, pinkL, purpL: purp, whiteL } = ComponentColors;
+const { greenM, greenD, grayL, grayD, pinkL, purpL, whiteL, whiteM, whiteD } = ComponentColors;
 const { justifyCenter, padNumber, padText } = ComponentUtils;
 
-type ValueUnits = { value: string; units: string };
-
 interface MigrationProgressProps {
-    readonly cols: number;
-    readonly destFilePath: string;
-    readonly eta: string;
-    readonly fileSize: string;
+    readonly cols: number; //
+    readonly destFilePath: string; //
+    readonly eta: ValueUnits;
+    readonly fileSize: ValueUnits; //
     readonly percentage: number;
-    readonly rate: ValueUnits;
-    readonly srcFilePath: string;
+    readonly rate: ValueUnits; //
+    readonly srcFilePath: string; //
+    readonly elapsedTime: ValueUnits;
 }
 
 class MigrationProgress extends BaseComponent<MigrationProgressProps> {
-    private labelLength = 6;
+    private margin = "  ";
 
-    private createStyledInfo = (): string => {
-        const { cols, destFilePath, fileSize, srcFilePath } = this.props;
+    private labelLength = 5;
 
-        const srcLabel = padText("Srce", this.labelLength);
-        const destLabel = padText("Dest", this.labelLength);
-        const sizeLabel = padText("Size", this.labelLength);
+    private numberLength = 3;
 
-        const srcPath = padText(srcFilePath, cols - srcLabel.length - 4);
-        const destPath = padText(destFilePath, cols - destLabel.length - 4);
+    private createStyledSrcPath = (): string => {
+        const { cols, srcFilePath } = this.props;
 
-        const styledSrcLabel = grayL(srcLabel);
-        const styledDestLabel = grayL(destLabel);
-        const styledSizeLabel = grayL(sizeLabel);
+        const dirLabel = padText("From", this.labelLength);
+        const fileLabel = padText("", this.labelLength);
 
-        const styledSrcPath = whiteL(srcPath);
-        const styledDestPath = whiteL(destPath);
-        const styledFileSize = chartL(fileSize);
+        const dir = padText(dirname(srcFilePath), cols - dirLabel.length - 13);
+        const file = padText(basename(srcFilePath), cols - fileLabel.length - 13);
+        const sep = grayD("┃ ");
 
-        const margin = "  ";
-        const row1 = margin + styledSrcLabel + styledSrcPath + "\n";
-        const row2 = margin + styledDestLabel + styledDestPath + "\n";
-        const row3 = margin + styledSizeLabel + styledFileSize + "\n";
+        const row1 = this.margin + grayL(dirLabel) + sep + whiteL("Dir   ") + whiteD(dir) + "\n";
+        const row2 = this.margin + grayL(fileLabel) + sep + whiteL("File  ") + purpL(file) + "\n";
 
-        return row1 + row2 + row3 + "\n";
+        return row1 + row2;
     };
 
-    private createStyledStats = (): string => {
+    private createStyledDestPath = (): string => {
+        const { cols, destFilePath } = this.props;
+
+        const dirLabel = padText("To", this.labelLength);
+        const fileLabel = padText("", this.labelLength);
+
+        const dir = padText(dirname(destFilePath), cols - dirLabel.length - 13);
+        const file = padText(basename(destFilePath), cols - fileLabel.length - 13);
+        const sep = grayD("┃ ");
+
+        const row1 = this.margin + grayL(dirLabel) + sep + whiteL("Dir   ") + whiteD(dir) + "\n";
+        const row2 = this.margin + grayL(fileLabel) + sep + whiteL("File  ") + purpL(file) + "\n";
+
+        return row1 + row2;
+    };
+
+    private createStyledFileSize = (): string => {
+        const { fileSize } = this.props;
+
+        const label = padText("Size", this.labelLength);
+        const value = padNumber(fileSize.value, this.numberLength);
+
+        return grayL(label) + pinkL(value) + " " + whiteM(fileSize.units);
+    };
+
+    private createStyledElapsedTime = (): string => {
+        const { elapsedTime } = this.props;
+
+        const label = padText("Elapsed", this.labelLength + 3);
+        const value = padNumber(elapsedTime.value, this.numberLength);
+
+        return grayL(label) + pinkL(value) + " " + whiteM(elapsedTime.units);
+    };
+
+    private createStyledRate = (): string => {
         const { rate } = this.props;
 
-        const rateLabel = padText("Rate", this.labelLength);
+        const label = padText("Rate", this.labelLength);
+        const value = padNumber(rate.value, this.numberLength);
 
-        const styledRateLabel = grayL(rateLabel);
-        const styledRateValue = chartL(rate.value);
-        const styledRateUnits = whiteL(rate.units);
+        return grayL(label) + pinkL(value) + " " + whiteM(rate.units);
+    };
 
-        const margin = "  ";
+    private createStyledProgressBar = (): string => {
+        const { eta, percentage } = this.props;
 
-        return margin + styledRateLabel + styledRateValue + " " + styledRateUnits + "\n";
+        const pValue = padNumber(percentage, this.numberLength);
+        const pUnits = " %" + this.margin;
+        const etaValue = padNumber(eta.value, this.numberLength);
+
+        const styledDoneBar = greenM("".padEnd(percentage, "■"));
+        const styledToGoBar = greenD("".padEnd(100 - percentage, "■"));
+        const styledFullBar = styledDoneBar + styledToGoBar;
+        const styledEtaLabel = grayL(this.margin + "Eta ");
+        const styledEtaValue = pinkL(etaValue);
+        const styledEtaUnits = whiteM(" " + eta.units);
+
+        return pinkL(pValue) + whiteM(pUnits) + styledFullBar + styledEtaLabel + styledEtaValue + styledEtaUnits + "\n";
     };
 
     protected createComponent = (): string => {
-        return "\n" + this.createStyledInfo() + this.createStyledStats() + "\n\n\n\n";
+        const srcPath = this.createStyledSrcPath();
+        const destPath = this.createStyledDestPath();
+        const time = this.createStyledElapsedTime();
+        const size = this.createStyledFileSize();
+        const rate = this.createStyledRate();
+        const progressBar = this.createStyledProgressBar();
+
+        const justified = justifyCenter(this.props.cols, 26);
+        const justified2 = justifyCenter(this.props.cols, 57);
+        const sep = grayD("    ┃    ");
+
+        return (
+            "\n" +
+            srcPath +
+            "\n" +
+            destPath +
+            "\n" +
+            justified +
+            size +
+            sep +
+            time +
+            sep +
+            rate +
+            "\n\n" +
+            justified2 +
+            progressBar +
+            "\n\n"
+        );
     };
 }
 

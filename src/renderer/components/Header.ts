@@ -2,7 +2,7 @@ import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 
-const { chartL, grayM, purpL, whiteL } = ComponentColors;
+const { grayM, greenL, purpL, whiteL } = ComponentColors;
 const { createBottomBorder, createTopBorder, justifyRight } = ComponentUtils;
 
 interface HeaderProps {
@@ -19,7 +19,7 @@ class Header extends BaseComponent<HeaderProps> {
         const version = env.npm_package_version || "?.?.?";
 
         const styledDot = whiteL("·");
-        const styledLogo = chartL(logo.split("").join(styledDot));
+        const styledLogo = greenL(logo.split("").join(styledDot));
         const styledSep = grayM(" ┃ ");
         const styledTitle = whiteL(title);
         const styledVersion = grayM("v" + version);
