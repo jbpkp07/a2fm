@@ -2,7 +2,7 @@ import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 
-const { grayM, greenL, purpL, whiteL } = ComponentColors;
+const { grayM, greenL, purpL, purpM, whiteM } = ComponentColors;
 const { createBottomBorder, createTopBorder, justifyRight } = ComponentUtils;
 
 interface HeaderProps {
@@ -18,10 +18,10 @@ class Header extends BaseComponent<HeaderProps> {
         const title = env.npm_package_description || "???";
         const version = env.npm_package_version || "?.?.?";
 
-        const styledDot = whiteL("·");
+        const styledDot = whiteM("·");
         const styledLogo = greenL(logo.split("").join(styledDot));
-        const styledSep = grayM(" ┃ ");
-        const styledTitle = whiteL(title);
+        const styledSep = purpL(" ► ");
+        const styledTitle = whiteM(title);
         const styledVersion = grayM("v" + version);
 
         const margin = " ";
@@ -36,7 +36,7 @@ class Header extends BaseComponent<HeaderProps> {
             ""
         ].join("\n");
 
-        return purpL(header);
+        return purpM(header);
     };
 }
 

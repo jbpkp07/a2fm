@@ -5,7 +5,7 @@ import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
 
 const { isInteger } = NumberUtils;
-const { greenL, greenM, grayL, grayM, pinkL, pinkM, purpM, purpD, whiteD } = ComponentColors;
+const { greenL, greenM, grayL, grayM, pinkL, pinkM, purpL, purpM, purpD, whiteM, whiteXD } = ComponentColors;
 const { createBottomBorder, createTopBorder, justifyCenter, padNumber, padText } = ComponentUtils;
 
 interface Migration {
@@ -25,12 +25,12 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
     private createStyledLabel = (): string => {
         const { cols } = this.props;
 
-        const styledLabel = grayL("Upcoming migrations");
-        const styledArrow = purpM("▲\n");
+        const styledLabel = purpL("Upcoming migrations");
+        const styledArrow = purpL("▲\n");
 
         const justified = justifyCenter(cols, 21);
 
-        return grayL(this.margin + styledLabel + justified + styledArrow);
+        return this.margin + styledLabel + justified + styledArrow;
     };
 
     private createStyledLimit = (): string => {
@@ -43,7 +43,7 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
         const styledNotShownCount = greenM(migrations.length - limit);
         const justified = justifyCenter(cols, 5);
 
-        return grayM(justified + "plus " + styledNotShownCount + " more…\n");
+        return grayL(justified + "plus " + styledNotShownCount + " more…\n");
     };
 
     private createStyledMigration = (migration: Migration, i: number): string => {
@@ -59,8 +59,8 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
         const path = padText(srcFilePath, pathLength);
 
         const styledNumber = i === 0 ? greenL(number) : greenM(number);
-        const styledPath = i === 0 ? whiteD(path) : grayM(path);
-        const styledEta = i === 0 ? pinkL(etaValue) + whiteD(eta.units) : pinkM(etaValue) + grayL(eta.units);
+        const styledPath = i === 0 ? whiteXD(path) : grayM(path);
+        const styledEta = i === 0 ? pinkL(etaValue) + whiteM(eta.units) : pinkM(etaValue) + grayL(eta.units);
 
         const { margin } = this;
         const topBorder = createTopBorder("─", cols - 6);

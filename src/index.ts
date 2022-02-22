@@ -4,9 +4,9 @@ import MigrationProgress from "./renderer/components/MigrationProgress";
 import MigrationQueue from "./renderer/components/MigrationQueue";
 import ConsoleRenderer from "./renderer/console/ConsoleRenderer";
 
-const cols = 161;
+const cols = 151;
 
-const renderer = new ConsoleRenderer({ cols, rows: 39, hideCursor: true });
+const renderer = new ConsoleRenderer({ cols, rows: 38, hideCursor: true });
 
 function getMigrations() {
     // const index = Math.floor(Math.random() * 12) + 2;
@@ -111,7 +111,7 @@ setInterval(() => {
     const screen =
         header.create({ cols }) +
         progress.create(getProps()) +
-        queue.create({ cols, limit: 10, migrations: getMigrations() });
+        queue.create({ cols, limit: 9, migrations: getMigrations() });
 
     renderer.render(screen);
 }, 100);

@@ -5,7 +5,7 @@ import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
 
-const { greenM, greenD, grayL, grayD, pinkL, purpL, whiteL, whiteM, whiteD } = ComponentColors;
+const { greenM, greenD, grayL, grayD, pinkL, purpL, purpM, whiteM, whiteD } = ComponentColors;
 const { justifyCenter, padNumber, padText } = ComponentUtils;
 
 interface MigrationProgressProps {
@@ -29,15 +29,15 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
     private createStyledSrcPath = (): string => {
         const { cols, srcFilePath } = this.props;
 
-        const dirLabel = padText("From", this.labelLength);
-        const fileLabel = padText("", this.labelLength);
+        const dirLabel = padText("Source", this.labelLength + 2);
+        const fileLabel = padText("", this.labelLength + 2);
 
         const dir = padText(dirname(srcFilePath), cols - dirLabel.length - 13);
         const file = padText(basename(srcFilePath), cols - fileLabel.length - 13);
-        const sep = grayD("┃ ");
+        const sep = purpM("│ ");
 
-        const row1 = this.margin + grayL(dirLabel) + sep + whiteL("Dir   ") + whiteD(dir) + "\n";
-        const row2 = this.margin + grayL(fileLabel) + sep + whiteL("File  ") + purpL(file) + "\n";
+        const row1 = this.margin + purpL(dirLabel) + sep + grayL("Dir   ") + greenM(dir) + "\n";
+        const row2 = this.margin + purpL(fileLabel) + sep + grayL("File  ") + whiteD(file) + "\n";
 
         return row1 + row2;
     };
@@ -45,15 +45,15 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
     private createStyledDestPath = (): string => {
         const { cols, destFilePath } = this.props;
 
-        const dirLabel = padText("To", this.labelLength);
-        const fileLabel = padText("", this.labelLength);
+        const dirLabel = padText("  Dest", this.labelLength + 2);
+        const fileLabel = padText("", this.labelLength + 2);
 
         const dir = padText(dirname(destFilePath), cols - dirLabel.length - 13);
         const file = padText(basename(destFilePath), cols - fileLabel.length - 13);
-        const sep = grayD("┃ ");
+        const sep = purpM("│ ");
 
-        const row1 = this.margin + grayL(dirLabel) + sep + whiteL("Dir   ") + whiteD(dir) + "\n";
-        const row2 = this.margin + grayL(fileLabel) + sep + whiteL("File  ") + purpL(file) + "\n";
+        const row1 = this.margin + purpL(dirLabel) + sep + grayL("Dir   ") + greenM(dir) + "\n";
+        const row2 = this.margin + purpL(fileLabel) + sep + grayL("File  ") + whiteD(file) + "\n";
 
         return row1 + row2;
     };
