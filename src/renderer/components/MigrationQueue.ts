@@ -5,8 +5,8 @@ import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
 
 const { isInteger } = NumberUtils;
-const { greenL, greenM, grayL, grayM, pinkL, pinkM, purpL, purpM, purpD, whiteM, whiteXD } = ComponentColors;
-const { createBottomBorder, createTopBorder, justifyCenter, padNumber, padText } = ComponentUtils;
+const { greenM, grayL, grayM, pinkM, purpL, purpM, purpD, whiteXD } = ComponentColors;
+const { createBottomBorder, createInnerBorder, createTopBorder, justifyCenter, padNumber, padText } = ComponentUtils;
 
 interface Migration {
     readonly eta: ValueUnits;
@@ -26,7 +26,7 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
         const { cols } = this.props;
 
         const styledLabel = purpL("Upcoming migrations");
-        const styledArrow = purpL("▲\n");
+        const styledArrow = purpM("▲\n");
 
         const justified = justifyCenter(cols, 21);
 
@@ -43,10 +43,10 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
         const styledNotShownCount = greenM(migrations.length - limit);
         const justified = justifyCenter(cols, 5);
 
-        return grayL(justified + "plus " + styledNotShownCount + " more…\n");
+        return grayL(justified + "Plus " + styledNotShownCount + " more…\n");
     };
 
-    private createStyledMigration = (migration: Migration, i: number): string => {
+    private createStyledMigration = (migration: Migration, i: number, { length }: Migration[]): string => {
         const { cols, limit } = this.props;
         const { eta, srcFilePath } = migration;
 
@@ -58,19 +58,24 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
         const number = padNumber(i + 1, numberLength);
         const path = padText(srcFilePath, pathLength);
 
-        const styledNumber = i === 0 ? greenL(number) : greenM(number);
-        const styledPath = i === 0 ? whiteXD(path) : grayM(path);
-        const styledEta = i === 0 ? pinkL(etaValue) + whiteM(eta.units) : pinkM(etaValue) + grayL(eta.units);
+        const styledNumber = greenM(number);
+        const styledPath = grayM(path);
+        const styledEta = pinkM(etaValue) + whiteXD(eta.units);
 
         const { margin } = this;
         const topBorder = createTopBorder("─", cols - 6);
+        const innerBorder = createInnerBorder("─", cols - 6);
         const botBorder = createBottomBorder("─", cols - 6);
 
-        const row1 = margin + topBorder + margin + "\n";
-        const row2 = margin + "│ " + styledNumber + margin + styledPath + margin + styledEta + " │" + margin + "\n";
-        const row3 = margin + botBorder + margin + "\n";
+        const topRow = margin + topBorder + margin + "\n";
+        const infoRow = margin + "│ " + styledNumber + margin + styledPath + margin + styledEta + " │" + margin + "\n";
+        const innerBotRow = margin + innerBorder + margin + "\n";
+        const botRow = margin + botBorder + margin + "\n";
 
-        return i === 0 ? purpM(row1 + row2 + row3) : purpD(row2 + row3);
+        const isFirst = i === 0;
+        const isLast = i === length - 1;
+
+        return purpD((isFirst ? topRow : "") + infoRow + (isLast ? botRow : innerBotRow));
     };
 
     private createStyledQueue = (): string => {

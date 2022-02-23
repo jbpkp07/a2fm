@@ -7,6 +7,12 @@ class ComponentUtils {
         return char === "═" ? `╚${border}╝` : `└${border}┘`;
     };
 
+    public static createInnerBorder = (char: "═" | "─", width: number): string => {
+        const border = "".padEnd(width, char);
+
+        return char === "═" ? `╠${border}╣` : `├${border}┤`;
+    };
+
     public static createTopBorder = (char: "═" | "─", width: number): string => {
         const border = "".padEnd(width, char);
 

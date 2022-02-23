@@ -5,7 +5,7 @@ import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
 
-const { greenM, greenD, grayL, grayD, pinkL, purpL, purpM, whiteM, whiteD } = ComponentColors;
+const { greenL, greenM, greenD, grayL, grayD, pinkL, purpL, purpM, whiteM, whiteD } = ComponentColors;
 const { justifyCenter, padNumber, padText } = ComponentUtils;
 
 interface MigrationProgressProps {
@@ -36,7 +36,7 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
         const file = padText(basename(srcFilePath), cols - fileLabel.length - 13);
         const sep = purpM("│ ");
 
-        const row1 = this.margin + purpL(dirLabel) + sep + grayL("Dir   ") + greenM(dir) + "\n";
+        const row1 = this.margin + purpL(dirLabel) + sep + grayL("Dir   ") + greenL(dir) + "\n";
         const row2 = this.margin + purpL(fileLabel) + sep + grayL("File  ") + whiteD(file) + "\n";
 
         return row1 + row2;
@@ -52,7 +52,7 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
         const file = padText(basename(destFilePath), cols - fileLabel.length - 13);
         const sep = purpM("│ ");
 
-        const row1 = this.margin + purpL(dirLabel) + sep + grayL("Dir   ") + greenM(dir) + "\n";
+        const row1 = this.margin + purpL(dirLabel) + sep + grayL("Dir   ") + greenL(dir) + "\n";
         const row2 = this.margin + purpL(fileLabel) + sep + grayL("File  ") + whiteD(file) + "\n";
 
         return row1 + row2;

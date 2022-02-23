@@ -7,7 +7,7 @@ const { floor } = NumberUtils;
 type RGB = [number, number, number];
 
 const green: RGB = [5, 255, 161];
-const gray: RGB = [140, 140, 140];
+const gray: RGB = [150, 150, 150];
 const pink: RGB = [255, 87, 136];
 const purple: RGB = [185, 103, 255];
 const white: RGB = [255, 255, 255];
@@ -21,35 +21,37 @@ const rgb = chalk.rgb.bind(chalk);
 class ComponentColors {
     private constructor() {}
 
-    public static greenL = rgb(...dim(green, 0.925));
+    public static greenL = rgb(...dim(green, 0.875));
 
     public static greenM = rgb(...dim(green, 0.675));
 
-    public static greenD = rgb(...dim(green, 0.25));
+    public static greenD = rgb(...dim(green, 0.175));
+
+    public static grayA = (text: string, alpha: number) => rgb(...dim(gray, alpha))(text);
 
     public static grayL = rgb(...gray);
 
-    public static grayM = rgb(...dim(gray, 0.775));
+    public static grayM = rgb(...dim(gray, 0.85));
 
-    public static grayD = rgb(...dim(gray, 0.35));
+    public static grayD = rgb(...dim(gray, 0.3));
 
     public static pinkL = rgb(...pink);
 
-    public static pinkM = rgb(...dim(pink, 0.65));
+    public static pinkM = rgb(...dim(pink, 0.675));
 
     public static pinkD = rgb(...dim(pink, 0.2));
 
-    public static purpL = rgb(...dim(purple, 0.925));
+    public static purpL = rgb(...dim(purple, 0.9));
 
     public static purpM = rgb(...dim(purple, 0.8));
 
-    public static purpD = rgb(...dim(purple, 0.45));
+    public static purpD = rgb(...dim(purple, 0.5));
 
     // public static whiteL = rgb(...white);
 
     public static whiteM = rgb(...dim(white, 0.925));
 
-    public static whiteD = rgb(...dim(white, 0.85));
+    public static whiteD = rgb(...dim(white, 0.875));
 
     public static whiteXD = rgb(...dim(white, 0.675));
 }
