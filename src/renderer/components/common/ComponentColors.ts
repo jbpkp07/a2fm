@@ -1,9 +1,5 @@
 import * as chalk from "chalk";
 
-import NumberUtils from "../../../common/NumberUtils";
-
-const { floor } = NumberUtils;
-
 type RGB = [number, number, number];
 
 const green: RGB = [5, 255, 161];
@@ -12,48 +8,42 @@ const pink: RGB = [255, 87, 136];
 const purple: RGB = [185, 103, 255];
 const white: RGB = [255, 255, 255];
 
-const dim = (rgb: RGB, alpha: number): RGB => {
-    return [floor(rgb[0] * alpha), floor(rgb[1] * alpha), floor(rgb[2] * alpha)];
-};
-
-const rgb = chalk.rgb.bind(chalk);
-
 class ComponentColors {
     private constructor() {}
 
-    public static greenL = rgb(...dim(green, 0.875));
+    public static dimRGB = ([r, g, b]: RGB, ratio: number) => {
+        const dim = (color: number) => Math.floor(color * ratio);
 
-    public static greenM = rgb(...dim(green, 0.675));
+        return chalk.rgb(dim(r), dim(g), dim(b));
+    };
 
-    public static greenD = rgb(...dim(green, 0.175));
+    public static greenL = this.dimRGB(green, 0.875);
 
-    public static grayA = (text: string, alpha: number) => rgb(...dim(gray, alpha))(text);
+    public static greenM = this.dimRGB(green, 0.675);
 
-    public static grayL = rgb(...gray);
+    public static greenD = this.dimRGB(green, 0.175);
 
-    public static grayM = rgb(...dim(gray, 0.85));
+    public static grayL = this.dimRGB(gray, 1.0);
 
-    public static grayD = rgb(...dim(gray, 0.3));
+    public static grayM = this.dimRGB(gray, 0.85);
 
-    public static pinkL = rgb(...pink);
+    public static grayD = this.dimRGB(gray, 0.3);
 
-    public static pinkM = rgb(...dim(pink, 0.675));
+    public static pinkL = this.dimRGB(pink, 1.0);
 
-    public static pinkD = rgb(...dim(pink, 0.2));
+    public static pinkM = this.dimRGB(pink, 0.675);
 
-    public static purpL = rgb(...dim(purple, 0.9));
+    public static purpL = this.dimRGB(purple, 0.9);
 
-    public static purpM = rgb(...dim(purple, 0.8));
+    public static purpM = this.dimRGB(purple, 0.8);
 
-    public static purpD = rgb(...dim(purple, 0.5));
+    public static purpD = this.dimRGB(purple, 0.5);
 
-    // public static whiteL = rgb(...white);
+    public static whiteL = this.dimRGB(white, 0.925);
 
-    public static whiteM = rgb(...dim(white, 0.925));
+    public static whiteM = this.dimRGB(white, 0.875);
 
-    public static whiteD = rgb(...dim(white, 0.875));
-
-    public static whiteXD = rgb(...dim(white, 0.675));
+    public static whiteD = this.dimRGB(white, 0.675);
 }
 
 export default ComponentColors;

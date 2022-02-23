@@ -5,7 +5,7 @@ import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
 
-const { greenL, greenM, greenD, grayL, grayD, pinkL, purpL, purpM, whiteM, whiteD } = ComponentColors;
+const { greenL, greenM, greenD, grayL, grayD, pinkL, purpL, purpM, whiteL, whiteM } = ComponentColors;
 const { justifyCenter, padNumber, padText } = ComponentUtils;
 
 interface MigrationProgressProps {
@@ -37,7 +37,7 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
         const sep = purpM("│ ");
 
         const row1 = this.margin + purpL(dirLabel) + sep + grayL("Dir   ") + greenL(dir) + "\n";
-        const row2 = this.margin + purpL(fileLabel) + sep + grayL("File  ") + whiteD(file) + "\n";
+        const row2 = this.margin + purpL(fileLabel) + sep + grayL("File  ") + whiteM(file) + "\n";
 
         return row1 + row2;
     };
@@ -53,7 +53,7 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
         const sep = purpM("│ ");
 
         const row1 = this.margin + purpL(dirLabel) + sep + grayL("Dir   ") + greenL(dir) + "\n";
-        const row2 = this.margin + purpL(fileLabel) + sep + grayL("File  ") + whiteD(file) + "\n";
+        const row2 = this.margin + purpL(fileLabel) + sep + grayL("File  ") + whiteM(file) + "\n";
 
         return row1 + row2;
     };
@@ -64,7 +64,7 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
         const label = padText("Size", this.labelLength);
         const value = padNumber(fileSize.value, this.numberLength);
 
-        return grayL(label) + pinkL(value) + " " + whiteM(fileSize.units);
+        return grayL(label) + pinkL(value) + " " + whiteL(fileSize.units);
     };
 
     private createStyledElapsedTime = (): string => {
@@ -73,7 +73,7 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
         const label = padText("Elapsed", this.labelLength + 3);
         const value = padNumber(elapsedTime.value, this.numberLength);
 
-        return grayL(label) + pinkL(value) + " " + whiteM(elapsedTime.units);
+        return grayL(label) + pinkL(value) + " " + whiteL(elapsedTime.units);
     };
 
     private createStyledRate = (): string => {
@@ -82,7 +82,7 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
         const label = padText("Rate", this.labelLength);
         const value = padNumber(rate.value, this.numberLength);
 
-        return grayL(label) + pinkL(value) + " " + whiteM(rate.units);
+        return grayL(label) + pinkL(value) + " " + whiteL(rate.units);
     };
 
     private createStyledProgressBar = (): string => {
@@ -97,9 +97,9 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
         const styledFullBar = styledDoneBar + styledToGoBar;
         const styledEtaLabel = grayL(this.margin + "Eta ");
         const styledEtaValue = pinkL(etaValue);
-        const styledEtaUnits = whiteM(" " + eta.units);
+        const styledEtaUnits = whiteL(" " + eta.units);
 
-        return pinkL(pValue) + whiteM(pUnits) + styledFullBar + styledEtaLabel + styledEtaValue + styledEtaUnits + "\n";
+        return pinkL(pValue) + whiteL(pUnits) + styledFullBar + styledEtaLabel + styledEtaValue + styledEtaUnits + "\n";
     };
 
     protected createComponent = (): string => {

@@ -5,7 +5,7 @@ import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
 
 const { isInteger } = NumberUtils;
-const { greenM, grayL, grayM, pinkM, purpL, purpM, purpD, whiteXD } = ComponentColors;
+const { greenM, grayL, grayM, pinkM, purpL, purpM, purpD, whiteD } = ComponentColors;
 const { createBottomBorder, createInnerBorder, createTopBorder, justifyCenter, padNumber, padText } = ComponentUtils;
 
 interface Migration {
@@ -60,7 +60,7 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
 
         const styledNumber = greenM(number);
         const styledPath = grayM(path);
-        const styledEta = pinkM(etaValue) + whiteXD(eta.units);
+        const styledEta = pinkM(etaValue) + whiteD(eta.units);
 
         const { margin } = this;
         const topBorder = createTopBorder("─", cols - 6);
