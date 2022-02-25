@@ -5,57 +5,54 @@ import ComponentUtils from "./common/ComponentUtils";
 
 const { createLeftRightBorderRow, createTopBorderRow, createBottomBorderRow } = ComponentBorders;
 const { grayM, greenL, purpL, purpM, whiteL, whiteM } = ComponentColors;
-const { padText, toStringLength } = ComponentUtils;
+const { padText } = ComponentUtils;
 
-interface HeaderParams {
-    readonly cols: number;
-}
+const { env } = process;
 
 class Header extends BaseComponent {
-    private readonly margin = " ";
-
     private readonly cols: number;
 
-    private readonly topBorder: string;
+    private readonly margin = " ";
 
-    private readonly botBorder: string;
+    private readonly logo = env.npm_package_name?.toUpperCase() || "???";
 
-    constructor(params: HeaderParams) {
+    private readonly title = env.npm_package_description || "???";
+
+    private readonly version = env.npm_package_version || "?.?.?";
+
+    constructor(cols: number) {
         super();
-
-        const { cols } = params;
-        const { margin } = this;
-
         this.cols = cols;
-        this.topBorder = createTopBorderRow({ cols, margin, style: "double" });
-        this.botBorder = createBottomBorderRow({ cols, margin, style: "double" });
     }
 
     protected createComponent = (): string => {
-        const { env } = process;
+        const { cols, margin, logo, title, version } = this;
 
-        const logo = env.npm_package_name?.toUpperCase() || "???";
-        const title = env.npm_package_description || "???";
-        const version = env.npm_package_version || "?.?.?";
+        const marginLength = margin.length * 2;
+        const logoLength = logo.length * 2 - 1;
+        const versionLength = version.length + 2;
+        const titleLength = cols - marginLength - logoLength - versionLength - 7;
 
-        const logoLength = toStringLength(logo.split("").join("·"));
-        const versionLength = toStringLength("v", version);
-        const titleLength = this.cols - logoLength - versionLength - 10;
-
-        const titlePadded = padText(title, titleLength);
+        const paddedTitle = padText(title, titleLength);
 
         const styledDot = whiteL("·");
         const styledLogo = greenL(logo.split("").join(styledDot));
         const styledSep = purpL(" ► ");
-        const styledTitle = whiteM(titlePadded);
-        const styledVersion = grayM("v" + version);
+        const styledTitle = whiteM(paddedTitle);
+        const styledVersion = grayM(" v" + version);
 
-        const { margin, topBorder, botBorder } = this;
+        const borderProps = {
+            cols,
+            innerText: styledLogo + styledSep + styledTitle + styledVersion,
+            margin,
+            style: "double" as const
+        };
 
-        const text = styledLogo + styledSep + styledTitle + margin + styledVersion;
-        const textRow = createLeftRightBorderRow({ innerText: text, margin, style: "double" });
+        const topBorderRow = createTopBorderRow(borderProps);
+        const leftRightBorderRow = createLeftRightBorderRow(borderProps);
+        const botBorderRow = createBottomBorderRow(borderProps);
 
-        return purpM(topBorder + textRow + botBorder);
+        return purpM(topBorderRow + leftRightBorderRow + botBorderRow);
     };
 }
 

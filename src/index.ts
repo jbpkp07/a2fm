@@ -94,7 +94,7 @@ function getProps() {
     };
 }
 
-const header = new Header({ cols });
+const header = new Header(cols);
 const progress = new MigrationProgress();
 const queue = new MigrationQueue({ cols, limit: 9 });
 
