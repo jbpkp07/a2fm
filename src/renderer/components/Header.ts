@@ -22,6 +22,7 @@ class Header extends BaseComponent {
 
     constructor(cols: number) {
         super();
+
         this.cols = cols;
     }
 

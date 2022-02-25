@@ -11,28 +11,29 @@ interface MigrationQueueLabelParams {
 }
 
 class MigrationQueueLabel extends BaseComponent {
+    private readonly cols: number;
+
     private readonly margin: string;
 
-    private readonly styledLabel: string;
-
-    private readonly styledArrow: string;
+    private readonly label = "Upcoming migrations";
 
     constructor(params: MigrationQueueLabelParams) {
         super();
 
-        const { cols, margin } = params;
-
-        const label = "Upcoming migrations";
-        const labelLength = cols / 2 - margin.length;
-        const labelPadded = padText(label, labelLength);
-
-        this.margin = margin;
-        this.styledLabel = purpL(labelPadded);
-        this.styledArrow = purpM("▲\n");
+        this.cols = params.cols;
+        this.margin = params.margin;
     }
 
     protected createComponent = (): string => {
-        return this.margin + this.styledLabel + this.styledArrow;
+        const { cols, label, margin } = this;
+
+        const labelLength = cols / 2 - margin.length;
+        const paddedLabel = padText(label, labelLength);
+
+        const styledLabel = purpL(paddedLabel);
+        const styledArrow = purpM("▲");
+
+        return margin + styledLabel + styledArrow + "\n";
     };
 }
 
