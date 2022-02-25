@@ -15,23 +15,20 @@ interface MigrationQueueLimitParams {
 }
 
 class MigrationQueueLimit extends BaseComponent<MigrationQueueLimitProps> {
-    private readonly cols: number;
-
     private readonly limit: number;
 
     private readonly styledPlusLabel: string;
 
     private readonly styledMoreLabel: string;
 
-    constructor(params: MigrationQueueLimitParams) {
+    constructor({ cols, limit }: MigrationQueueLimitParams) {
         super();
 
-        this.cols = params.cols;
-        this.limit = params.limit;
+        this.limit = limit;
 
         const plusLabel = "Plus ";
         const moreLabel = " more…";
-        const justifyCenter = padText("", this.cols / 2 - plusLabel.length);
+        const justifyCenter = padText("", cols / 2 - plusLabel.length);
 
         this.styledPlusLabel = grayL(justifyCenter + plusLabel);
         this.styledMoreLabel = grayL(moreLabel);

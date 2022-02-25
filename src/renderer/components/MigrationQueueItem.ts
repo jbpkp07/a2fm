@@ -1,10 +1,10 @@
 import BaseComponent from "./common/BaseComponent";
-import ComponentBorders from "./common/ComponentBorders";
+import ComponentBorders, { BorderProps } from "./common/ComponentBorders";
 import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
 
-const { createLeftRightBorderRow, createTopBorderRow, createJoinBorderRow, createBottomBorderRow } = ComponentBorders;
+const { createTopBorderRow, createLeftRightBorderRow, createJoinBorderRow, createBottomBorderRow } = ComponentBorders;
 const { grayM, greenM, pinkM, purpD, whiteD } = ComponentColors;
 const { padNumber, padText, toStringLength } = ComponentUtils;
 
@@ -25,49 +25,49 @@ class MigrationQueueItem extends BaseComponent<MigrationQueueItemProps> {
 
     private readonly margin: string;
 
-    private readonly topBorder: string;
+    private readonly borderProps: BorderProps;
 
-    private readonly joinBorder: string;
+    private readonly topBorderRow: string;
 
-    private readonly botBorder: string;
+    private readonly joinBorderRow: string;
 
-    constructor(params: MigrationQueueItemParams) {
+    private readonly bottomBorderRow: string;
+
+    constructor({ cols, margin }: MigrationQueueItemParams) {
         super();
-
-        const { cols, margin } = params;
 
         this.cols = cols;
         this.margin = margin;
-        this.topBorder = createTopBorderRow({ cols, margin, style: "single" });
-        this.joinBorder = createJoinBorderRow({ cols, margin, style: "single" });
-        this.botBorder = createBottomBorderRow({ cols, margin, style: "single" });
+
+        this.borderProps = { cols, margin, style: "single" as const };
+
+        this.topBorderRow = createTopBorderRow(this.borderProps);
+        this.joinBorderRow = createJoinBorderRow(this.borderProps);
+        this.bottomBorderRow = createBottomBorderRow(this.borderProps);
     }
 
     protected createComponent = (): string => {
+        const { cols, margin, borderProps, topBorderRow, joinBorderRow, bottomBorderRow } = this;
         const { eta, index, queueLength, srcFilePath } = this.props;
 
+        const marginLength = margin.length * 2;
         const posLength = toStringLength(queueLength);
         const etaLength = toStringLength(eta.value, " ", eta.units);
-        const pathLength = this.cols - posLength - etaLength - 12;
+        const pathLength = cols - marginLength - posLength - etaLength - 8;
 
         const pos = padNumber(index + 1, posLength);
         const path = padText(srcFilePath, pathLength);
 
-        const styledPos = greenM(pos);
-        const styledPath = grayM(path);
-        const styledEta = pinkM(eta.value) + " " + whiteD(eta.units);
+        const styledQueueItem = greenM(pos + "  ") + grayM(path + "  ") + pinkM(eta.value) + " " + whiteD(eta.units);
 
-        const isFirstItem = index === 0;
-        const isLastItem = index === queueLength - 1;
+        const isFirstQueueItem = index === 0;
+        const isLastQueueItem = index === queueLength - 1;
 
-        const { margin, topBorder, joinBorder, botBorder } = this;
+        const topRow = isFirstQueueItem ? topBorderRow : "";
+        const midRow = createLeftRightBorderRow({ ...borderProps, innerText: styledQueueItem });
+        const botRow = isLastQueueItem ? bottomBorderRow : joinBorderRow;
 
-        const topRow = isFirstItem ? topBorder : "";
-        const text = styledPos + margin + styledPath + margin + styledEta;
-        const textRow = createLeftRightBorderRow({ margin, style: "single", innerText: text });
-        const botRow = isLastItem ? botBorder : joinBorder;
-
-        return purpD(topRow + textRow + botRow);
+        return purpD(topRow + midRow + botRow);
     };
 }
 

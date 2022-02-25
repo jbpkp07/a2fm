@@ -1,13 +1,8 @@
 import BaseComponent from "./common/BaseComponent";
-import ComponentColors from "./common/ComponentColors";
-import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
 import MigrationQueueItem from "./MigrationQueueItem";
 import MigrationQueueLabel from "./MigrationQueueLabel";
 import MigrationQueueLimit from "./MigrationQueueLimit";
-
-const { grayL, greenM } = ComponentColors;
-const { padText } = ComponentUtils;
 
 interface Migration {
     readonly eta: ValueUnits;
@@ -24,10 +19,6 @@ interface MigrationQueueParams {
 }
 
 class MigrationQueue extends BaseComponent<MigrationQueueProps> {
-    private readonly margin = "  ";
-
-    private readonly cols: number;
-
     private readonly limit: number;
 
     private readonly queueLabel: MigrationQueueLabel;
@@ -36,38 +27,17 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
 
     private readonly queueLimit: MigrationQueueLimit;
 
-    constructor(params: MigrationQueueParams) {
+    constructor({ cols, limit }: MigrationQueueParams) {
         super();
 
-        const { cols, limit } = params;
-        const { margin } = this;
-
-        this.cols = cols;
         this.limit = limit;
-        this.queueLabel = new MigrationQueueLabel({ cols, margin });
 
-        this.queueItems = new Array(limit).fill(0).map(() => new MigrationQueueItem({ cols, margin }));
+        const params = { cols, limit, margin: "  " };
 
-        this.queueLimit = new MigrationQueueLimit({ cols, limit });
+        this.queueLabel = new MigrationQueueLabel(params);
+        this.queueItems = new Array(limit).fill(0).map(() => new MigrationQueueItem(params));
+        this.queueLimit = new MigrationQueueLimit(params);
     }
-
-    private createStyledLimit = (): string => {
-        const { queue } = this.props;
-
-        if (queue.length <= this.limit) {
-            return "";
-        }
-
-        const plusLabel = "Plus ";
-        const moreLabel = " more…\n";
-        const justifyCenter = padText("", this.cols / 2 - plusLabel.length);
-
-        const styledPlusLabel = grayL(plusLabel);
-        const styledNotShownCount = greenM(queue.length - this.limit);
-        const styledMoreLabel = grayL(moreLabel);
-
-        return justifyCenter + styledPlusLabel + styledNotShownCount + styledMoreLabel;
-    };
 
     private createStyledQueue = (): string => {
         const { queue } = this.props;
@@ -93,7 +63,11 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
             return "";
         }
 
-        return this.queueLabel.create({}) + this.createStyledQueue() + this.queueLimit.create({ queueLength });
+        const styledLabel = this.queueLabel.create({});
+        const styledQueue = this.createStyledQueue();
+        const styledLimit = this.queueLimit.create({ queueLength });
+
+        return styledLabel + styledQueue + styledLimit;
     };
 }
 

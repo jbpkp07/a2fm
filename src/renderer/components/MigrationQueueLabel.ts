@@ -17,11 +17,11 @@ class MigrationQueueLabel extends BaseComponent {
 
     private readonly label = "Upcoming migrations";
 
-    constructor(params: MigrationQueueLabelParams) {
+    constructor({ cols, margin }: MigrationQueueLabelParams) {
         super();
 
-        this.cols = params.cols;
-        this.margin = params.margin;
+        this.cols = cols;
+        this.margin = margin;
     }
 
     protected createComponent = (): string => {

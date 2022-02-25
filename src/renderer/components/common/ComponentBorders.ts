@@ -1,12 +1,12 @@
 type BorderStyle = "single" | "double";
 
-interface BorderProps {
+export interface BorderProps {
     readonly cols: number;
     readonly margin: string;
     readonly style: BorderStyle;
 }
 
-interface LeftRightBorderProps {
+export interface LeftRightBorderProps {
     readonly innerText?: string;
     readonly margin: string;
     readonly style: BorderStyle;

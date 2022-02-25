@@ -51,9 +51,9 @@ class Header extends BaseComponent {
 
         const topBorderRow = createTopBorderRow(borderProps);
         const leftRightBorderRow = createLeftRightBorderRow(borderProps);
-        const botBorderRow = createBottomBorderRow(borderProps);
+        const bottomBorderRow = createBottomBorderRow(borderProps);
 
-        return purpM(topBorderRow + leftRightBorderRow + botBorderRow);
+        return purpM(topBorderRow + leftRightBorderRow + bottomBorderRow);
     };
 }
 
