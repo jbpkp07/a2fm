@@ -2,8 +2,8 @@ import * as chalk from "chalk";
 
 type RGB = [number, number, number];
 
-const green: RGB = [5, 255, 161];
 const gray: RGB = [150, 150, 150];
+const green: RGB = [5, 255, 161];
 const pink: RGB = [255, 87, 136];
 const purple: RGB = [185, 103, 255];
 const white: RGB = [255, 255, 255];
@@ -17,17 +17,17 @@ class ComponentColors {
         return chalk.rgb(dim(r), dim(g), dim(b));
     };
 
-    public static greenL = this.dimRGB(green, 0.875);
-
-    public static greenM = this.dimRGB(green, 0.675);
-
-    public static greenD = this.dimRGB(green, 0.175);
-
     public static grayL = this.dimRGB(gray, 1.0);
 
     public static grayM = this.dimRGB(gray, 0.85);
 
     public static grayD = this.dimRGB(gray, 0.3);
+
+    public static greenL = this.dimRGB(green, 0.875);
+
+    public static greenM = this.dimRGB(green, 0.675);
+
+    public static greenD = this.dimRGB(green, 0.175);
 
     public static pinkL = this.dimRGB(pink, 1.0);
 

@@ -9,8 +9,6 @@ const cols = 151;
 const renderer = new ConsoleRenderer({ cols, rows: 38, hideCursor: true });
 
 function getMigrations() {
-    // const index = Math.floor(Math.random() * 12) + 2;
-
     return [
         {
             srcFilePath:
@@ -73,7 +71,6 @@ function getMigrations() {
             eta: { value: Math.floor(Math.random() * 2000), units: "m" }
         }
     ];
-    // return migrations.slice(0, index);
 }
 
 let eta = 47;
@@ -97,9 +94,9 @@ function getProps() {
     };
 }
 
-const header = new Header();
+const header = new Header({ cols });
 const progress = new MigrationProgress();
-const queue = new MigrationQueue();
+const queue = new MigrationQueue({ cols, limit: 9 });
 
 setInterval(() => {
     percent += 1;
@@ -108,13 +105,14 @@ setInterval(() => {
     rate = Math.floor(Math.random() * 1000);
     elapsed = Math.floor(Math.random() * 1000);
 
-    const screen =
-        header.create({ cols }) +
-        progress.create(getProps()) +
-        queue.create({ cols, limit: 9, migrations: getMigrations() });
+    const screen = header.create({}) + queue.create({ queue: getMigrations() });
+
+    // +
+    // progress.create(getProps()) +
+    // queue.create({ cols, limit: 9, migrations: getMigrations() });
 
     renderer.render(screen);
-}, 100);
+}, 1000);
 
 // import { watch } from "chokidar";
 

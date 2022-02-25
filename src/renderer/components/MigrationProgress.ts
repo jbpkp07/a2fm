@@ -5,8 +5,8 @@ import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
 
-const { greenL, greenM, greenD, grayL, grayD, pinkL, purpL, purpM, whiteL, whiteM } = ComponentColors;
-const { justifyCenter, padNumber, padText } = ComponentUtils;
+const { grayL, grayD, greenL, greenM, greenD, pinkL, purpL, purpM, whiteL, whiteM } = ComponentColors;
+const { padNumber, padText } = ComponentUtils;
 
 interface MigrationProgressProps {
     readonly cols: number; //
@@ -110,8 +110,10 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
         const rate = this.createStyledRate();
         const progressBar = this.createStyledProgressBar();
 
-        const justified = justifyCenter(this.props.cols, 26);
-        const justified2 = justifyCenter(this.props.cols, 57);
+        // const justified = justifyCenter(this.props.cols, 26);
+        const justified = "        ";
+        // const justified2 = justifyCenter(this.props.cols, 57);
+        const justified2 = "       ";
         const sep = grayD("    ┃    ");
 
         return (
