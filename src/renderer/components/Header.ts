@@ -3,7 +3,7 @@ import ComponentBorders from "./common/ComponentBorders";
 import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 
-const { createLeftRightBorderRow, createTopBorderRow, createBottomBorderRow } = ComponentBorders;
+const { createTopBorderRow, createLeftRightBorderRow, createBottomBorderRow } = ComponentBorders;
 const { grayM, greenL, purpL, purpM, whiteL, whiteM } = ComponentColors;
 const { padText } = ComponentUtils;
 
