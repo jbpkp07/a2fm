@@ -4,7 +4,7 @@ import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 
-const { blueL, grayL, purpL, purpM, whiteM } = ComponentColors;
+const { blueL, grayL, purpL, purpM, whiteLM } = ComponentColors;
 const { padText } = ComponentUtils;
 
 interface MigrationProgressFilePathProps {
@@ -45,7 +45,7 @@ class MigrationProgressFilePath extends BaseComponent<MigrationProgressFilePathP
         const paddedDir = padText(dir, maxPathLength);
         const paddedFile = padText(file, maxPathLength);
 
-        const row1 = styledDirLabel + whiteM(paddedDir) + "\n";
+        const row1 = styledDirLabel + whiteLM(paddedDir) + "\n";
         const row2 = styledFileLabel + blueL(paddedFile) + "\n";
 
         return row1 + row2;

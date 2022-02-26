@@ -50,7 +50,9 @@ class ComponentColors {
 
     public static whiteL = this.dimRGB(white, light);
 
-    public static whiteM = this.dimRGB(white, 0.8);
+    public static whiteLM = this.dimRGB(white, 0.8);
+
+    public static whiteM = this.dimRGB(white, medium);
 }
 
 export default ComponentColors;
