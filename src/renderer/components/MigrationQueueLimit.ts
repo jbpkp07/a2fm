@@ -1,9 +1,7 @@
 import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
-import ComponentUtils from "./common/ComponentUtils";
 
 const { grayL, greenM } = ComponentColors;
-const { padText } = ComponentUtils;
 
 interface MigrationQueueLimitProps {
     readonly queueLength: number;
@@ -12,30 +10,36 @@ interface MigrationQueueLimitProps {
 interface MigrationQueueLimitParams {
     readonly cols: number;
     readonly limit: number;
+    readonly margin: string;
 }
 
 class MigrationQueueLimit extends BaseComponent<MigrationQueueLimitProps> {
     private readonly limit: number;
 
+    private readonly margin: string;
+
     private readonly styledPlusLabel: string;
 
     private readonly styledMoreLabel: string;
 
-    constructor({ cols, limit }: MigrationQueueLimitParams) {
+    constructor({ cols, limit, margin }: MigrationQueueLimitParams) {
         super();
 
         this.limit = limit;
+        this.margin = margin;
 
         const plusLabel = "Plus ";
         const moreLabel = " more…";
-        const justifyCenter = padText("", cols / 2 - plusLabel.length);
+
+        const justifyLength = cols / 2 - margin.length - plusLabel.length;
+        const justifyCenter = "".padEnd(justifyLength, " ");
 
         this.styledPlusLabel = grayL(justifyCenter + plusLabel);
         this.styledMoreLabel = grayL(moreLabel);
     }
 
     protected createComponent = (): string => {
-        const { limit, styledPlusLabel, styledMoreLabel } = this;
+        const { limit, margin, styledPlusLabel, styledMoreLabel } = this;
         const { queueLength } = this.props;
 
         if (queueLength <= limit) {
@@ -44,7 +48,7 @@ class MigrationQueueLimit extends BaseComponent<MigrationQueueLimitProps> {
 
         const styledHiddenCount = greenM(queueLength - limit);
 
-        return styledPlusLabel + styledHiddenCount + styledMoreLabel + "\n";
+        return margin + styledPlusLabel + styledHiddenCount + styledMoreLabel + "\n";
     };
 }
 

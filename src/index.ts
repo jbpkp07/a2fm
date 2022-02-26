@@ -94,9 +94,9 @@ function getProps() {
     };
 }
 
-const header = new Header(cols);
+const header = new Header({ cols, marginCols: 1 });
 const progress = new MigrationProgress();
-const queue = new MigrationQueue({ cols, limit: 9 });
+const queue = new MigrationQueue({ cols, limit: 10, marginCols: 2 });
 
 setInterval(() => {
     percent += 1;

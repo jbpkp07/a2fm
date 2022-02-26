@@ -9,10 +9,15 @@ const { padText } = ComponentUtils;
 
 const { env } = process;
 
+interface HeaderParams {
+    readonly cols: number;
+    readonly marginCols: number;
+}
+
 class Header extends BaseComponent {
     private readonly cols: number;
 
-    private readonly margin = " ";
+    private readonly margin: string;
 
     private readonly logo = env.npm_package_name?.toUpperCase() || "???";
 
@@ -20,10 +25,11 @@ class Header extends BaseComponent {
 
     private readonly version = env.npm_package_version || "?.?.?";
 
-    constructor(cols: number) {
+    constructor({ cols, marginCols }: HeaderParams) {
         super();
 
         this.cols = cols;
+        this.margin = "".padEnd(marginCols, " ");
     }
 
     protected createComponent = (): string => {

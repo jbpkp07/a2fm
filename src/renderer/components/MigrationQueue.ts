@@ -16,6 +16,7 @@ interface MigrationQueueProps {
 interface MigrationQueueParams {
     readonly cols: number;
     readonly limit: number;
+    readonly marginCols: number;
 }
 
 class MigrationQueue extends BaseComponent<MigrationQueueProps> {
@@ -27,12 +28,13 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
 
     private readonly queueLimit: MigrationQueueLimit;
 
-    constructor({ cols, limit }: MigrationQueueParams) {
+    constructor({ cols, limit, marginCols }: MigrationQueueParams) {
         super();
 
         this.limit = limit;
 
-        const params = { cols, limit, margin: "  " };
+        const margin = "".padEnd(marginCols, " ");
+        const params = { cols, limit, margin };
 
         this.queueLabel = new MigrationQueueLabel(params);
         this.queueItems = new Array(limit).fill(0).map(() => new MigrationQueueItem(params));
