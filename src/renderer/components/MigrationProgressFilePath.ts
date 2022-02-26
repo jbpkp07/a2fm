@@ -30,7 +30,7 @@ class MigrationProgressFilePath extends BaseComponent<MigrationProgressFilePathP
         const typeLabel = type === "src" ? "Source " : "  Dest ";
         const typeLabelFiller = "".padEnd(typeLabel.length, " ");
 
-        this.maxPathLength = cols - margin.length * 2 - 15;
+        this.maxPathLength = cols - margin.length * 2 - 16;
         this.styledDirLabel = margin + purpL(typeLabel) + purpM("│ ") + grayL("Dir   ");
         this.styledFileLabel = margin + typeLabelFiller + purpM("│ ") + grayL("File  ");
     }

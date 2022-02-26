@@ -1,11 +1,10 @@
-import { basename, dirname } from "path";
-
 import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
+import MigrationProgressFilePath from "./MigrationProgressFilePath";
 
-const { grayL, grayD, greenL, greenM, greenD, pinkL, purpL, purpM, whiteL, whiteM } = ComponentColors;
+const { grayL, grayD, greenM, greenD, pinkL, whiteL } = ComponentColors;
 const { padNumber, padText } = ComponentUtils;
 
 interface MigrationProgressProps {
@@ -19,44 +18,35 @@ interface MigrationProgressProps {
     readonly elapsedTime: ValueUnits;
 }
 
+interface MigrationProgressParams {
+    readonly cols: number;
+    readonly marginCols: number;
+}
+
 class MigrationProgress extends BaseComponent<MigrationProgressProps> {
-    private margin = "  ";
+    private readonly cols: number;
+
+    private readonly margin = "  ";
+
+    private readonly progressSrcPath: MigrationProgressFilePath;
+
+    private readonly progressDestPath: MigrationProgressFilePath;
 
     private labelLength = 5;
 
     private numberLength = 3;
 
-    private createStyledSrcPath = (): string => {
-        const { cols, srcFilePath } = this.props;
+    constructor({ cols, marginCols }: MigrationProgressParams) {
+        super();
 
-        const dirLabel = padText("Source", this.labelLength + 2);
-        const fileLabel = padText("", this.labelLength + 2);
+        this.cols = cols;
+        const margin = "".padEnd(marginCols, " ");
 
-        const dir = padText(dirname(srcFilePath), cols - dirLabel.length - 13);
-        const file = padText(basename(srcFilePath), cols - fileLabel.length - 13);
-        const sep = purpM("│ ");
+        const params = { cols, margin };
 
-        const row1 = this.margin + purpL(dirLabel) + sep + grayL("Dir   ") + greenL(dir) + "\n";
-        const row2 = this.margin + purpL(fileLabel) + sep + grayL("File  ") + whiteM(file) + "\n";
-
-        return row1 + row2;
-    };
-
-    private createStyledDestPath = (): string => {
-        const { cols, destFilePath } = this.props;
-
-        const dirLabel = padText("  Dest", this.labelLength + 2);
-        const fileLabel = padText("", this.labelLength + 2);
-
-        const dir = padText(dirname(destFilePath), cols - dirLabel.length - 13);
-        const file = padText(basename(destFilePath), cols - fileLabel.length - 13);
-        const sep = purpM("│ ");
-
-        const row1 = this.margin + purpL(dirLabel) + sep + grayL("Dir   ") + greenL(dir) + "\n";
-        const row2 = this.margin + purpL(fileLabel) + sep + grayL("File  ") + whiteM(file) + "\n";
-
-        return row1 + row2;
-    };
+        this.progressSrcPath = new MigrationProgressFilePath({ ...params, type: "src" });
+        this.progressDestPath = new MigrationProgressFilePath({ ...params, type: "dest" });
+    }
 
     private createStyledFileSize = (): string => {
         const { fileSize } = this.props;
@@ -103,8 +93,9 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
     };
 
     protected createComponent = (): string => {
-        const srcPath = this.createStyledSrcPath();
-        const destPath = this.createStyledDestPath();
+        const { progressSrcPath, progressDestPath } = this;
+        const { srcFilePath, destFilePath } = this.props;
+
         const time = this.createStyledElapsedTime();
         const size = this.createStyledFileSize();
         const rate = this.createStyledRate();
@@ -118,9 +109,9 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
 
         return (
             "\n" +
-            srcPath +
+            progressSrcPath.create({ filePath: srcFilePath }) +
             "\n" +
-            destPath +
+            progressDestPath.create({ filePath: destFilePath }) +
             "\n" +
             justified +
             size +

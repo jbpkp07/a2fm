@@ -6,7 +6,7 @@ import ConsoleRenderer from "./renderer/console/ConsoleRenderer";
 
 const cols = 151;
 
-const renderer = new ConsoleRenderer({ cols, rows: 38, hideCursor: true });
+const renderer = new ConsoleRenderer({ cols, rows: 40, hideCursor: true });
 
 function getMigrations() {
     return [
@@ -95,7 +95,7 @@ function getProps() {
 }
 
 const header = new Header({ cols, marginCols: 1 });
-const progress = new MigrationProgress();
+const progress = new MigrationProgress({ cols, marginCols: 2 });
 const queue = new MigrationQueue({ cols, limit: 10, marginCols: 2 });
 
 setInterval(() => {
@@ -105,14 +105,10 @@ setInterval(() => {
     rate = Math.floor(Math.random() * 1000);
     elapsed = Math.floor(Math.random() * 1000);
 
-    const screen = header.create({}) + queue.create({ queue: getMigrations() });
-
-    // +
-    // progress.create(getProps()) +
-    // queue.create({ cols, limit: 9, migrations: getMigrations() });
+    const screen = header.create({}) + progress.create(getProps()) + queue.create({ queue: getMigrations() });
 
     renderer.render(screen);
-}, 1000);
+}, 100);
 
 // import { watch } from "chokidar";
 
