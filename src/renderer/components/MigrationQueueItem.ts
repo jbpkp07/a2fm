@@ -3,9 +3,10 @@ import ComponentBorders, { BorderProps } from "./common/ComponentBorders";
 import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
+import MigrationStat from "./MigrationStat";
 
 const { createTopBorderRow, createLeftRightBorderRow, createJoinBorderRow, createBottomBorderRow } = ComponentBorders;
-const { grayM, greenM, pinkM, purpD, whiteD } = ComponentColors;
+const { blueM, greenM, purpD } = ComponentColors;
 const { padNumber, padText, toStringLength } = ComponentUtils;
 
 interface MigrationQueueItemProps {
@@ -25,6 +26,8 @@ class MigrationQueueItem extends BaseComponent<MigrationQueueItemProps> {
 
     private readonly margin: string;
 
+    private readonly etaStat: MigrationStat;
+
     private readonly borderProps: BorderProps;
 
     private readonly topBorderRow: string;
@@ -39,6 +42,8 @@ class MigrationQueueItem extends BaseComponent<MigrationQueueItemProps> {
         this.cols = cols;
         this.margin = margin;
 
+        this.etaStat = new MigrationStat({ color: "medium", label: "Eta" });
+
         this.borderProps = { cols, margin, style: "single" as const };
 
         this.topBorderRow = createTopBorderRow(this.borderProps);
@@ -47,18 +52,19 @@ class MigrationQueueItem extends BaseComponent<MigrationQueueItemProps> {
     }
 
     protected createComponent = (): string => {
-        const { cols, margin, borderProps, topBorderRow, joinBorderRow, bottomBorderRow } = this;
+        const { cols, margin, etaStat, borderProps, topBorderRow, joinBorderRow, bottomBorderRow } = this;
         const { eta, index, queueLength, srcFilePath } = this.props;
+
+        const styledEta = etaStat.create({ stat: eta });
 
         const marginLength = margin.length * 2;
         const posLength = toStringLength(queueLength);
-        const etaLength = toStringLength(eta.value, " ", eta.units);
-        const pathLength = cols - marginLength - posLength - etaLength - 8;
+        const pathLength = cols - marginLength - posLength - etaStat.length - 8;
 
         const pos = padNumber(index + 1, posLength);
         const path = padText(srcFilePath, pathLength);
 
-        const styledQueueItem = greenM(pos + "  ") + grayM(path + "  ") + pinkM(eta.value) + " " + whiteD(eta.units);
+        const styledQueueItem = greenM(pos + "  ") + blueM(path + "  ") + styledEta;
 
         const isFirstQueueItem = index === 0;
         const isLastQueueItem = index === queueLength - 1;

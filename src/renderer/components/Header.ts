@@ -4,7 +4,7 @@ import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 
 const { createTopBorderRow, createLeftRightBorderRow, createBottomBorderRow } = ComponentBorders;
-const { grayM, greenL, purpL, purpM, whiteL, whiteM } = ComponentColors;
+const { grayM, greenL, purpL, purpM, whiteL } = ComponentColors;
 const { padText } = ComponentUtils;
 
 const { env } = process;
@@ -45,7 +45,7 @@ class Header extends BaseComponent {
         const styledDot = whiteL("·");
         const styledLogo = greenL(logo.split("").join(styledDot));
         const styledSep = purpL(" ► ");
-        const styledTitle = whiteM(paddedTitle);
+        const styledTitle = whiteL(paddedTitle);
         const styledVersion = grayM(" v" + version);
 
         const borderProps = {

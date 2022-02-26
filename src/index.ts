@@ -13,62 +13,62 @@ function getMigrations() {
         {
             srcFilePath:
                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-            eta: { value: Math.floor(Math.random() * 2000), units: "s" }
+            eta: { value: Math.floor(Math.random() * 200), units: "s" }
         },
         {
             srcFilePath:
                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-            eta: { value: Math.floor(Math.random() * 2000), units: "m" }
+            eta: { value: Math.floor(Math.random() * 200), units: "m" }
         },
         {
             srcFilePath:
                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-            eta: { value: Math.floor(Math.random() * 2000), units: "m" }
+            eta: { value: Math.floor(Math.random() * 200), units: "m" }
         },
         {
             srcFilePath:
                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-            eta: { value: Math.floor(Math.random() * 2000), units: "m" }
+            eta: { value: Math.floor(Math.random() * 200), units: "m" }
         },
         {
             srcFilePath:
                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-            eta: { value: Math.floor(Math.random() * 2000), units: "m" }
+            eta: { value: Math.floor(Math.random() * 200), units: "m" }
         },
         {
             srcFilePath:
                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-            eta: { value: Math.floor(Math.random() * 2000), units: "m" }
+            eta: { value: Math.floor(Math.random() * 200), units: "m" }
         },
         {
             srcFilePath:
                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-            eta: { value: Math.floor(Math.random() * 2000), units: "m" }
+            eta: { value: Math.floor(Math.random() * 200), units: "m" }
         },
         {
             srcFilePath:
                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-            eta: { value: Math.floor(Math.random() * 2000), units: "m" }
+            eta: { value: Math.floor(Math.random() * 200), units: "m" }
         },
         {
             srcFilePath:
                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-            eta: { value: Math.floor(Math.random() * 2000), units: "m" }
+            eta: { value: Math.floor(Math.random() * 200), units: "m" }
         },
         {
             srcFilePath:
                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-            eta: { value: Math.floor(Math.random() * 2000), units: "m" }
+            eta: { value: Math.floor(Math.random() * 200), units: "m" }
         },
         {
             srcFilePath:
                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-            eta: { value: Math.floor(Math.random() * 2000), units: "m" }
+            eta: { value: Math.floor(Math.random() * 200), units: "m" }
         },
         {
             srcFilePath:
                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-            eta: { value: Math.floor(Math.random() * 2000), units: "m" }
+            eta: { value: Math.floor(Math.random() * 200), units: "m" }
         }
     ];
 }
@@ -108,7 +108,7 @@ setInterval(() => {
     const screen = header.create({}) + progress.create(getProps()) + queue.create({ queue: getMigrations() });
 
     renderer.render(screen);
-}, 100);
+}, 1000);
 
 // import { watch } from "chokidar";
 
