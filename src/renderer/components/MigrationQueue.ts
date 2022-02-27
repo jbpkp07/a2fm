@@ -1,8 +1,11 @@
 import BaseComponent from "./common/BaseComponent";
+import ComponentBorders from "./common/ComponentBorders";
 import ValueUnits from "./common/ValueUnits";
 import MigrationQueueItem from "./MigrationQueueItem";
 import MigrationQueueLabel from "./MigrationQueueLabel";
 import MigrationQueueLimit from "./MigrationQueueLimit";
+
+const { createTopBorderRow, createJoinBorderRow, createBottomBorderRow } = ComponentBorders;
 
 interface Migration {
     readonly eta: ValueUnits;
@@ -34,7 +37,15 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
         this.limit = limit;
 
         const margin = "".padEnd(marginCols, " ");
-        const params = { cols, limit, margin };
+        const borderProps = { cols, margin, style: "single" as const };
+        const queueBorders = {
+            borderProps,
+            topBorderRow: createTopBorderRow(borderProps),
+            joinBorderRow: createJoinBorderRow(borderProps),
+            bottomBorderRow: createBottomBorderRow(borderProps)
+        };
+
+        const params = { cols, limit, margin, queueBorders };
 
         this.queueLabel = new MigrationQueueLabel(params);
         this.queueItems = new Array(limit).fill(0).map(() => new MigrationQueueItem(params));

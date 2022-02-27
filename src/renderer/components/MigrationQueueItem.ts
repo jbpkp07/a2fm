@@ -5,9 +5,16 @@ import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
 import MigrationStat from "./MigrationStat";
 
-const { createTopBorderRow, createLeftRightBorderRow, createJoinBorderRow, createBottomBorderRow } = ComponentBorders;
+const { createLeftRightBorderRow } = ComponentBorders;
 const { blueM, greenM, purpD } = ComponentColors;
 const { padNumber, padText, toStringLength } = ComponentUtils;
+
+interface MigrationQueueBorders {
+    readonly borderProps: BorderProps;
+    readonly topBorderRow: string;
+    readonly joinBorderRow: string;
+    readonly bottomBorderRow: string;
+}
 
 interface MigrationQueueItemProps {
     readonly eta: ValueUnits;
@@ -19,46 +26,34 @@ interface MigrationQueueItemProps {
 interface MigrationQueueItemParams {
     readonly cols: number;
     readonly margin: string;
+    readonly queueBorders: MigrationQueueBorders;
 }
 
 class MigrationQueueItem extends BaseComponent<MigrationQueueItemProps> {
-    private readonly cols: number;
-
-    private readonly margin: string;
-
     private readonly etaStat: MigrationStat;
 
-    private readonly borderProps: BorderProps;
+    private readonly posPathLength: number;
 
-    private readonly topBorderRow: string;
+    private readonly queueBorders: MigrationQueueBorders;
 
-    private readonly joinBorderRow: string;
-
-    private readonly bottomBorderRow: string;
-
-    constructor({ cols, margin }: MigrationQueueItemParams) {
+    constructor({ cols, margin, queueBorders }: MigrationQueueItemParams) {
         super();
 
-        this.cols = cols;
-        this.margin = margin;
+        const marginLength = margin.length * 2;
+        const etaLength = 9;
 
         this.etaStat = new MigrationStat({ color: "medium", label: "Eta" });
-
-        this.borderProps = { cols, margin, style: "single" as const };
-
-        this.topBorderRow = createTopBorderRow(this.borderProps);
-        this.joinBorderRow = createJoinBorderRow(this.borderProps);
-        this.bottomBorderRow = createBottomBorderRow(this.borderProps);
+        this.posPathLength = cols - marginLength - etaLength - 8;
+        this.queueBorders = queueBorders;
     }
 
     protected createComponent = (): string => {
-        const { cols, margin, etaStat, borderProps, topBorderRow, joinBorderRow, bottomBorderRow } = this;
+        const { etaStat, posPathLength } = this;
         const { eta, index, queueLength, srcFilePath } = this.props;
+        const { borderProps, topBorderRow, joinBorderRow, bottomBorderRow } = this.queueBorders;
 
-        const marginLength = margin.length * 2;
         const posLength = toStringLength(queueLength);
-        const etaLength = 9;
-        const pathLength = cols - marginLength - posLength - etaLength - 8;
+        const pathLength = posPathLength - posLength;
 
         const pos = padNumber(index + 1, posLength);
         const path = padText(srcFilePath, pathLength);
