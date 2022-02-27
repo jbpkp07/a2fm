@@ -3,18 +3,20 @@ import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 import ValueUnits from "./common/ValueUnits";
 import MigrationProgressFilePath from "./MigrationProgressFilePath";
+import MigrationProgressStats from "./MigrationProgressStats";
 
-const { grayL, grayD, greenM, greenD, pinkL, whiteL } = ComponentColors;
-const { padNumber, padText } = ComponentUtils;
+const { grayL, greenM, greenD, pinkL, whiteL } = ComponentColors;
+const { padNumber } = ComponentUtils;
 
 interface MigrationProgressProps {
     readonly cols: number; //
     readonly destFilePath: string; //
+    readonly destFileSize: ValueUnits; //
     readonly eta: ValueUnits;
-    readonly fileSize: ValueUnits; //
     readonly percentage: number;
-    readonly rate: ValueUnits; //
+    readonly transferRate: ValueUnits; //
     readonly srcFilePath: string; //
+    readonly srcFileSize: ValueUnits; //
     readonly elapsedTime: ValueUnits;
 }
 
@@ -32,7 +34,7 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
 
     private readonly progressDestPath: MigrationProgressFilePath;
 
-    private labelLength = 5;
+    private readonly progressStats: MigrationProgressStats;
 
     private numberLength = 3;
 
@@ -46,34 +48,8 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
 
         this.progressSrcPath = new MigrationProgressFilePath({ ...params, type: "src" });
         this.progressDestPath = new MigrationProgressFilePath({ ...params, type: "dest" });
+        this.progressStats = new MigrationProgressStats(params);
     }
-
-    private createStyledFileSize = (): string => {
-        const { fileSize } = this.props;
-
-        const label = padText("Size", this.labelLength);
-        const value = padNumber(fileSize.value, this.numberLength);
-
-        return grayL(label) + pinkL(value) + " " + whiteL(fileSize.units);
-    };
-
-    private createStyledElapsedTime = (): string => {
-        const { elapsedTime } = this.props;
-
-        const label = padText("Elapsed", this.labelLength + 3);
-        const value = padNumber(elapsedTime.value, this.numberLength);
-
-        return grayL(label) + pinkL(value) + " " + whiteL(elapsedTime.units);
-    };
-
-    private createStyledRate = (): string => {
-        const { rate } = this.props;
-
-        const label = padText("Rate", this.labelLength);
-        const value = padNumber(rate.value, this.numberLength);
-
-        return grayL(label) + pinkL(value) + " " + whiteL(rate.units);
-    };
 
     private createStyledProgressBar = (): string => {
         const { eta, percentage } = this.props;
@@ -93,19 +69,12 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
     };
 
     protected createComponent = (): string => {
-        const { progressSrcPath, progressDestPath } = this;
-        const { srcFilePath, destFilePath } = this.props;
+        const { progressSrcPath, progressDestPath, progressStats } = this;
+        const { srcFilePath, destFilePath, srcFileSize, destFileSize, transferRate, elapsedTime } = this.props;
 
-        const time = this.createStyledElapsedTime();
-        const size = this.createStyledFileSize();
-        const rate = this.createStyledRate();
         const progressBar = this.createStyledProgressBar();
 
-        // const justified = justifyCenter(this.props.cols, 26);
-        const justified = "        ";
-        // const justified2 = justifyCenter(this.props.cols, 57);
         const justified2 = "       ";
-        const sep = grayD("    ┃    ");
 
         return (
             "\n" +
@@ -113,13 +82,8 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
             "\n" +
             progressDestPath.create({ filePath: destFilePath }) +
             "\n" +
-            justified +
-            size +
-            sep +
-            time +
-            sep +
-            rate +
-            "\n\n" +
+            progressStats.create({ srcFileSize, destFileSize, transferRate, elapsedTime }) +
+            "\n" +
             justified2 +
             progressBar +
             "\n\n"

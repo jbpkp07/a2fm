@@ -55,16 +55,15 @@ class MigrationQueueItem extends BaseComponent<MigrationQueueItemProps> {
         const { cols, margin, etaStat, borderProps, topBorderRow, joinBorderRow, bottomBorderRow } = this;
         const { eta, index, queueLength, srcFilePath } = this.props;
 
-        const styledEta = etaStat.create({ stat: eta });
-
         const marginLength = margin.length * 2;
         const posLength = toStringLength(queueLength);
-        const pathLength = cols - marginLength - posLength - etaStat.length - 8;
+        const etaLength = 9;
+        const pathLength = cols - marginLength - posLength - etaLength - 8;
 
         const pos = padNumber(index + 1, posLength);
         const path = padText(srcFilePath, pathLength);
 
-        const styledQueueItem = greenM(pos + "  ") + blueM(path + "  ") + styledEta;
+        const styledQueueItem = greenM(pos + "  ") + blueM(path + "  ") + etaStat.create(eta);
 
         const isFirstQueueItem = index === 0;
         const isLastQueueItem = index === queueLength - 1;

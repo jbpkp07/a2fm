@@ -6,7 +6,7 @@ import ConsoleRenderer from "./renderer/console/ConsoleRenderer";
 
 const cols = 151;
 
-const renderer = new ConsoleRenderer({ cols, rows: 40, hideCursor: true });
+const renderer = new ConsoleRenderer({ cols, rows: 45, hideCursor: true });
 
 function getMigrations() {
     return [
@@ -76,7 +76,7 @@ function getMigrations() {
 let eta = 47;
 let size = 250;
 let percent = 95;
-let rate = 1200;
+let rate = 120;
 let elapsed = 123;
 
 function getProps() {
@@ -84,13 +84,14 @@ function getProps() {
         cols,
         destFilePath:
             "I:/Some really long directory name/directory/Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345678.a2fm",
+        destFileSize: { value: size, units: "GB" },
         eta: { value: eta, units: "s" },
-        fileSize: { value: size, units: "GB" },
         percentage: percent % 101,
-        rate: { value: rate, units: "MB/s" },
+        transferRate: { value: rate, units: "MB/s" },
         srcFilePath:
             "S:/Some really long directory name/directory1/directory2/directory3/directory4/directory5/directory6/directory7/The_file_to_migrate.mp4.a2fm",
-        elapsedTime: { value: elapsed, units: "m" }
+        srcFileSize: { value: size, units: "TB" },
+        elapsedTime: { value: elapsed, units: "s" }
     };
 }
 
@@ -102,13 +103,13 @@ setInterval(() => {
     percent += 1;
     eta = Math.floor(Math.random() * 200);
     size = Math.floor(Math.random() * 200);
-    rate = Math.floor(Math.random() * 1000);
-    elapsed = Math.floor(Math.random() * 1000);
+    rate = Math.floor(Math.random() * 200);
+    elapsed = Math.floor(Math.random() * 200);
 
     const screen = header.create({}) + progress.create(getProps()) + queue.create({ queue: getMigrations() });
 
     renderer.render(screen);
-}, 1000);
+}, 100);
 
 // import { watch } from "chokidar";
 
