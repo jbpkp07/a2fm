@@ -6,7 +6,7 @@ import ConsoleRenderer from "./renderer/console/ConsoleRenderer";
 
 const cols = 151;
 
-const renderer = new ConsoleRenderer({ cols, rows: 45, hideCursor: true });
+const renderer = new ConsoleRenderer({ cols, rows: 40, hideCursor: true });
 
 function getMigrations() {
     return [
@@ -91,7 +91,8 @@ function getProps() {
         srcFilePath:
             "S:/Some really long directory name/directory1/directory2/directory3/directory4/directory5/directory6/directory7/The_file_to_migrate.mp4.a2fm",
         srcFileSize: { value: size, units: "TB" },
-        elapsedTime: { value: elapsed, units: "s" }
+        elapsedTime: { value: elapsed, units: "s" },
+        isIdle: false
     };
 }
 
@@ -109,7 +110,7 @@ setInterval(() => {
     const screen = header.create({}) + progress.create(getProps()) + queue.create({ queue: getMigrations() });
 
     renderer.render(screen);
-}, 100);
+}, 1000);
 
 // import { watch } from "chokidar";
 
