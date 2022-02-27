@@ -8,7 +8,7 @@ const { grayD } = ComponentColors;
 interface MigrationProgressStatsProps {
     readonly destFileSize: ValueUnits;
     readonly elapsedTime: ValueUnits;
-    readonly transferRate: ValueUnits;
+    readonly rate: ValueUnits;
     readonly srcFileSize: ValueUnits;
 }
 
@@ -51,12 +51,12 @@ class MigrationProgressStats extends BaseComponent<MigrationProgressStatsProps> 
 
     protected createComponent = (): string => {
         const { margin, justifyCenter, styledSep } = this;
-        const { destFileSize, elapsedTime, transferRate, srcFileSize } = this.props;
+        const { destFileSize, elapsedTime, rate, srcFileSize } = this.props;
 
         const statProps = [
             { stat: this.srcFileSizeStat, props: srcFileSize },
             { stat: this.destFileSizeStat, props: destFileSize },
-            { stat: this.transferRateStat, props: transferRate },
+            { stat: this.transferRateStat, props: rate },
             { stat: this.elapsedTimeStat, props: elapsedTime }
         ];
 

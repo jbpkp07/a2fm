@@ -87,7 +87,7 @@ function getProps() {
         destFileSize: { value: size, units: "GB" },
         eta: { value: eta, units: "s" },
         percentage: percent % 101,
-        transferRate: { value: rate, units: "MB/s" },
+        rate: { value: rate, units: "MB/s" },
         srcFilePath:
             "S:/Some really long directory name/directory1/directory2/directory3/directory4/directory5/directory6/directory7/The_file_to_migrate.mp4.a2fm",
         srcFileSize: { value: size, units: "TB" },

@@ -10,7 +10,7 @@ type MigrationStatProps = ValueUnits;
 
 interface MigrationStatParams {
     readonly color: "light" | "medium";
-    readonly label: string;
+    readonly label?: string;
 }
 
 class MigrationStat extends BaseComponent<MigrationStatProps> {
@@ -21,7 +21,7 @@ class MigrationStat extends BaseComponent<MigrationStatProps> {
     constructor({ color, label }: MigrationStatParams) {
         super();
 
-        const paddedLabel = label + " ";
+        const paddedLabel = label ? label + " " : "";
 
         this.isLight = color === "light";
         this.styledLabel = this.isLight ? grayL(paddedLabel) : grayM(paddedLabel);
