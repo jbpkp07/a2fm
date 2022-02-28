@@ -1,10 +1,20 @@
+import { basename } from "path";
+
 import ValueUnits from "./components/common/ValueUnits";
 
-// interface FileCopyParams {
-//     readonly srcFilePath: string;
-//     readonly destFilePath: string;
-//     readonly fileSizeBytes: number;
-// }
+interface FileCopyParams {
+    readonly srcFilePath: string;
+    readonly destFilePath: string;
+    readonly fileSizeBytes: number;
+}
+
+interface ProgressParams {
+    readonly bytesPerSecond: number;
+    readonly bytesWritten: number;
+    readonly elapsedSeconds: number;
+    readonly fileCopyParams: FileCopyParams;
+    readonly percentage: number;
+}
 
 interface ProgressProps {
     readonly cols: number;
@@ -21,26 +31,28 @@ interface ProgressProps {
 interface QueueProps {
     readonly queue: {
         readonly eta: ValueUnits;
-        readonly srcFilePath: string;
+        readonly srcFileName: string;
     }[];
 }
 
-// interface UpdateProgressProps {
-//     readonly bytesPerSecond: number;
-//     readonly bytesWritten: number;
-//     readonly elapsedSeconds: number;
-//     readonly fileCopyParams: FileCopyParams;
-//     readonly percentage: number;
-// }
-
 class A2FMRendererChildProps {
+    private readonly cols: number;
+
     private readonly progressProps: ProgressProps;
 
-    private readonly queueProps: QueueProps;
+    private queueProps: QueueProps;
+
+    private progressParams: ProgressParams | undefined;
 
     constructor(cols: number) {
-        this.progressProps = {
-            cols,
+        this.cols = cols;
+        this.progressProps = this.getDefaultProgressProps();
+        this.queueProps = { queue: [] };
+    }
+
+    private getDefaultProgressProps(): ProgressProps {
+        return {
+            cols: this.cols,
             destFilePath: "???/???",
             destFileSize: { value: 0, units: "??" },
             elapsedTime: { value: 0, units: "?" },
@@ -50,19 +62,24 @@ class A2FMRendererChildProps {
             srcFilePath: "???/???",
             srcFileSize: { value: 0, units: "??" }
         };
-
-        this.queueProps = {
-            queue: []
-        };
     }
 
-    // public updateProgress(updateProgressProps: UpdateProgressProps): ProgressProps {
-    public updateProgress(): ProgressProps {
+    public updateProgress(progressParams: ProgressParams): ProgressProps {
+        this.progressParams = progressParams;
+
         return this.progressProps;
     }
 
-    // public updateQueue(updateQueue: FileCopyParams[]): QueueProps {
-    public updateQueue(): QueueProps {
+    public updateQueue(queueParams: FileCopyParams[]): QueueProps {
+        const queue = queueParams.map(({ srcFilePath, fileSizeBytes }) => {
+            return {
+                srcFileName: basename(srcFilePath),
+                eta: { value: 0, units: "" }
+            };
+        });
+
+        this.queueProps = { queue };
+
         return this.queueProps;
     }
 }

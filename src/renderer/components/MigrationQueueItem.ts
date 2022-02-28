@@ -20,7 +20,7 @@ interface MigrationQueueItemProps {
     readonly eta: ValueUnits;
     readonly index: number;
     readonly queueLength: number;
-    readonly srcFilePath: string;
+    readonly srcFileName: string;
 }
 
 interface MigrationQueueItemParams {
@@ -32,7 +32,7 @@ interface MigrationQueueItemParams {
 class MigrationQueueItem extends BaseComponent<MigrationQueueItemProps> {
     private readonly etaStat: MigrationStat;
 
-    private readonly posPathLength: number;
+    private readonly posFileNameLength: number;
 
     private readonly queueBorders: MigrationQueueBorders;
 
@@ -43,22 +43,22 @@ class MigrationQueueItem extends BaseComponent<MigrationQueueItemProps> {
         const etaLength = 9;
 
         this.etaStat = new MigrationStat({ color: "medium", label: "Eta" });
-        this.posPathLength = cols - marginLength - etaLength - 8;
+        this.posFileNameLength = cols - marginLength - etaLength - 8;
         this.queueBorders = queueBorders;
     }
 
     protected createComponent = (): string => {
-        const { etaStat, posPathLength } = this;
-        const { eta, index, queueLength, srcFilePath } = this.props;
+        const { etaStat, posFileNameLength } = this;
+        const { eta, index, queueLength, srcFileName } = this.props;
         const { borderProps, topBorderRow, joinBorderRow, bottomBorderRow } = this.queueBorders;
 
         const posLength = toStringLength(queueLength);
-        const pathLength = posPathLength - posLength;
+        const fileNameLength = posFileNameLength - posLength;
 
         const pos = padNumber(index + 1, posLength);
-        const path = padText(srcFilePath, pathLength);
+        const fileName = padText(srcFileName, fileNameLength);
 
-        const styledQueueItem = greenM(pos + "  ") + blueM(path + "  ") + etaStat.create(eta);
+        const styledQueueItem = greenM(pos + "  ") + blueM(fileName + "  ") + etaStat.create(eta);
 
         const isFirstQueueItem = index === 0;
         const isLastQueueItem = index === queueLength - 1;

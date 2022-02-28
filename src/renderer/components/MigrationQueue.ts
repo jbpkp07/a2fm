@@ -9,7 +9,7 @@ const { createTopBorderRow, createJoinBorderRow, createBottomBorderRow } = Compo
 
 interface Migration {
     readonly eta: ValueUnits;
-    readonly srcFilePath: string;
+    readonly srcFileName: string;
 }
 
 interface MigrationQueueProps {
