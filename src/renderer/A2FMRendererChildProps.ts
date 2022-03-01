@@ -1,6 +1,9 @@
 import { basename } from "path";
 
+import A2FMRendererUtils from "./A2FMRendererUtils";
 import ValueUnits from "./components/common/ValueUnits";
+
+const { toEtaSeconds } = A2FMRendererUtils;
 
 interface FileCopyParams {
     readonly srcFilePath: string;
@@ -38,16 +41,18 @@ interface QueueProps {
 class A2FMRendererChildProps {
     private readonly cols: number;
 
-    private readonly progressProps: ProgressProps;
-
-    private queueProps: QueueProps;
-
     private progressParams: ProgressParams | undefined;
+
+    private queueParams: FileCopyParams[] = [];
+
+    public progressProps: ProgressProps;
+
+    public queueProps: QueueProps;
 
     constructor(cols: number) {
         this.cols = cols;
         this.progressProps = this.getDefaultProgressProps();
-        this.queueProps = { queue: [] };
+        this.queueProps = this.getDefaultQueueProps();
     }
 
     private getDefaultProgressProps(): ProgressProps {
@@ -64,23 +69,28 @@ class A2FMRendererChildProps {
         };
     }
 
-    public updateProgress(progressParams: ProgressParams): ProgressProps {
-        this.progressParams = progressParams;
+    private getDefaultQueueProps(): QueueProps {
+        const eta = { value: 0, units: "?" };
+        const queue = this.queueParams.map(({ srcFilePath }) => ({ eta, srcFileName: basename(srcFilePath) }));
 
-        return this.progressProps;
+        return { queue };
     }
 
-    public updateQueue(queueParams: FileCopyParams[]): QueueProps {
-        const queue = queueParams.map(({ srcFilePath, fileSizeBytes }) => {
-            return {
-                srcFileName: basename(srcFilePath),
-                eta: { value: 0, units: "" }
-            };
-        });
+    public updateProgressProps(progressParams: ProgressParams): void {
+        this.progressParams = progressParams;
+    }
 
-        this.queueProps = { queue };
+    public updateQueueProps(queueParams: FileCopyParams[]): void {
+        this.queueParams = queueParams;
 
-        return this.queueProps;
+        if (this.progressParams) {
+            const { bytesWritten, fileCopyParams } = this.progressParams;
+            const { fileSizeBytes } = fileCopyParams;
+
+            const etaSeconds = toEtaSeconds({ bytesPerSecond, bytesWritten, fileSizeBytes });
+        }
+
+        this.queueProps = this.getDefaultQueueProps();
     }
 }
 

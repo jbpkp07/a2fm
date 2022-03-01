@@ -1,4 +1,4 @@
-import MovingMedian from "../src/filecopier/MovingMedian";
+import MovingMedian from "../src/common/MovingMedian";
 
 describe("MovingMedian", () => {
     test("bad constructor arg", () => {
