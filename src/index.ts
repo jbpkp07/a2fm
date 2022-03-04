@@ -4,7 +4,7 @@ const renderer = new A2FMRenderer({ cols: 151, queueLimit: 10, rows: 40 });
 const screen = renderer.createScreen();
 renderer.render(screen);
 
-/* eslint-disable sonarjs/no-duplicate-string */
+//* eslint-disable sonarjs/no-duplicate-string */
 // import Header from "./renderer/components/Header";
 // import MigrationProgress from "./renderer/components/MigrationProgress";
 // import MigrationQueue from "./renderer/components/MigrationQueue";

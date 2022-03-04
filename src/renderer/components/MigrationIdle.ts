@@ -65,3 +65,4 @@ class MigrationIdle extends BaseComponent<MigrationIdleProps> {
 }
 
 export default MigrationIdle;
+export type { MigrationIdleProps };

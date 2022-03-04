@@ -61,3 +61,4 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
 }
 
 export default MigrationProgress;
+export type { MigrationProgressProps };

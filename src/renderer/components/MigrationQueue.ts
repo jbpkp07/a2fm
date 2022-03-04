@@ -85,3 +85,4 @@ class MigrationQueue extends BaseComponent<MigrationQueueProps> {
 }
 
 export default MigrationQueue;
+export type { MigrationQueueProps };

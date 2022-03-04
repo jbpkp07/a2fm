@@ -1,8 +1,9 @@
 import ValueUnits, { Units } from "./components/common/ValueUnits";
+import { MigrationProgressProps } from "./components/MigrationProgress";
 
-const { ceil } = Math;
+const { ceil, round } = Math;
 
-interface ToEtaSecondsProps {
+interface CalcEtaSecondsProps {
     readonly bytesWritten?: number;
     readonly etaBytesPerSecond: number;
     readonly fileSizeBytes: number;
@@ -11,7 +12,13 @@ interface ToEtaSecondsProps {
 class A2FMRendererUtils {
     private constructor() {}
 
-    public static toEtaSeconds = (props: ToEtaSecondsProps): number => {
+    private static toLimitedInteger = (value: number): number => {
+        const num = ceil(value);
+
+        return num > 999 ? 999 : num;
+    };
+
+    public static calcEtaSeconds = (props: CalcEtaSecondsProps): number => {
         const { bytesWritten, etaBytesPerSecond, fileSizeBytes } = props;
         const remainingBytes = fileSizeBytes - (bytesWritten ?? 0);
 
@@ -22,21 +29,70 @@ class A2FMRendererUtils {
         return ceil(remainingBytes / etaBytesPerSecond);
     };
 
+    public static createDefaultProgressProps = (cols: number): MigrationProgressProps => {
+        return {
+            cols,
+            destFilePath: "???/???",
+            destFileSize: { value: 0, units: "??" },
+            elapsedTime: { value: 0, units: "?" },
+            eta: { value: 0, units: "?" },
+            percentage: 0,
+            rate: { value: 0, units: "??/?" },
+            srcFilePath: "???/???",
+            srcFileSize: { value: 0, units: "??" }
+        };
+    };
+
+    public static toRate = (bytesPerSecond: number): ValueUnits => {
+        let value = round(bytesPerSecond);
+        let units: Units = "B/s ";
+
+        const largerUnits: Units[] = ["KB/s", "MB/s", "GB/s", "TB/s"];
+
+        for (const unit of largerUnits) {
+            if (value >= 1000) {
+                value = round(value / 1024);
+                units = unit;
+            }
+        }
+
+        value = this.toLimitedInteger(value);
+
+        return { value, units };
+    };
+
+    public static toSize = (bytes: number): ValueUnits => {
+        let value = round(bytes);
+        let units: Units = "B ";
+
+        const largerUnits: Units[] = ["KB", "MB", "GB", "TB"];
+
+        for (const unit of largerUnits) {
+            if (value >= 1000) {
+                value = round(value / 1024);
+                units = unit;
+            }
+        }
+
+        value = this.toLimitedInteger(value);
+
+        return { value, units };
+    };
+
     public static toTime = (seconds: number): ValueUnits => {
         let value = ceil(seconds);
         let units: Units = "s";
 
-        if (value >= 60) {
-            value = ceil(value / 60);
-            units = "m";
+        const largerUnits: Units[] = ["m", "h"];
+
+        for (const unit of largerUnits) {
+            if (value >= 60) {
+                value = ceil(value / 60);
+                units = unit;
+            }
         }
 
-        if (value >= 60) {
-            value = ceil(value / 60);
-            units = "h";
-        }
-
-        value = value > 999 ? 999 : value;
+        value = this.toLimitedInteger(value);
 
         return { value, units };
     };
