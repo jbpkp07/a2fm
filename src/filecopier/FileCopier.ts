@@ -1,4 +1,4 @@
-import FileCopyEventEmitter from "./FileCopyEventEmitter";
+import FileCopyEventEmitter, { Events as FileCopierEvents } from "./FileCopyEventEmitter";
 import FileCopyParams from "./FileCopyParams";
 import FileCopyParamsError from "./FileCopyParamsError";
 import FileCopyProgress from "./FileCopyProgress";
@@ -27,6 +27,8 @@ class FileCopier extends FileCopyEventEmitter {
         await streams.copyFile();
 
         await this.validateFileCopy(fileCopyParams);
+
+        this.emit("finish", progress);
     }
 
     private assignListeners(streams: FileCopyStreams, progress: FileCopyProgress): void {
@@ -42,7 +44,6 @@ class FileCopier extends FileCopyEventEmitter {
 
         streams.addFinishListener((bytesWritten: number) => {
             progress.update(bytesWritten);
-            this.emit("finish", progress);
         });
     }
 
@@ -95,3 +96,4 @@ class FileCopier extends FileCopyEventEmitter {
 }
 
 export default FileCopier;
+export type { FileCopierEvents };

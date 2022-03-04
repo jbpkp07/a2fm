@@ -21,3 +21,4 @@ interface FileCopyEventEmitter {
 class FileCopyEventEmitter extends SimplifiedEventEmitter {}
 
 export default FileCopyEventEmitter;
+export type { Events };

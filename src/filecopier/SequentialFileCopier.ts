@@ -1,28 +1,39 @@
 import { isDeepStrictEqual as isEqual } from "util";
 
-import FileCopier from "./FileCopier";
+import FileCopier, { FileCopierEvents } from "./FileCopier";
 import FileCopyParams from "./FileCopyParams";
 import FileCopyParamsError from "./FileCopyParamsError";
+import FileCopyProgress from "./FileCopyProgress";
 import Queue from "./Queue";
-import SequentialFileCopyEventEmitter from "./SequentialFileCopyEventEmitter";
+import SequentialFileCopyEventEmitter, { Events } from "./SequentialFileCopyEventEmitter";
+
+type SeqFileCopierEvents = Extract<Events, "copy:start" | "copy:progress" | "copy:finish">;
 
 class SequentialFileCopier extends SequentialFileCopyEventEmitter {
     private readonly fileCopier = new FileCopier();
 
     private readonly queue = new Queue<FileCopyParams>();
 
-    private inProgressParams: FileCopyParams | undefined;
-
     private isActive = false;
+
+    private progress: FileCopyProgress | undefined;
 
     constructor() {
         super();
 
-        this.fileCopier.on("start", (progress) => this.emit("copy:start", progress));
+        this.assignListener("start", "copy:start");
+        this.assignListener("progress", "copy:progress");
+        this.assignListener("finish", "copy:finish");
+    }
 
-        this.fileCopier.on("progress", (progress) => this.emit("copy:progress", progress));
+    private assignListener(event: FileCopierEvents, seqEvent: SeqFileCopierEvents): void {
+        this.fileCopier.on(event, (progress) => {
+            this.progress = progress;
 
-        this.fileCopier.on("finish", (progress) => this.emit("copy:finish", progress));
+            const queue = this.queue.peekQueue();
+
+            this.emit(seqEvent, { progress, queue });
+        });
     }
 
     private async activateWorker(): Promise<void> {
@@ -31,27 +42,24 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
         this.updateIsActive();
 
         while (!this.queue.isEmpty) {
-            this.inProgressParams = this.dequeue() as FileCopyParams;
+            const fileCopyParams = this.queue.dequeue() as FileCopyParams;
 
-            await this.tryCopyFile(this.inProgressParams); // eslint-disable-line no-await-in-loop
+            this.progress = new FileCopyProgress(fileCopyParams);
 
-            this.inProgressParams = undefined;
+            this.updateQueue();
+
+            await this.tryCopyFile(fileCopyParams); // eslint-disable-line no-await-in-loop
         }
 
         this.updateIsIdle();
     }
 
-    private dequeue(): FileCopyParams | undefined {
-        const fileCopyParams = this.queue.dequeue();
-        this.updateQueue();
-
-        return fileCopyParams;
-    }
-
     private enqueue(fileCopyParams: FileCopyParams): void {
         const queue = this.queue.peekQueue();
+        const inProgressParams = this.progress?.fileCopyParams;
+
         const isNotInQueue = !queue.find((inQueueParams) => isEqual(inQueueParams, fileCopyParams));
-        const isNotInProgress = !isEqual(this.inProgressParams, fileCopyParams);
+        const isNotInProgress = !isEqual(inProgressParams, fileCopyParams);
 
         if (isNotInQueue && isNotInProgress) {
             this.queue.enqueue(fileCopyParams);
@@ -82,8 +90,12 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
     }
 
     private updateQueue(): void {
-        const queue = this.queue.peekQueue();
-        this.emit("queue", queue);
+        const { progress } = this;
+
+        if (progress) {
+            const queue = this.queue.peekQueue();
+            this.emit("queue", { progress, queue });
+        }
     }
 
     public copyFile(fileCopyParams: FileCopyParams): this {

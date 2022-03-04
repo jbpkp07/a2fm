@@ -1,3 +1,4 @@
+import ValueUnits from "./components/common/ValueUnits";
 import Header from "./components/Header";
 import MigrationIdle from "./components/MigrationIdle";
 import MigrationProgress from "./components/MigrationProgress";
@@ -70,7 +71,7 @@ class A2FMRenderer extends ConsoleRenderer {
 
         this.idleInterval = setInterval(() => {
             seconds += 1;
-            const elapsedTime = { value: seconds, units: "s" };
+            const elapsedTime: ValueUnits = { value: seconds, units: "s" };
             const screen = this.header.create({}) + this.idle.create({ elapsedTime });
 
             this.render(screen);

@@ -1,8 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import FileCopyParams from "../src/filecopier/FileCopyParams";
 import FileCopyParamsError from "../src/filecopier/FileCopyParamsError";
 import FileCopyProgress from "../src/filecopier/FileCopyProgress";
-import SequentialFileCopyEventEmitter from "../src/filecopier/SequentialFileCopyEventEmitter";
+import SequentialFileCopyEventEmitter, { Update } from "../src/filecopier/SequentialFileCopyEventEmitter";
 
 const eventEmitter = new SequentialFileCopyEventEmitter();
 
@@ -21,12 +20,12 @@ const extractAllListeners = (): Function[] => {
 let results: unknown[] = [];
 
 const activeListener = () => results.push("active");
-const startListener = (progress: FileCopyProgress) => results.push(progress);
-const progressListener = (progress: FileCopyProgress) => results.push(progress);
-const finishListener = (progress: FileCopyProgress) => results.push(progress);
+const startListener = (update: Update) => results.push(update);
+const progressListener = (update: Update) => results.push(update);
+const finishListener = (update: Update) => results.push(update);
 const errorListener = (error: FileCopyParamsError) => results.push(error);
 const idleListener = () => results.push("idle");
-const queueListener = (upcoming: readonly FileCopyParams[]) => results.push(upcoming);
+const queueListener = (update: Update) => results.push(update);
 
 describe("SequentialFileCopyEventEmitter", () => {
     test("emit returns false w/o listener", () => {
@@ -68,48 +67,40 @@ describe("SequentialFileCopyEventEmitter", () => {
         results = [];
 
         const progress = new FileCopyProgress({ srcFilePath: "p", destFilePath: "p", fileSizeBytes: 1 });
+        const queue = [
+            { srcFilePath: "q1", destFilePath: "q1", fileSizeBytes: 5 },
+            { srcFilePath: "q2", destFilePath: "q2", fileSizeBytes: 6 }
+        ];
+
+        const update = { progress, queue };
 
         const error = new FileCopyParamsError({ srcFilePath: "e", destFilePath: "e", fileSizeBytes: 2 });
 
         eventEmitter.emit("active", undefined);
-        eventEmitter.emit("copy:start", progress);
-        eventEmitter.emit("copy:progress", progress);
-        eventEmitter.emit("copy:finish", progress);
+        eventEmitter.emit("copy:start", update);
+        eventEmitter.emit("copy:progress", update);
+        eventEmitter.emit("copy:finish", update);
         eventEmitter.emit("error", error);
         eventEmitter.emit("idle", undefined);
-        eventEmitter.emit("queue", [
-            { srcFilePath: "q1", destFilePath: "q1", fileSizeBytes: 5 },
-            { srcFilePath: "q2", destFilePath: "q2", fileSizeBytes: 6 }
-        ]);
+        eventEmitter.emit("queue", update);
 
-        expect(results).toStrictEqual([
-            "active",
-            progress,
-            progress,
-            progress,
-            error,
-            "idle",
-            [
-                { srcFilePath: "q1", destFilePath: "q1", fileSizeBytes: 5 },
-                { srcFilePath: "q2", destFilePath: "q2", fileSizeBytes: 6 }
-            ]
-        ]);
+        expect(results).toStrictEqual(["active", update, update, update, error, "idle", update]);
     });
 
     test("wait", async () => {
+        const progress = new FileCopyProgress({ srcFilePath: "p", destFilePath: "p", fileSizeBytes: 1 });
+        const queue = [
+            { srcFilePath: "c3", destFilePath: "c3", fileSizeBytes: 1 },
+            { srcFilePath: "c4", destFilePath: "c4", fileSizeBytes: 2 }
+        ];
+
         process.nextTick(() => {
-            eventEmitter.emit("queue", [
-                { srcFilePath: "c3", destFilePath: "c3", fileSizeBytes: 1 },
-                { srcFilePath: "c4", destFilePath: "c4", fileSizeBytes: 2 }
-            ]);
+            eventEmitter.emit("queue", { progress, queue });
         });
 
         const result = await eventEmitter.wait("queue");
 
-        expect(result).toStrictEqual([
-            { srcFilePath: "c3", destFilePath: "c3", fileSizeBytes: 1 },
-            { srcFilePath: "c4", destFilePath: "c4", fileSizeBytes: 2 }
-        ]);
+        expect(result).toStrictEqual({ progress, queue });
     });
 
     test("off", () => {
