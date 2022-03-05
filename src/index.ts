@@ -16,7 +16,8 @@ function getParams() {
             bytesWritten: bytesWritten % (GB5 + MB50),
             elapsedSeconds: elapsedSeconds % 101,
             fileCopyParams: {
-                srcFilePath: "srcDir1/srcFile1",
+                srcFilePath:
+                    "srcDir1alksjdflak;sjdfalskdjfalsk;dfjalal;aksdjflkasdjfasl;kdjsk;dfj/la;ksdjfal;ksjdfalksdfjasldk;fjasdlkfjlaksdjfal;sdkfjasldkf;jsrcFile1",
                 destFilePath: "destDir1/destFile1",
                 fileSizeBytes: -123
             },

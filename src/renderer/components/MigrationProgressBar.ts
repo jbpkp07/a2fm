@@ -3,7 +3,7 @@ import ComponentColors from "./common/ComponentColors";
 import ValueUnits from "./common/ValueUnits";
 import MigrationStat from "./MigrationStat";
 
-const { greenM, greenD } = ComponentColors;
+const { greenM, greenXD } = ComponentColors;
 
 interface MigrationProgressBarProps {
     readonly eta: ValueUnits;
@@ -47,7 +47,7 @@ class MigrationProgressBar extends BaseComponent<MigrationProgressBarProps> {
         const toGoBar = "".padEnd(100 - percentage, "■");
 
         const styledPercentage = percentageStat.create({ value: percentage, units: "%" });
-        const styledBar = "  " + greenM(doneBar) + greenD(toGoBar) + "  ";
+        const styledBar = "  " + greenM(doneBar) + greenXD(toGoBar) + "  ";
         const styledEta = etaStat.create(eta);
 
         return margin + justifyCenter + styledPercentage + styledBar + styledEta + "\n";

@@ -10,8 +10,10 @@ const purple: RGB = [185, 103, 255];
 const white: RGB = [255, 255, 255];
 
 const light = 1.0;
+const lightMedium = 0.825;
 const medium = 0.65;
 const dark = 0.35;
+const extraDark = 0.175;
 
 class ComponentColors {
     private constructor() {}
@@ -36,7 +38,7 @@ class ComponentColors {
 
     public static greenM = this.dimRGB(green, medium);
 
-    public static greenD = this.dimRGB(green, 0.2);
+    public static greenXD = this.dimRGB(green, extraDark);
 
     public static pinkL = this.dimRGB(pink, light);
 
@@ -44,13 +46,13 @@ class ComponentColors {
 
     public static purpL = this.dimRGB(purple, light);
 
-    public static purpM = this.dimRGB(purple, 0.85);
+    public static purpLM = this.dimRGB(purple, lightMedium);
 
     public static purpD = this.dimRGB(purple, dark);
 
     public static whiteL = this.dimRGB(white, light);
 
-    public static whiteLM = this.dimRGB(white, 0.8);
+    public static whiteLM = this.dimRGB(white, lightMedium);
 
     public static whiteM = this.dimRGB(white, medium);
 }

@@ -4,7 +4,7 @@ import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 
 const { createTopBorderRow, createLeftRightBorderRow, createBottomBorderRow } = ComponentBorders;
-const { grayM, greenL, purpL, purpM, whiteL } = ComponentColors;
+const { grayM, greenL, purpL, purpLM, whiteL } = ComponentColors;
 const { padText } = ComponentUtils;
 
 const { env } = process;
@@ -59,7 +59,7 @@ class Header extends BaseComponent {
         const leftRightBorderRow = createLeftRightBorderRow(borderProps);
         const bottomBorderRow = createBottomBorderRow(borderProps);
 
-        return purpM(topBorderRow + leftRightBorderRow + bottomBorderRow);
+        return purpLM(topBorderRow + leftRightBorderRow + bottomBorderRow);
     };
 }
 

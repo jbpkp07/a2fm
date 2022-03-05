@@ -1,7 +1,7 @@
 import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
 
-const { purpL, purpM } = ComponentColors;
+const { purpL, purpLM } = ComponentColors;
 
 interface MigrationQueueLabelParams {
     readonly cols: number;
@@ -29,7 +29,7 @@ class MigrationQueueLabel extends BaseComponent {
         const paddedLabel = label.padEnd(labelLength, " ");
 
         const styledLabel = purpL(paddedLabel);
-        const styledArrow = purpM("▲");
+        const styledArrow = purpLM("▲");
 
         return margin + styledLabel + styledArrow + "\n";
     };

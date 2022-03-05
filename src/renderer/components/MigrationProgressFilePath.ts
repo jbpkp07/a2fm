@@ -4,7 +4,7 @@ import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 
-const { blueL, grayL, purpL, purpM, whiteLM } = ComponentColors;
+const { blueL, grayL, purpL, purpLM, whiteLM } = ComponentColors;
 const { padText } = ComponentUtils;
 
 interface MigrationProgressFilePathProps {
@@ -31,8 +31,8 @@ class MigrationProgressFilePath extends BaseComponent<MigrationProgressFilePathP
         const typeLabelFiller = "".padEnd(typeLabel.length, " ");
 
         this.maxPathLength = cols - margin.length * 2 - 16;
-        this.styledDirLabel = margin + purpL(typeLabel) + purpM("│ ") + grayL("Dir   ");
-        this.styledFileLabel = margin + typeLabelFiller + purpM("│ ") + grayL("File  ");
+        this.styledDirLabel = margin + purpL(typeLabel) + purpLM("│ ") + grayL("Dir   ");
+        this.styledFileLabel = margin + typeLabelFiller + purpLM("│ ") + grayL("File  ");
     }
 
     protected createComponent = (): string => {
