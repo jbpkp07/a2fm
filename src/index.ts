@@ -1,8 +1,46 @@
-import A2FMRenderer from "./renderer/A2FMRenderer";
+import A2FMRendererProps from "./renderer/A2FMRendererProps";
 
-const renderer = new A2FMRenderer({ cols: 151, queueLimit: 10, rows: 40 });
-const screen = renderer.createScreen();
-renderer.render(screen);
+const a2fmProps = new A2FMRendererProps(80);
+
+const params = {
+    progress: {
+        bytesPerSecond: 0, // 1 KB/s
+        bytesWritten: 50000, // 10 KB
+        elapsedSeconds: 10, // 10
+        fileCopyParams: {
+            srcFilePath: "srcDir1/srcFile1",
+            destFilePath: "destDir1/destFile1",
+            fileSizeBytes: 100000 // 100 KB
+        },
+        fileSizeBytes: 100000000, // 100 KB
+        percentage: 50
+    },
+    queue: [
+        {
+            srcFilePath: "srcDir2/srcFile2",
+            destFilePath: "destDir2/destFile2",
+            fileSizeBytes: 200000000 // 200 KB - eta=2 + 3=5
+        },
+        {
+            srcFilePath: "srcDir3/srcFile3",
+            destFilePath: "destDir3/destFile3",
+            fileSizeBytes: 400000000 // 400 KB - eta=5 + 7 = 12
+        }
+    ]
+};
+
+a2fmProps.updateProps(params);
+params.progress.bytesPerSecond = 1024 ** 2;
+a2fmProps.updateProps(params);
+
+console.log(a2fmProps.progressProps);
+console.dir(a2fmProps.queueProps, { depth: null });
+
+// import A2FMRenderer from "./renderer/A2FMRenderer";
+
+// const renderer = new A2FMRenderer({ cols: 151, queueLimit: 10, rows: 40 });
+// const screen = renderer.createScreen();
+// renderer.render(screen);
 
 //* eslint-disable sonarjs/no-duplicate-string */
 // import Header from "./renderer/components/Header";

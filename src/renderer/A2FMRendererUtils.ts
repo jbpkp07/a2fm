@@ -12,21 +12,15 @@ interface CalcEtaSecondsProps {
 class A2FMRendererUtils {
     private constructor() {}
 
-    private static toLimitedInteger = (value: number): number => {
-        const num = ceil(value);
-
-        return num > 999 ? 999 : num;
+    private static limit = (value: number): number => {
+        return value > 999 ? 999 : value;
     };
 
     public static calcEtaSeconds = (props: CalcEtaSecondsProps): number => {
         const { bytesWritten, etaBytesPerSecond, fileSizeBytes } = props;
         const remainingBytes = fileSizeBytes - (bytesWritten ?? 0);
 
-        if (etaBytesPerSecond === 0) {
-            throw new Error("etaBytesPerSecond === 0, divide by zero");
-        }
-
-        return ceil(remainingBytes / etaBytesPerSecond);
+        return remainingBytes / etaBytesPerSecond;
     };
 
     public static createDefaultProgressProps = (cols: number): MigrationProgressProps => {
@@ -56,7 +50,7 @@ class A2FMRendererUtils {
             }
         }
 
-        value = this.toLimitedInteger(value);
+        value = this.limit(value);
 
         return { value, units };
     };
@@ -74,7 +68,7 @@ class A2FMRendererUtils {
             }
         }
 
-        value = this.toLimitedInteger(value);
+        value = this.limit(value);
 
         return { value, units };
     };
@@ -92,7 +86,7 @@ class A2FMRendererUtils {
             }
         }
 
-        value = this.toLimitedInteger(value);
+        value = this.limit(value);
 
         return { value, units };
     };

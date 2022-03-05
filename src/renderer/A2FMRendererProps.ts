@@ -27,7 +27,6 @@ class A2FMRendererProps {
     constructor(cols: number) {
         this.cols = cols;
         this.etaBytesPerSecondHistory = new MovingMedian(15);
-        this.etaBytesPerSecondHistory.push(100 * 1024 ** 2);
 
         this.idleProps = { elapsedTime: toTime(0) };
         this.progressProps = createDefaultProgressProps(cols);
@@ -48,7 +47,7 @@ class A2FMRendererProps {
     }
 
     private updateProgressProps(params: ProgressParams): void {
-        const { cols } = this;
+        const { cols, etaBytesPerSecond } = this;
         const { bytesPerSecond, bytesWritten, elapsedSeconds, fileCopyParams, fileSizeBytes, percentage } = params;
         const { destFilePath, srcFilePath } = fileCopyParams;
 
@@ -61,7 +60,7 @@ class A2FMRendererProps {
             elapsedTime: toTime(elapsedSeconds),
             eta: toTime(etaSeconds),
             percentage,
-            rate: toRate(bytesPerSecond),
+            rate: toRate(bytesPerSecond || etaBytesPerSecond),
             srcFilePath,
             srcFileSize: toSize(fileSizeBytes)
         };
