@@ -1,108 +1,87 @@
-import ValueUnits from "./components/common/ValueUnits";
+import A2FMRendererProps from "./A2FMRendererProps";
 import Header from "./components/Header";
 import MigrationIdle from "./components/MigrationIdle";
 import MigrationProgress from "./components/MigrationProgress";
 import MigrationQueue from "./components/MigrationQueue";
 import ConsoleRenderer from "./console/ConsoleRenderer";
 
-// interface A2FMRendererChildProps {
-//     progressProps: MigrationProgressProps;
-//     queueProps: MigrationQueueProps;
-// }
+import type { ProgressQueueParams } from "./A2FMRendererParams";
 
-interface A2FMRendererParams {
-    readonly cols: number;
-    readonly queueLimit: number;
-    readonly rows: number;
+interface Components {
+    readonly header: Header;
+    readonly idle: MigrationIdle;
+    readonly progress: MigrationProgress;
+    readonly queue: MigrationQueue;
 }
 
 class A2FMRenderer extends ConsoleRenderer {
-    // private readonly childProps: A2FMRendererChildProps;
+    private readonly components: Components;
 
-    private readonly header: Header;
-
-    private readonly idle: MigrationIdle;
-
-    private readonly progress: MigrationProgress;
-
-    private readonly queue: MigrationQueue;
+    private readonly props: A2FMRendererProps;
 
     private idleInterval: NodeJS.Timeout | undefined;
 
-    private isIdle = true;
-
-    constructor({ cols, queueLimit, rows }: A2FMRendererParams) {
+    constructor(cols = 151, rows = 40, limit = 10) {
         super({ cols, rows, hideCursor: true });
 
-        // this.childProps = {
-        //     progressProps: {
-        //         cols,
-        //         destFilePath: "???/???.???",
-        //         destFileSize: { value: 0, units: "??" },
-        //         elapsedTime: { value: 0, units: "?" },
-        //         eta: { value: 0, units: "?" },
-        //         percentage: 0,
-        //         rate: { value: 0, units: "??/?" },
-        //         srcFilePath: "???/???.???",
-        //         srcFileSize: { value: 0, units: "??" }
-        //     },
-        //     queueProps: { queue: [] }
-        // };
+        this.components = {
+            header: new Header({ cols, marginCols: 1 }),
+            idle: new MigrationIdle({ cols }),
+            progress: new MigrationProgress({ cols, marginCols: 2 }),
+            queue: new MigrationQueue({ cols, limit, marginCols: 2 })
+        };
 
-        const params = { cols, limit: queueLimit, marginCols: 2 };
+        this.props = new A2FMRendererProps(cols);
 
-        this.header = new Header({ ...params, marginCols: 1 });
-        this.idle = new MigrationIdle(params);
-        this.progress = new MigrationProgress(params);
-        this.queue = new MigrationQueue(params);
+        this.renderIdleScreen();
     }
 
     private clearIdleInterval(): void {
-        if (this.idleInterval) {
-            clearInterval(this.idleInterval);
-            this.idleInterval = undefined;
-        }
+        if (!this.idleInterval) return;
+
+        clearInterval(this.idleInterval);
+
+        this.idleInterval = undefined;
     }
 
-    private renderIdleScreen(): void {
-        let seconds = 0;
+    private createIdleScreen(elapsedSeconds: number): string {
+        const { header, idle } = this.components;
+        const idleProps = this.props.toIdleProps(elapsedSeconds);
 
-        this.clearIdleInterval();
+        return header.create({}) + idle.create(idleProps);
+    }
 
-        this.idleInterval = setInterval(() => {
-            seconds += 1;
-            const elapsedTime: ValueUnits = { value: seconds, units: "s" };
-            const screen = this.header.create({}) + this.idle.create({ elapsedTime });
+    private createMigrationScreen(params: ProgressQueueParams): string {
+        const { header, progress, queue } = this.components;
+        const { progressProps, queueProps } = this.props.toProgressQueueProps(params);
+
+        return header.create({}) + progress.create(progressProps) + queue.create(queueProps);
+    }
+
+    public renderIdleScreen(): void {
+        if (this.idleInterval) return;
+
+        let elapsedSeconds = 0;
+
+        const renderScreen = () => {
+            const screen = this.createIdleScreen(elapsedSeconds);
 
             this.render(screen);
 
-            if (seconds === 10) this.clearIdleInterval();
-        }, 1000);
+            elapsedSeconds += 1;
+        };
+
+        renderScreen();
+
+        this.idleInterval = setInterval(renderScreen, 1000);
     }
 
-    public updateIsActive(): void {
+    public renderMigrationScreen(params: ProgressQueueParams): void {
         this.clearIdleInterval();
-        this.isIdle = false;
-    }
 
-    public updatedIsIdle(): void {
-        this.isIdle = true;
-    }
+        const screen = this.createMigrationScreen(params);
 
-    public createScreen(): string {
-        // const { header, progress, queue } = this;
-        const { header } = this;
-
-        if (this.isIdle) {
-            this.renderIdleScreen();
-
-            return header.create({});
-        }
-
-        return "cool";
-        // const { progressProps, queueProps } = this.childProps;
-
-        // return header.create({}) + progress.create(progressProps) + queue.create(queueProps);
+        this.render(screen);
     }
 }
 

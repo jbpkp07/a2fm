@@ -51,7 +51,7 @@
                     "warn",
                     {
                         "alphabetize": { "order": "asc", "caseInsensitive": true },
-                        "groups": [["builtin"], ["external", "internal"], ["parent", "sibling", "index"]],
+                        "groups": [["builtin"], ["external", "internal"], ["parent", "sibling", "index"], ["type"]],
                         "newlines-between": "always",
                         "pathGroups": [{ "pattern": "react*", "position": "before", "group": "builtin" }],
                         "pathGroupsExcludedImportTypes": ["react*"]

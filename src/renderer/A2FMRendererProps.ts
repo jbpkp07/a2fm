@@ -1,64 +1,59 @@
 import { basename } from "path";
 
 import MovingMedian from "../common/MovingMedian";
-import { FileCopyParams, ProgressParams, UpdateParams } from "./A2FMRendererTypes";
 import A2FMRendererUtils from "./A2FMRendererUtils";
-import { MigrationIdleProps } from "./components/MigrationIdle";
-import { MigrationProgressProps } from "./components/MigrationProgress";
-import { MigrationQueueProps } from "./components/MigrationQueue";
 
-const { calcEtaSeconds, createDefaultProgressProps, toRate, toSize, toTime } = A2FMRendererUtils;
+import type { FileCopyParams, ProgressParams, ProgressQueueParams, QueueParams } from "./A2FMRendererParams";
+import type { MigrationIdleProps } from "./components/MigrationIdle";
+import type { MigrationProgressProps } from "./components/MigrationProgress";
+import type { MigrationQueueProps } from "./components/MigrationQueue";
+
+const { calcEtaSeconds, toRate, toSize, toTime } = A2FMRendererUtils;
+
+interface ProgressQueueProps {
+    readonly progressProps: MigrationProgressProps;
+    readonly queueProps: MigrationQueueProps;
+}
 
 class A2FMRendererProps {
     private readonly cols: number;
 
-    private readonly etaBytesPerSecondHistory: MovingMedian;
+    private readonly etaBytesPerSecondHistory = new MovingMedian(15);
+
+    private progressEtaSeconds = 0;
 
     private get etaBytesPerSecond() {
         return this.etaBytesPerSecondHistory.median;
     }
 
-    public idleProps: MigrationIdleProps;
-
-    public progressProps: MigrationProgressProps;
-
-    public queueProps: MigrationQueueProps;
-
     constructor(cols: number) {
         this.cols = cols;
-        this.etaBytesPerSecondHistory = new MovingMedian(15);
-
-        this.idleProps = { elapsedTime: toTime(0) };
-        this.progressProps = createDefaultProgressProps(cols);
-        this.queueProps = { queue: [] };
     }
 
-    private calcProgressEtaSeconds(params: ProgressParams): number {
-        const { etaBytesPerSecond } = this;
-        const { bytesWritten, fileSizeBytes } = params;
-
-        return calcEtaSeconds({ bytesWritten, etaBytesPerSecond, fileSizeBytes });
-    }
-
-    private updateEtaBytesPerSecond(bytesPerSecond: number): void {
+    private pushBytesPerSecond(bytesPerSecond: number): void {
         if (bytesPerSecond > 0) {
             this.etaBytesPerSecondHistory.push(bytesPerSecond);
         }
     }
 
-    private updateProgressProps(params: ProgressParams): void {
-        const { cols, etaBytesPerSecond } = this;
+    private setProgressEtaSeconds(params: ProgressParams): void {
+        const { etaBytesPerSecond } = this;
+        const { bytesWritten, fileSizeBytes } = params;
+
+        this.progressEtaSeconds = calcEtaSeconds({ bytesWritten, etaBytesPerSecond, fileSizeBytes });
+    }
+
+    private toProgressProps(params: ProgressParams): MigrationProgressProps {
+        const { cols, etaBytesPerSecond, progressEtaSeconds } = this;
         const { bytesPerSecond, bytesWritten, elapsedSeconds, fileCopyParams, fileSizeBytes, percentage } = params;
         const { destFilePath, srcFilePath } = fileCopyParams;
 
-        const etaSeconds = this.calcProgressEtaSeconds(params);
-
-        this.progressProps = {
+        return {
             cols,
             destFilePath,
             destFileSize: toSize(bytesWritten),
             elapsedTime: toTime(elapsedSeconds),
-            eta: toTime(etaSeconds),
+            eta: toTime(progressEtaSeconds),
             percentage,
             rate: toRate(bytesPerSecond || etaBytesPerSecond),
             srcFilePath,
@@ -66,33 +61,36 @@ class A2FMRendererProps {
         };
     }
 
-    private updateQueueProps(params: UpdateParams): void {
-        const { etaBytesPerSecond } = this;
-        const { progress, queue } = params;
+    private toQueueProps(params: QueueParams): MigrationQueueProps {
+        const { etaBytesPerSecond, progressEtaSeconds } = this;
 
-        let etaSeconds = this.calcProgressEtaSeconds(progress);
+        let queueEtaSeconds = progressEtaSeconds;
 
-        const toQueueProps = ({ fileSizeBytes, srcFilePath }: FileCopyParams) => {
-            etaSeconds += calcEtaSeconds({ etaBytesPerSecond, fileSizeBytes });
+        const toProps = ({ fileSizeBytes, srcFilePath }: FileCopyParams) => {
+            queueEtaSeconds += calcEtaSeconds({ etaBytesPerSecond, fileSizeBytes });
 
-            return { eta: toTime(etaSeconds), srcFileName: basename(srcFilePath) };
+            return { eta: toTime(queueEtaSeconds), srcFileName: basename(srcFilePath) };
         };
 
-        this.queueProps = { queue: queue.map(toQueueProps) };
+        return { queue: params.map(toProps) };
     }
 
-    public updateIdleProps(elapsedSeconds: number): void {
-        this.idleProps = { elapsedTime: toTime(elapsedSeconds) };
-    }
+    public toIdleProps = (elapsedSeconds: number): MigrationIdleProps => {
+        return { elapsedTime: toTime(elapsedSeconds) };
+    };
 
-    public updateProps(params: UpdateParams): void {
-        const { progress } = params;
+    public toProgressQueueProps = (params: ProgressQueueParams): ProgressQueueProps => {
+        const { progress, queue } = params;
         const { bytesPerSecond } = progress;
 
-        this.updateEtaBytesPerSecond(bytesPerSecond);
-        this.updateProgressProps(progress);
-        this.updateQueueProps(params);
-    }
+        this.pushBytesPerSecond(bytesPerSecond);
+        this.setProgressEtaSeconds(progress);
+
+        const progressProps = this.toProgressProps(progress);
+        const queueProps = this.toQueueProps(queue);
+
+        return { progressProps, queueProps };
+    };
 }
 
 export default A2FMRendererProps;

@@ -13,7 +13,9 @@ export interface ProgressParams {
     readonly percentage: number;
 }
 
-export interface UpdateParams {
+export type QueueParams = readonly FileCopyParams[];
+
+export interface ProgressQueueParams {
     readonly progress: ProgressParams;
-    readonly queue: readonly FileCopyParams[];
+    readonly queue: QueueParams;
 }

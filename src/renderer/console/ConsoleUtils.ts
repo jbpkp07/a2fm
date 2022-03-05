@@ -62,7 +62,7 @@ class ConsoleUtils {
     };
 
     public static renderScreen = (screen: string): void => {
-        cursorTo(0, 0, () => clearScreenDown(() => write(screen)));
+        setTimeout(() => cursorTo(0, 0, () => clearScreenDown(() => write(screen))), 0);
     };
 }
 

@@ -1,40 +1,58 @@
-import A2FMRendererProps from "./renderer/A2FMRendererProps";
+import A2FMRenderer from "./renderer/A2FMRenderer";
 
-const a2fmProps = new A2FMRendererProps(80);
+const renderer = new A2FMRenderer();
 
-const params = {
-    progress: {
-        bytesPerSecond: 0, // 1 KB/s
-        bytesWritten: 50000, // 10 KB
-        elapsedSeconds: 10, // 10
-        fileCopyParams: {
-            srcFilePath: "srcDir1/srcFile1",
-            destFilePath: "destDir1/destFile1",
-            fileSizeBytes: 100000 // 100 KB
+const MB50 = 50 * 1024 ** 2;
+const GB5 = 5 * 1024 ** 3;
+
+let percentage = 0;
+let bytesWritten = 0;
+let elapsedSeconds = 0;
+
+function getParams() {
+    return {
+        progress: {
+            bytesPerSecond: Math.random() * (2 * MB50),
+            bytesWritten: bytesWritten % (GB5 + MB50),
+            elapsedSeconds: elapsedSeconds % 101,
+            fileCopyParams: {
+                srcFilePath: "srcDir1/srcFile1",
+                destFilePath: "destDir1/destFile1",
+                fileSizeBytes: -123
+            },
+            fileSizeBytes: GB5,
+            percentage: percentage % 101
         },
-        fileSizeBytes: 100000000, // 100 KB
-        percentage: 50
-    },
-    queue: [
-        {
-            srcFilePath: "srcDir2/srcFile2",
-            destFilePath: "destDir2/destFile2",
-            fileSizeBytes: 200000000 // 200 KB - eta=2 + 3=5
-        },
-        {
-            srcFilePath: "srcDir3/srcFile3",
-            destFilePath: "destDir3/destFile3",
-            fileSizeBytes: 400000000 // 400 KB - eta=5 + 7 = 12
-        }
-    ]
-};
+        queue: [
+            {
+                srcFilePath: "srcDir2/srcFile2",
+                destFilePath: "destDir2/destFile2",
+                fileSizeBytes: MB50
+            },
+            {
+                srcFilePath: "srcDir3/srcFile3",
+                destFilePath: "destDir3/destFile3",
+                fileSizeBytes: MB50
+            }
+        ]
+    };
+}
 
-a2fmProps.updateProps(params);
-params.progress.bytesPerSecond = 1024 ** 2;
-a2fmProps.updateProps(params);
+setInterval(() => {
+    renderer.renderMigrationScreen(getParams());
+    percentage += 1;
+    bytesWritten += MB50;
+    elapsedSeconds += 1;
+}, 1000);
 
-console.log(a2fmProps.progressProps);
-console.dir(a2fmProps.queueProps, { depth: null });
+// const a2fmProps = new A2FMRendererProps({ cols: 80 });
+
+// let props = a2fmProps.toProgressQueueProps(params);
+// params.progress.bytesPerSecond = 1024 ** 2;
+// props = a2fmProps.toProgressQueueProps(params);
+
+// console.log(props.progressProps);
+// console.dir(props.queueProps, { depth: null });
 
 // import A2FMRenderer from "./renderer/A2FMRenderer";
 

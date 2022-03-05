@@ -1,5 +1,4 @@
 import ValueUnits, { Units } from "./components/common/ValueUnits";
-import { MigrationProgressProps } from "./components/MigrationProgress";
 
 const { ceil, round } = Math;
 
@@ -21,20 +20,6 @@ class A2FMRendererUtils {
         const remainingBytes = fileSizeBytes - (bytesWritten ?? 0);
 
         return remainingBytes / etaBytesPerSecond;
-    };
-
-    public static createDefaultProgressProps = (cols: number): MigrationProgressProps => {
-        return {
-            cols,
-            destFilePath: "???/???",
-            destFileSize: { value: 0, units: "??" },
-            elapsedTime: { value: 0, units: "?" },
-            eta: { value: 0, units: "?" },
-            percentage: 0,
-            rate: { value: 0, units: "??/?" },
-            srcFilePath: "???/???",
-            srcFileSize: { value: 0, units: "??" }
-        };
     };
 
     public static toRate = (bytesPerSecond: number): ValueUnits => {
