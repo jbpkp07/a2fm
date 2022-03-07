@@ -236,6 +236,36 @@ describe("FileSystemUtils", () => {
         expect(hasPassed).toBe(true);
     });
 
+    test("exists", async () => {
+        let hasPassed = true;
+
+        try {
+            const exists = await FileSystemUtils.exists(RANDOM_PATH);
+
+            if (exists) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        await writeFile(RANDOM_PATH, "abc");
+
+        try {
+            const exists = await FileSystemUtils.exists(RANDOM_PATH);
+
+            if (!exists) {
+                hasPassed = false;
+            }
+        } catch {
+            hasPassed = false;
+        }
+
+        await rm(RANDOM_PATH, { force: true, recursive: true });
+
+        expect(hasPassed).toBe(true);
+    });
+
     test("hasParentDir", () => {
         const { hasParentDir } = FileSystemUtils;
 

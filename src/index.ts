@@ -9,35 +9,37 @@ import A2FMRenderer from "./renderer";
 
 const { deleteFile, exists, readFileSizeBytes, removeFileExt } = FileSystemUtils;
 
-const renderer = new A2FMRenderer();
-const fileCopier = new SequentialFileCopier();
+// const renderer = new A2FMRenderer();
+// const fileCopier = new SequentialFileCopier();
 
-fileCopier.on("enqueue", renderer.renderMigrationScreen);
+// fileCopier.on("enqueue", renderer.renderMigrationScreen);
 
-fileCopier.on("copy:start", renderer.renderMigrationScreen);
+// fileCopier.on("copy:start", renderer.renderMigrationScreen);
 
-fileCopier.on("copy:progress", renderer.renderMigrationScreen);
+// fileCopier.on("copy:progress", renderer.renderMigrationScreen);
 
-fileCopier.on("copy:finish", (params) => {
-    const { srcFilePath, destFilePath } = params.progress.fileCopyParams;
+// fileCopier.on("copy:finish", (params) => {
+//     const { srcFilePath, destFilePath } = params.progress.fileCopyParams;
 
-    renderer.renderMigrationScreen(params);
-    void removeFileExt(destFilePath);
-    void deleteFile(srcFilePath);
-});
+//     renderer.renderMigrationScreen(params);
+//     void removeFileExt(destFilePath);
+//     void deleteFile(srcFilePath);
+// });
 
-fileCopier.on("idle", renderer.renderIdleScreen);
+// fileCopier.on("idle", renderer.renderIdleScreen);
 
-fileCopier.on("error", ({ stack, fileCopyParams }) => {
-    console.clear();
-    console.log(stack, "\n\nFileCopyParams:", fileCopyParams);
-});
+// fileCopier.on("error", ({ stack, fileCopyParams }) => {
+//     console.clear();
+//     console.log(stack, "\n\nFileCopyParams:", fileCopyParams);
+// });
 
-const srcRootDir = "P:/faspex01packages";
-const destRootDir = "S:/_From_Aspera/Aspera";
+// const srcRootDir = "P:/faspex01packages";
+// const destRootDir = "S:/_From_Aspera/Aspera";
+const srcRootDir = "C:/AAA/Aspera///";
+const destRootDir = "C:/AAA/Facilis Sunset\\//";
 
-const standardDelayMs = 10000;
-const stabilityThreshold = 6 * standardDelayMs;
+const standardDelayMs = 1000;
+const stabilityThreshold = 5 * standardDelayMs;
 
 const watcher = watch(srcRootDir, {
     alwaysStat: true,
@@ -48,7 +50,10 @@ const watcher = watch(srcRootDir, {
 });
 
 const createDestPath = (srcFilePath: string): string => {
-    const subPath = srcFilePath.substring(destRootDir.length);
+    const normSrcFilePath = normalize(srcFilePath);
+    const startIndex = normalize(srcRootDir).length;
+
+    const subPath = normSrcFilePath.substring(startIndex);
 
     return normalize(`${destRootDir}/${subPath}.a2fm`);
 };
@@ -58,6 +63,8 @@ const isOutbound = (srcFilePath: string): boolean => {
 };
 
 const onAddCopyFile = async (srcFilePath: string, stats?: Stats) => {
+    console.log(createDestPath(srcFilePath));
+
     if (isOutbound(srcFilePath)) return;
 
     const isMetadataFile = extname(srcFilePath) === ".aspx";
@@ -74,7 +81,7 @@ const onAddCopyFile = async (srcFilePath: string, stats?: Stats) => {
         fileSizeBytes: stats?.size ?? (await readFileSizeBytes(srcFilePath))
     };
 
-    fileCopier.copyFile(params);
+    // fileCopier.copyFile(params);
 };
 
 const onUnlinkCopyFile = async (srcFilePath: string) => {
@@ -97,7 +104,7 @@ const onUnlinkCopyFile = async (srcFilePath: string) => {
         fileSizeBytes: await readFileSizeBytes(assetFilePath)
     };
 
-    fileCopier.copyFile(params);
+    // fileCopier.copyFile(params);
 };
 
 watcher.on("add", (srcFilePath, stats) => void onAddCopyFile(srcFilePath, stats));
