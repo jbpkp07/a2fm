@@ -7,8 +7,6 @@ const { createTopBorderRow, createLeftRightBorderRow, createBottomBorderRow } = 
 const { grayM, greenL, purpL, purpLM, whiteL } = ComponentColors;
 const { padText } = ComponentUtils;
 
-const { env } = process;
-
 interface HeaderParams {
     readonly cols: number;
     readonly marginCols: number;
@@ -19,11 +17,11 @@ class Header extends BaseComponent {
 
     private readonly margin: string;
 
-    private readonly logo = env.npm_package_name?.toUpperCase() || "???";
+    private readonly logo = process.env.npm_package_name?.toUpperCase() || "???";
 
-    private readonly title = env.npm_package_description || "???";
+    private readonly title = process.env.npm_package_description || "???";
 
-    private readonly version = env.npm_package_version || "?.?.?";
+    private readonly version = process.env.npm_package_version || "?.?.?";
 
     constructor({ cols, marginCols }: HeaderParams) {
         super();

@@ -1,5 +1,5 @@
 import { Stats } from "fs";
-import { basename, extname, join, parse } from "path";
+import { extname, join, normalize, parse } from "path";
 
 import { watch } from "chokidar";
 
@@ -33,13 +33,13 @@ fileCopier.on("error", ({ stack, fileCopyParams }) => {
     console.log(stack, "\n\nFileCopyParams:", fileCopyParams);
 });
 
-const srcDir = "C:/AAA/Aspera";
-const destDir = "C:/AAA/Facilis";
+const srcRootDir = "P:/faspex01packages";
+const destRootDir = "S:/_From_Aspera/Aspera";
 
 const standardDelayMs = 10000;
 const stabilityThreshold = 6 * standardDelayMs;
 
-const watcher = watch(srcDir, {
+const watcher = watch(srcRootDir, {
     alwaysStat: true,
     // atomic: standardDelayMs,
     awaitWriteFinish: { stabilityThreshold, pollInterval: standardDelayMs },
@@ -47,7 +47,19 @@ const watcher = watch(srcDir, {
     // ignoreInitial: true
 });
 
+const createDestPath = (srcFilePath: string): string => {
+    const subPath = srcFilePath.substring(destRootDir.length);
+
+    return normalize(`${destRootDir}/${subPath}.a2fm`);
+};
+
+const isOutbound = (srcFilePath: string): boolean => {
+    return srcFilePath.toLowerCase().includes("outbound");
+};
+
 const onAddCopyFile = async (srcFilePath: string, stats?: Stats) => {
+    if (isOutbound(srcFilePath)) return;
+
     const isMetadataFile = extname(srcFilePath) === ".aspx";
 
     if (isMetadataFile) return;
@@ -58,7 +70,7 @@ const onAddCopyFile = async (srcFilePath: string, stats?: Stats) => {
 
     const params = {
         srcFilePath,
-        destFilePath: `${destDir}/${basename(srcFilePath)}.a2fm`,
+        destFilePath: createDestPath(srcFilePath),
         fileSizeBytes: stats?.size ?? (await readFileSizeBytes(srcFilePath))
     };
 
@@ -66,6 +78,8 @@ const onAddCopyFile = async (srcFilePath: string, stats?: Stats) => {
 };
 
 const onUnlinkCopyFile = async (srcFilePath: string) => {
+    if (isOutbound(srcFilePath)) return;
+
     const isMetadataFile = extname(srcFilePath) === ".aspx";
 
     if (!isMetadataFile) return;
@@ -79,7 +93,7 @@ const onUnlinkCopyFile = async (srcFilePath: string) => {
 
     const params = {
         srcFilePath: assetFilePath,
-        destFilePath: `${destDir}/${basename(assetFilePath)}.a2fm`,
+        destFilePath: createDestPath(assetFilePath),
         fileSizeBytes: await readFileSizeBytes(assetFilePath)
     };
 
