@@ -24,7 +24,8 @@ copier.on("enqueue", (params) => {
     renderer.renderMigrationScreen(params);
 });
 
-const srcFilePath = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp4";
+const srcFilePath =
+    "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/this is an amazing movie with a really long file path that is really cool and stuff 1GB_test_1.mp4";
 const root = __dirname;
 const fileSizeBytes = 1064551156;
 
@@ -37,37 +38,37 @@ const fileSizeBytes = 1064551156;
 const fileCopyParams = [
     {
         srcFilePath,
-        destFilePath: `${root}/tempMovie1.mp4`,
+        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie1.mp4`,
         fileSizeBytes
     },
     {
         srcFilePath,
-        destFilePath: `${root}/tempMovie2.mp4`,
+        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie2.mp4`,
         fileSizeBytes
     },
     {
         srcFilePath,
-        destFilePath: `${root}/tempMovie3.mp4`,
+        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie3.mp4`,
         fileSizeBytes
     },
     {
         srcFilePath,
-        destFilePath: `${root}/tempMovie4.mp4`,
+        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie4.mp4`,
         fileSizeBytes
     },
     {
         srcFilePath,
-        destFilePath: `${root}/tempMovie5.mp4`,
+        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie5.mp4`,
         fileSizeBytes
     },
     {
         srcFilePath,
-        destFilePath: `${root}/tempMovie6.mp4`,
+        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie6.mp4`,
         fileSizeBytes
     },
     {
         srcFilePath,
-        destFilePath: `${root}/tempMovie7.mp4`,
+        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie7.mp4`,
         fileSizeBytes
     },
     {

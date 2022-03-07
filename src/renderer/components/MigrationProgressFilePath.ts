@@ -4,7 +4,7 @@ import BaseComponent from "./common/BaseComponent";
 import ComponentColors from "./common/ComponentColors";
 import ComponentUtils from "./common/ComponentUtils";
 
-const { blueL, grayL, purpL, purpLM, whiteLM } = ComponentColors;
+const { blueL, grayL, greenLM, purpL, purpLM, whiteLM } = ComponentColors;
 const { padText } = ComponentUtils;
 
 interface MigrationProgressFilePathProps {
@@ -24,8 +24,12 @@ class MigrationProgressFilePath extends BaseComponent<MigrationProgressFilePathP
 
     private readonly styledFileLabel: string;
 
+    private readonly type: "src" | "dest";
+
     constructor({ cols, margin, type }: MigrationProgressFilePathParams) {
         super();
+
+        this.type = type;
 
         const typeLabel = type === "src" ? "Source " : "  Dest ";
         const typeLabelFiller = "".padEnd(typeLabel.length, " ");
@@ -36,7 +40,7 @@ class MigrationProgressFilePath extends BaseComponent<MigrationProgressFilePathP
     }
 
     protected createComponent = (): string => {
-        const { maxPathLength, styledDirLabel, styledFileLabel } = this;
+        const { maxPathLength, styledDirLabel, styledFileLabel, type } = this;
         const { filePath } = this.props;
 
         const dir = dirname(filePath);
@@ -45,8 +49,10 @@ class MigrationProgressFilePath extends BaseComponent<MigrationProgressFilePathP
         const paddedDir = padText(dir, maxPathLength);
         const paddedFile = padText(file, maxPathLength);
 
+        const styledFile = type === "src" ? blueL(paddedFile) : greenLM(paddedFile);
+
         const row1 = styledDirLabel + whiteLM(paddedDir) + "\n";
-        const row2 = styledFileLabel + blueL(paddedFile) + "\n";
+        const row2 = styledFileLabel + styledFile + "\n";
 
         return row1 + row2;
     };

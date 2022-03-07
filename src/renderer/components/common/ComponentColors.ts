@@ -10,7 +10,7 @@ const purple: RGB = [185, 103, 255];
 const white: RGB = [255, 255, 255];
 
 const light = 1.0;
-const lightMedium = 0.825;
+const lightMedium = 0.85;
 const medium = 0.65;
 const dark = 0.35;
 const extraDark = 0.175;
@@ -35,6 +35,8 @@ class ComponentColors {
     public static grayD = this.dimRGB(gray, dark);
 
     public static greenL = this.dimRGB(green, light);
+
+    public static greenLM = this.dimRGB(green, lightMedium);
 
     public static greenM = this.dimRGB(green, medium);
 

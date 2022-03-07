@@ -51,7 +51,7 @@ class MigrationProgress extends BaseComponent<MigrationProgressProps> {
             progressSrcPath.create({ filePath: srcFilePath }) +
             "\n" +
             progressDestPath.create({ filePath: destFilePath }) +
-            "\n" +
+            "\n\n" +
             progressStats.create({ destFileSize, elapsedTime, rate, srcFileSize }) +
             "\n" +
             progressBar.create({ eta, percentage }) +
