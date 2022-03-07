@@ -1,7 +1,7 @@
+import MicrosecondTimer from "../common/MicrosecondTimer";
 import MovingMedian from "../common/MovingMedian";
 import NumberUtils from "../common/NumberUtils";
 import FileCopyParams from "./FileCopyParams";
-import MicrosecondTimer from "./MicrosecondTimer";
 
 const { floor, isZero, round, toIntegerPercentage, toSeconds } = NumberUtils;
 

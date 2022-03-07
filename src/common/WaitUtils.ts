@@ -4,9 +4,9 @@ class WaitUtils {
     public static wait = async (ms: number): Promise<void> => {
         const waitMs = ms >= 0 ? Math.ceil(ms) : 0;
 
-        return new Promise<void>((resolve) => {
-            setTimeout(resolve, waitMs);
-        });
+        const executor = (resolve: () => void) => setTimeout(resolve, waitMs);
+
+        return new Promise(executor);
     };
 }
 

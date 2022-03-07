@@ -1,5 +1,5 @@
+import SimplifiedEventEmitter from "../common/SimplifiedEventEmitter";
 import FileCopyProgress from "./FileCopyProgress";
-import SimplifiedEventEmitter from "./SimplifiedEventEmitter";
 
 // prettier-ignore
 type EventValues = {

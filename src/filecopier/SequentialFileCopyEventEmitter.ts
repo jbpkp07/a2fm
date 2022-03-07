@@ -1,7 +1,7 @@
+import SimplifiedEventEmitter from "../common/SimplifiedEventEmitter";
 import FileCopyParams from "./FileCopyParams";
 import FileCopyParamsError from "./FileCopyParamsError";
 import FileCopyProgress from "./FileCopyProgress";
-import SimplifiedEventEmitter from "./SimplifiedEventEmitter";
 
 interface Update {
     readonly progress: FileCopyProgress;

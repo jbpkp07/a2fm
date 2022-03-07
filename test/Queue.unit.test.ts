@@ -1,4 +1,4 @@
-import Queue from "../src/filecopier/Queue";
+import Queue from "../src/common/Queue";
 
 const queue = new Queue<number>();
 

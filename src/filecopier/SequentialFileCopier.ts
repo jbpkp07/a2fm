@@ -1,11 +1,11 @@
 import { isDeepStrictEqual as isEqual } from "util";
 
+import Queue from "../common/Queue";
 import WaitUtils from "../common/WaitUtils";
 import FileCopier, { FileCopierEvents } from "./FileCopier";
 import FileCopyParams from "./FileCopyParams";
 import FileCopyParamsError from "./FileCopyParamsError";
 import FileCopyProgress from "./FileCopyProgress";
-import Queue from "./Queue";
 import SequentialFileCopyEventEmitter, { Events } from "./SequentialFileCopyEventEmitter";
 
 const { wait } = WaitUtils;

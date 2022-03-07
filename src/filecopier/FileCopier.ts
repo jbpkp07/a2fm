@@ -1,10 +1,10 @@
+import FileSystemUtils from "../common/FileSystemUtils";
 import WaitUtils from "../common/WaitUtils";
 import FileCopyEventEmitter, { Events as FileCopierEvents } from "./FileCopyEventEmitter";
 import FileCopyParams from "./FileCopyParams";
 import FileCopyParamsError from "./FileCopyParamsError";
 import FileCopyProgress from "./FileCopyProgress";
 import FileCopyStreams from "./FileCopyStreams";
-import FileSystemUtils from "./FileSystemUtils";
 
 const { deleteDirIfEmpty, deleteFile, makeDestDir, readFileSizeBytes, traverseBack } = FileSystemUtils;
 const { wait } = WaitUtils;

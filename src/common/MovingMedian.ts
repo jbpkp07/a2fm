@@ -1,5 +1,5 @@
-import Queue from "../filecopier/Queue";
 import NumberUtils from "./NumberUtils";
+import Queue from "./Queue";
 
 const { ceil, floor, isInteger, isNegative, isPositiveArrayIndex } = NumberUtils;
 

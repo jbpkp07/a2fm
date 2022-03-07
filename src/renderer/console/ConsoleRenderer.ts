@@ -1,12 +1,11 @@
-import NumberUtils from "../../common/NumberUtils";
 import ConsoleColors from "./ConsoleColors";
 import ConsoleIcons from "./ConsoleIcons";
 import ConsoleUtils, { Options } from "./ConsoleUtils";
 
-const { isInteger } = NumberUtils;
 const { gray, green, red, white } = ConsoleColors;
 const { errorIcon, successIcon, warnIcon } = ConsoleIcons;
 const { clearConsole, getScreenSize, initConsole, onConsoleResize, renderScreen } = ConsoleUtils;
+const { isInteger } = Number;
 
 interface ConsoleRendererParams {
     cols: number;

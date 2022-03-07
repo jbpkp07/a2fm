@@ -1,5 +1,5 @@
 import SequentialFileCopier from "./filecopier";
-import A2FMRenderer from "./renderer/A2FMRenderer";
+import A2FMRenderer from "./renderer";
 
 const renderer = new A2FMRenderer();
 const copier = new SequentialFileCopier();
@@ -137,63 +137,6 @@ setTimeout(() => {
         }
     }, 250);
 }, 60000);
-
-// import A2FMRenderer from "./renderer/A2FMRenderer";
-
-// const renderer = new A2FMRenderer();
-
-// const MB50 = 50 * 1024 ** 2;
-// const GB5 = 5 * 1024 ** 3;
-
-// let percentage = 0;
-// let bytesWritten = 0;
-// let elapsedSeconds = 0;
-
-// function getParams() {
-//     return {
-//         progress: {
-//             bytesPerSecond: Math.random() * (2 * MB50),
-//             bytesWritten: bytesWritten % (GB5 + MB50),
-//             elapsedSeconds: elapsedSeconds % 101,
-//             fileCopyParams: {
-//                 srcFilePath:
-//                     "srcDir1alksjdflak;sjdfalskdjfalsk;dfjalal;aksdjflkasdjfasl;kdjsk;dfj/la;ksdjfal;ksjdfalksdfjasldk;fjasdlkfjlaksdjfal;sdkfjasldkf;jsrcFile1",
-//                 destFilePath: "destDir1/destFile1",
-//                 fileSizeBytes: -123
-//             },
-//             fileSizeBytes: GB5,
-//             percentage: percentage % 101
-//         },
-//         queue: [
-//             {
-//                 srcFilePath: "srcDir2/srcFile2",
-//                 destFilePath: "destDir2/destFile2",
-//                 fileSizeBytes: MB50
-//             },
-//             {
-//                 srcFilePath: "srcDir3/srcFile3",
-//                 destFilePath: "destDir3/destFile3",
-//                 fileSizeBytes: MB50
-//             }
-//         ]
-//     };
-// }
-
-// setInterval(() => {
-//     renderer.renderMigrationScreen(getParams());
-//     percentage += 1;
-//     bytesWritten += MB50;
-//     elapsedSeconds += 1;
-// }, 1000);
-
-// const a2fmProps = new A2FMRendererProps({ cols: 80 });
-
-// let props = a2fmProps.toProgressQueueProps(params);
-// params.progress.bytesPerSecond = 1024 ** 2;
-// props = a2fmProps.toProgressQueueProps(params);
-
-// console.log(props.progressProps);
-// console.dir(props.queueProps, { depth: null });
 
 // import { watch } from "chokidar";
 

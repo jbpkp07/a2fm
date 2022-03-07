@@ -1,8 +1,8 @@
 import { once } from "events";
 
+import FileSystemUtils, { ReadStream, WriteStream } from "../common/FileSystemUtils";
 import FileCopyParams from "./FileCopyParams";
 import FileCopyParamsError from "./FileCopyParamsError";
-import FileSystemUtils, { ReadStream, WriteStream } from "./FileSystemUtils";
 
 type Listener = (bytesWritten: number) => void;
 
