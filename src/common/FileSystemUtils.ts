@@ -63,6 +63,16 @@ class FileSystemUtils {
         }
     };
 
+    public static exists = async (path: string): Promise<boolean> => {
+        try {
+            await this.readStats(path);
+
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
     public static hasParentDir = (path: string): boolean => {
         if (this.isRelative(path)) return false;
 

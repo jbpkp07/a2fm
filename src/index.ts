@@ -1,151 +1,175 @@
+import { Stats } from "fs";
+import { basename, extname, join, parse } from "path";
+
+import { watch } from "chokidar";
+
+import FileSystemUtils from "./common/FileSystemUtils";
 import SequentialFileCopier from "./filecopier";
 import A2FMRenderer from "./renderer";
 
+const { deleteFile, exists, readFileSizeBytes, removeFileExt } = FileSystemUtils;
+
 const renderer = new A2FMRenderer();
-const copier = new SequentialFileCopier();
+const fileCopier = new SequentialFileCopier();
 
-copier.on("idle", () => {
-    renderer.renderIdleScreen();
-});
+fileCopier.on("enqueue", renderer.renderMigrationScreen);
 
-copier.on("copy:start", (params) => {
+fileCopier.on("copy:start", renderer.renderMigrationScreen);
+
+fileCopier.on("copy:progress", renderer.renderMigrationScreen);
+
+fileCopier.on("copy:finish", (params) => {
+    const { srcFilePath, destFilePath } = params.progress.fileCopyParams;
+
     renderer.renderMigrationScreen(params);
+    void removeFileExt(destFilePath);
+    void deleteFile(srcFilePath);
 });
 
-copier.on("copy:progress", (params) => {
-    renderer.renderMigrationScreen(params);
+fileCopier.on("idle", renderer.renderIdleScreen);
+
+fileCopier.on("error", ({ stack, fileCopyParams }) => {
+    console.clear();
+    console.log(stack, "\n\nFileCopyParams:", fileCopyParams);
 });
 
-copier.on("copy:finish", (params) => {
-    renderer.renderMigrationScreen(params);
+const srcDir = "C:/AAA/Aspera";
+const destDir = "C:/AAA/Facilis";
+
+const standardDelayMs = 10000;
+const stabilityThreshold = 6 * standardDelayMs;
+
+const watcher = watch(srcDir, {
+    alwaysStat: true,
+    // atomic: standardDelayMs,
+    awaitWriteFinish: { stabilityThreshold, pollInterval: standardDelayMs },
+    followSymlinks: false
+    // ignoreInitial: true
 });
 
-copier.on("enqueue", (params) => {
-    renderer.renderMigrationScreen(params);
-});
+const onAddCopyFile = async (srcFilePath: string, stats?: Stats) => {
+    const isMetadataFile = extname(srcFilePath) === ".aspx";
 
-const srcFilePath =
-    "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/this is an amazing movie with a really long file path that is really cool and stuff 1GB_test_1.mp4";
-const root = __dirname;
-const fileSizeBytes = 1064551156;
+    if (isMetadataFile) return;
 
-// const srcFilePath = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/jbtest/Movies/movie4/jbtest-x.mp4";
-// const srcFilePath = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/jbtest/Movies/movie4/2021 Turkey Shoot Doubles Winners.jpg";
-// const root = "Z:";
-// const fileSizeBytes = 108663259;
-// const fileSizeBytes = 695157;
+    const hasMetadataTwin = await exists(`${srcFilePath}.aspx`);
 
-const fileCopyParams = [
-    {
-        srcFilePath,
-        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie1.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie2.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie3.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie4.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie5.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie6.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/this is an amazing movie with a really long file path that is really cool and stuff tempMovie7.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/tempMovie8.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/tempMovie9.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/tempMovie10.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/tempMovie11.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/tempMovie12.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/tempMovie13.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/tempMovie14.mp4`,
-        fileSizeBytes
-    },
-    {
-        srcFilePath,
-        destFilePath: `${root}/tempMovie15.mp4`,
-        fileSizeBytes
-    }
-];
+    if (hasMetadataTwin) return;
 
-let i = 0;
+    const params = {
+        srcFilePath,
+        destFilePath: `${destDir}/${basename(srcFilePath)}.a2fm`,
+        fileSizeBytes: stats?.size ?? (await readFileSizeBytes(srcFilePath))
+    };
 
-const int1 = setInterval(() => {
-    const params = fileCopyParams[i];
-    i += 1;
+    fileCopier.copyFile(params);
+};
 
-    if (params) {
-        copier.copyFile(params);
-    }
-}, 100);
+const onUnlinkCopyFile = async (srcFilePath: string) => {
+    const isMetadataFile = extname(srcFilePath) === ".aspx";
 
-setTimeout(() => {
-    clearInterval(int1);
-    i = 0;
+    if (!isMetadataFile) return;
 
-    setInterval(() => {
-        i += 1;
-        const params = fileCopyParams[i];
+    const { dir, name } = parse(srcFilePath);
+    const assetFilePath = join(dir, name);
 
-        if (params) {
-            copier.copyFile(params);
-        }
-    }, 250);
-}, 60000);
+    const hasAssetFile = await exists(assetFilePath);
 
-// import { watch } from "chokidar";
+    if (!hasAssetFile) return;
 
-// const watchDirectory = (dir: string) => {
+    const params = {
+        srcFilePath: assetFilePath,
+        destFilePath: `${destDir}/${basename(assetFilePath)}.a2fm`,
+        fileSizeBytes: await readFileSizeBytes(assetFilePath)
+    };
+
+    fileCopier.copyFile(params);
+};
+
+watcher.on("add", (srcFilePath, stats) => void onAddCopyFile(srcFilePath, stats));
+watcher.on("change", (srcFilePath, stats) => void onAddCopyFile(srcFilePath, stats));
+watcher.on("unlink", (srcFilePath) => void onUnlinkCopyFile(srcFilePath));
+
+// const fileCopyParams = [
+//     {
+//         srcFilePath: `${srcDir}/1GB_test_01.mp4`,
+//         destFilePath: `${destDir}/1GB_test_01.mp4.a2fm`,
+//         fileSizeBytes
+//     },
+//     {
+//         srcFilePath: `${srcDir}/1GB_test_02.mp4`,
+//         destFilePath: `${destDir}/1GB_test_02.mp4.a2fm`,
+//         fileSizeBytes
+//     },
+//     {
+//         srcFilePath: `${srcDir}/1GB_test_03.mp4`,
+//         destFilePath: `${destDir}/1GB_test_03.mp4.a2fm`,
+//         fileSizeBytes
+//     },
+//     {
+//         srcFilePath: `${srcDir}/1GB_test_04.mp4`,
+//         destFilePath: `${destDir}/1GB_test_04.mp4.a2fm`,
+//         fileSizeBytes
+//     },
+//     {
+//         srcFilePath: `${srcDir}/1GB_test_05.mp4`,
+//         destFilePath: `${destDir}/1GB_test_05.mp4.a2fm`,
+//         fileSizeBytes
+//     },
+//     {
+//         srcFilePath: `${srcDir}/1GB_test_06.mp4`,
+//         destFilePath: `${destDir}/1GB_test_06.mp4.a2fm`,
+//         fileSizeBytes
+//     },
+//     {
+//         srcFilePath: `${srcDir}/1GB_test_07.mp4`,
+//         destFilePath: `${destDir}/1GB_test_07.mp4.a2fm`,
+//         fileSizeBytes
+//     },
+//     {
+//         srcFilePath: `${srcDir}/1GB_test_08.mp4`,
+//         destFilePath: `${destDir}/1GB_test_08.mp4.a2fm`,
+//         fileSizeBytes
+//     },
+//     {
+//         srcFilePath: `${srcDir}/1GB_test_09.mp4`,
+//         destFilePath: `${destDir}/1GB_test_09.mp4.a2fm`,
+//         fileSizeBytes
+//     },
+//     {
+//         srcFilePath: `${srcDir}/1GB_test_10.mp4`,
+//         destFilePath: `${destDir}/1GB_test_10.mp4.a2fm`,
+//         fileSizeBytes
+//     },
+//     {
+//         srcFilePath: `${srcDir}/1GB_test_11.mp4`,
+//         destFilePath: `${destDir}/1GB_test_11.mp4.a2fm`,
+//         fileSizeBytes
+//     },
+//     {
+//         srcFilePath: `${srcDir}/1GB_test_12.mp4`,
+//         destFilePath: `${destDir}/1GB_test_12.mp4.a2fm`,
+//         fileSizeBytes
+//     }
+// ];
+
+// let i = 0;
+
+// setInterval(() => {
+//     const params = fileCopyParams[i];
+//     i += 1;
+
+//     if (params) {
+//         fileCopier.copyFile(params);
+//     }
+// }, 250);
+
+// const watchDirectory = (watchDirpath: string) => {
 //     try {
 //         const standardDelayMs = 1000;
 //         const stabilityThreshold = 5 * standardDelayMs;
 
-//         const watcher = watch(dir, {
+//         const watcher = watch(watchDirpath, {
 //             alwaysStat: true,
 //             atomic: standardDelayMs,
 //             awaitWriteFinish: { stabilityThreshold, pollInterval: standardDelayMs },
@@ -153,16 +177,18 @@ setTimeout(() => {
 //             ignoreInitial: true
 //         });
 
-//         console.log("starting...");
-
 //         const listener = (event: "add" | "addDir" | "change" | "unlink" | "unlinkDir", path: string, stats: Stats) => {
-//             // watcher.off("all", listener);
-
-//             // console.log(watcher.getWatched());
 //             console.log(`event: ${event}\t:   path: ${path}`);
 //             console.log(stats);
 
-//             // watcher.on("all", listener);
+//             const isMetadataFile = extname(path) === ".aspx";
+
+//             console.log(isMetadataFile);
+
+//             const { dir, name } = parse(path);
+//             const assetFilePath = join(dir, name);
+
+//             console.log(assetFilePath);
 //         };
 
 //         watcher.on("all", listener);
@@ -177,11 +203,10 @@ setTimeout(() => {
 //             console.log(watcher.options);
 //             console.log(watcher.getWatched());
 //             console.log(watcher.eventNames());
-//             void copyTest();
 //         });
 //     } catch (error) {
 //         console.log(error);
 //     }
 // };
 
-// watchDirectory("Z:/watch");
+// watchDirectory("C:/AAA/Aspera");

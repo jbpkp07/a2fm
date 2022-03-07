@@ -36,29 +36,29 @@ class A2FMRenderer extends ConsoleRenderer {
         this.renderIdleScreen();
     }
 
-    private clearIdleInterval(): void {
+    private clearIdleInterval = (): void => {
         if (!this.idleInterval) return;
 
         clearInterval(this.idleInterval);
 
         this.idleInterval = undefined;
-    }
+    };
 
-    private createIdleScreen(elapsedSeconds: number): string {
+    private createIdleScreen = (elapsedSeconds: number): string => {
         const { header, idle } = this.components;
         const idleProps = this.props.toIdleProps(elapsedSeconds);
 
         return header.create({}) + idle.create(idleProps);
-    }
+    };
 
-    private createMigrationScreen(params: ProgressQueueParams): string {
+    private createMigrationScreen = (params: ProgressQueueParams): string => {
         const { header, progress, queue } = this.components;
         const { progressProps, queueProps } = this.props.toProgressQueueProps(params);
 
         return header.create({}) + progress.create(progressProps) + queue.create(queueProps);
-    }
+    };
 
-    public renderIdleScreen(): void {
+    public renderIdleScreen = (): void => {
         if (this.idleInterval) return;
 
         let elapsedSeconds = 0;
@@ -72,15 +72,15 @@ class A2FMRenderer extends ConsoleRenderer {
         };
 
         this.idleInterval = setInterval(renderScreen, 1000);
-    }
+    };
 
-    public renderMigrationScreen(params: ProgressQueueParams): void {
+    public renderMigrationScreen = (params: ProgressQueueParams): void => {
         this.clearIdleInterval();
 
         const screen = this.createMigrationScreen(params);
 
         this.render(screen);
-    }
+    };
 }
 
 export default A2FMRenderer;
