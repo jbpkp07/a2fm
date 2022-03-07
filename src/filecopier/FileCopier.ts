@@ -1,3 +1,4 @@
+import WaitUtils from "../common/WaitUtils";
 import FileCopyEventEmitter, { Events as FileCopierEvents } from "./FileCopyEventEmitter";
 import FileCopyParams from "./FileCopyParams";
 import FileCopyParamsError from "./FileCopyParamsError";
@@ -6,6 +7,7 @@ import FileCopyStreams from "./FileCopyStreams";
 import FileSystemUtils from "./FileSystemUtils";
 
 const { deleteDirIfEmpty, deleteFile, makeDestDir, readFileSizeBytes, traverseBack } = FileSystemUtils;
+const { wait } = WaitUtils;
 
 class FileCopier extends FileCopyEventEmitter {
     private async tryCopyFileAsync(fileCopyParams: FileCopyParams, rollbackDirPath?: string): Promise<void> {
@@ -50,7 +52,11 @@ class FileCopier extends FileCopyEventEmitter {
     private async validateFileCopy(fileCopyParams: FileCopyParams): Promise<void> {
         const { srcFilePath, destFilePath, fileSizeBytes } = fileCopyParams;
 
-        const [srcFileSizeBytes, destFileSizeBytes] = await this.readFileSizes(srcFilePath, destFilePath);
+        const [srcFileSizeBytes, destFileSizeBytes] = await Promise.all([
+            readFileSizeBytes(srcFilePath),
+            readFileSizeBytes(destFilePath),
+            wait(100)
+        ]);
 
         if (srcFileSizeBytes !== fileSizeBytes) {
             throw new Error(`Source file size (${srcFileSizeBytes}) has changed, original size: ${fileSizeBytes}`);
@@ -59,13 +65,6 @@ class FileCopier extends FileCopyEventEmitter {
         if (srcFileSizeBytes !== destFileSizeBytes) {
             throw new Error(`Source file size (${srcFileSizeBytes}) !== destination file size (${destFileSizeBytes})`);
         }
-    }
-
-    private async readFileSizes(srcFilePath: string, destFilePath: string): Promise<[number, number]> {
-        const readSrcFileSizeBytes = readFileSizeBytes(srcFilePath);
-        const readDestFileSizeBytes = readFileSizeBytes(destFilePath);
-
-        return Promise.all([readSrcFileSizeBytes, readDestFileSizeBytes]);
     }
 
     private async rollback(fileCopyParams: FileCopyParams, rollbackDirPath?: string): Promise<void> {

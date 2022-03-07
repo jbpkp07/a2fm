@@ -13,7 +13,7 @@ const extractAllListeners = (): Function[] => {
         eventEmitter.listeners("copy:finish"),
         eventEmitter.listeners("error"),
         eventEmitter.listeners("idle"),
-        eventEmitter.listeners("queue")
+        eventEmitter.listeners("enqueue")
     );
 };
 
@@ -25,7 +25,7 @@ const progressListener = (update: Update) => results.push(update);
 const finishListener = (update: Update) => results.push(update);
 const errorListener = (error: FileCopyParamsError) => results.push(error);
 const idleListener = () => results.push("idle");
-const queueListener = (update: Update) => results.push(update);
+const enqueueListener = (update: Update) => results.push(update);
 
 describe("SequentialFileCopyEventEmitter", () => {
     test("emit returns false w/o listener", () => {
@@ -42,7 +42,7 @@ describe("SequentialFileCopyEventEmitter", () => {
             .on("copy:finish", finishListener)
             .on("error", errorListener)
             .on("idle", idleListener)
-            .on("queue", queueListener);
+            .on("enqueue", enqueueListener);
 
         const listeners = extractAllListeners();
 
@@ -53,7 +53,7 @@ describe("SequentialFileCopyEventEmitter", () => {
             finishListener,
             errorListener,
             idleListener,
-            queueListener
+            enqueueListener
         ]);
     });
 
@@ -82,7 +82,7 @@ describe("SequentialFileCopyEventEmitter", () => {
         eventEmitter.emit("copy:finish", update);
         eventEmitter.emit("error", error);
         eventEmitter.emit("idle", undefined);
-        eventEmitter.emit("queue", update);
+        eventEmitter.emit("enqueue", update);
 
         expect(results).toStrictEqual(["active", update, update, update, error, "idle", update]);
     });
@@ -95,10 +95,10 @@ describe("SequentialFileCopyEventEmitter", () => {
         ];
 
         process.nextTick(() => {
-            eventEmitter.emit("queue", { progress, queue });
+            eventEmitter.emit("enqueue", { progress, queue });
         });
 
-        const result = await eventEmitter.wait("queue");
+        const result = await eventEmitter.wait("enqueue");
 
         expect(result).toStrictEqual({ progress, queue });
     });
@@ -111,7 +111,7 @@ describe("SequentialFileCopyEventEmitter", () => {
             .off("copy:finish", finishListener)
             .off("error", errorListener)
             .off("idle", idleListener)
-            .off("queue", queueListener);
+            .off("enqueue", enqueueListener);
 
         const listeners = extractAllListeners();
 

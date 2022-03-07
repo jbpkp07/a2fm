@@ -14,9 +14,9 @@ type EventValues = {
     readonly "copy:start": Update;
     readonly "copy:progress": Update;
     readonly "copy:finish": Update;
+    readonly "enqueue": Update;
     readonly "error": FileCopyParamsError; 
     readonly "idle": undefined;
-    readonly "queue": Update;
 };
 type Events = keyof EventValues;
 type EventListener<E extends Events> = (value: EventValues[E]) => void;

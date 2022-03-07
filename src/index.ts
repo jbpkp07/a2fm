@@ -1,50 +1,190 @@
+import SequentialFileCopier from "./filecopier";
 import A2FMRenderer from "./renderer/A2FMRenderer";
 
 const renderer = new A2FMRenderer();
+const copier = new SequentialFileCopier();
 
-const MB50 = 50 * 1024 ** 2;
-const GB5 = 5 * 1024 ** 3;
+copier.on("idle", () => {
+    renderer.renderIdleScreen();
+});
 
-let percentage = 0;
-let bytesWritten = 0;
-let elapsedSeconds = 0;
+copier.on("copy:start", (params) => {
+    renderer.renderMigrationScreen(params);
+});
 
-function getParams() {
-    return {
-        progress: {
-            bytesPerSecond: Math.random() * (2 * MB50),
-            bytesWritten: bytesWritten % (GB5 + MB50),
-            elapsedSeconds: elapsedSeconds % 101,
-            fileCopyParams: {
-                srcFilePath:
-                    "srcDir1alksjdflak;sjdfalskdjfalsk;dfjalal;aksdjflkasdjfasl;kdjsk;dfj/la;ksdjfal;ksjdfalksdfjasldk;fjasdlkfjlaksdjfal;sdkfjasldkf;jsrcFile1",
-                destFilePath: "destDir1/destFile1",
-                fileSizeBytes: -123
-            },
-            fileSizeBytes: GB5,
-            percentage: percentage % 101
-        },
-        queue: [
-            {
-                srcFilePath: "srcDir2/srcFile2",
-                destFilePath: "destDir2/destFile2",
-                fileSizeBytes: MB50
-            },
-            {
-                srcFilePath: "srcDir3/srcFile3",
-                destFilePath: "destDir3/destFile3",
-                fileSizeBytes: MB50
-            }
-        ]
-    };
-}
+copier.on("copy:progress", (params) => {
+    renderer.renderMigrationScreen(params);
+});
 
-setInterval(() => {
-    renderer.renderMigrationScreen(getParams());
-    percentage += 1;
-    bytesWritten += MB50;
-    elapsedSeconds += 1;
-}, 1000);
+copier.on("copy:finish", (params) => {
+    renderer.renderMigrationScreen(params);
+});
+
+copier.on("enqueue", (params) => {
+    renderer.renderMigrationScreen(params);
+});
+
+const srcFilePath = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/movie1/1GB_test_1.mp4";
+const root = __dirname;
+const fileSizeBytes = 1064551156;
+
+// const srcFilePath = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/jbtest/Movies/movie4/jbtest-x.mp4";
+// const srcFilePath =
+//     "C:/Users/jeremy.barnes/Desktop/Sprint Extras/jbtest/Movies/movie4/2021 Turkey Shoot Doubles Winners.jpg";
+// const root = "Z:";
+// const fileSizeBytes = 108663259;
+// const fileSizeBytes = 695157;
+
+const fileCopyParams = [
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie1.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie2.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie3.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie4.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie5.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie6.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie7.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie8.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie9.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie10.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie11.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie12.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie13.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie14.mp4`,
+        fileSizeBytes
+    },
+    {
+        srcFilePath,
+        destFilePath: `${root}/tempMovie15.mp4`,
+        fileSizeBytes
+    }
+];
+
+let i = 0;
+
+const int1 = setInterval(() => {
+    const params = fileCopyParams[i];
+    i += 1;
+
+    if (params) {
+        copier.copyFile(params);
+    }
+}, 500);
+
+// setTimeout(() => {
+//     clearInterval(int1);
+//     i = 0;
+
+//     setInterval(() => {
+//         i += 1;
+//         const params = fileCopyParams[i];
+
+//         if (params) {
+//             copier.copyFile(params);
+//         }
+//     }, 250);
+// }, 60000);
+
+// import A2FMRenderer from "./renderer/A2FMRenderer";
+
+// const renderer = new A2FMRenderer();
+
+// const MB50 = 50 * 1024 ** 2;
+// const GB5 = 5 * 1024 ** 3;
+
+// let percentage = 0;
+// let bytesWritten = 0;
+// let elapsedSeconds = 0;
+
+// function getParams() {
+//     return {
+//         progress: {
+//             bytesPerSecond: Math.random() * (2 * MB50),
+//             bytesWritten: bytesWritten % (GB5 + MB50),
+//             elapsedSeconds: elapsedSeconds % 101,
+//             fileCopyParams: {
+//                 srcFilePath:
+//                     "srcDir1alksjdflak;sjdfalskdjfalsk;dfjalal;aksdjflkasdjfasl;kdjsk;dfj/la;ksdjfal;ksjdfalksdfjasldk;fjasdlkfjlaksdjfal;sdkfjasldkf;jsrcFile1",
+//                 destFilePath: "destDir1/destFile1",
+//                 fileSizeBytes: -123
+//             },
+//             fileSizeBytes: GB5,
+//             percentage: percentage % 101
+//         },
+//         queue: [
+//             {
+//                 srcFilePath: "srcDir2/srcFile2",
+//                 destFilePath: "destDir2/destFile2",
+//                 fileSizeBytes: MB50
+//             },
+//             {
+//                 srcFilePath: "srcDir3/srcFile3",
+//                 destFilePath: "destDir3/destFile3",
+//                 fileSizeBytes: MB50
+//             }
+//         ]
+//     };
+// }
+
+// setInterval(() => {
+//     renderer.renderMigrationScreen(getParams());
+//     percentage += 1;
+//     bytesWritten += MB50;
+//     elapsedSeconds += 1;
+// }, 1000);
 
 // const a2fmProps = new A2FMRendererProps({ cols: 80 });
 
@@ -54,123 +194,6 @@ setInterval(() => {
 
 // console.log(props.progressProps);
 // console.dir(props.queueProps, { depth: null });
-
-// import A2FMRenderer from "./renderer/A2FMRenderer";
-
-// const renderer = new A2FMRenderer({ cols: 151, queueLimit: 10, rows: 40 });
-// const screen = renderer.createScreen();
-// renderer.render(screen);
-
-//* eslint-disable sonarjs/no-duplicate-string */
-// import Header from "./renderer/components/Header";
-// import MigrationProgress from "./renderer/components/MigrationProgress";
-// import MigrationQueue from "./renderer/components/MigrationQueue";
-// import ConsoleRenderer from "./renderer/console/ConsoleRenderer";
-
-// const cols = 151;
-
-// const renderer = new ConsoleRenderer({ cols, rows: 40, hideCursor: true });
-
-// function getMigrations() {
-//     return [
-//         {
-//             srcFilePath: "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345.mp4",
-//             eta: { value: Math.floor(Math.random() * 200), units: "s" }
-//         },
-//         {
-//             srcFilePath:
-//                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-//             eta: { value: Math.floor(Math.random() * 200), units: "m" }
-//         },
-//         {
-//             srcFilePath:
-//                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-//             eta: { value: Math.floor(Math.random() * 200), units: "m" }
-//         },
-//         {
-//             srcFilePath:
-//                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-//             eta: { value: Math.floor(Math.random() * 200), units: "m" }
-//         },
-//         {
-//             srcFilePath:
-//                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-//             eta: { value: Math.floor(Math.random() * 200), units: "m" }
-//         },
-//         {
-//             srcFilePath:
-//                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-//             eta: { value: Math.floor(Math.random() * 200), units: "m" }
-//         },
-//         {
-//             srcFilePath:
-//                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-//             eta: { value: Math.floor(Math.random() * 200), units: "m" }
-//         },
-//         {
-//             srcFilePath:
-//                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-//             eta: { value: Math.floor(Math.random() * 200), units: "m" }
-//         },
-//         {
-//             srcFilePath:
-//                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-//             eta: { value: Math.floor(Math.random() * 200), units: "m" }
-//         },
-//         {
-//             srcFilePath: "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345.mp4",
-//             eta: { value: Math.floor(Math.random() * 200), units: "h" }
-//         },
-//         {
-//             srcFilePath:
-//                 "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345.mp4",
-//             eta: { value: Math.floor(Math.random() * 200), units: "m" }
-//         },
-//         {
-//             srcFilePath: "Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345.mp4",
-//             eta: { value: Math.floor(Math.random() * 200), units: "h" }
-//         }
-//     ];
-// }
-
-// let eta = 47;
-// let size = 250;
-// let percent = 95;
-// let rate = 120;
-// let elapsed = 123;
-
-// function getProps() {
-//     return {
-//         cols,
-//         destFilePath:
-//             "I:/Some really long directory name/directory/Some_random_file_path_1_abcdefghij_123_Some_random_file_path_12345Some_random_file_path_1_abcdefghij_123_Some_random_file_path_SomeFilePath_12345678.a2fm",
-//         destFileSize: { value: size, units: "GB" },
-//         eta: { value: eta, units: "s" },
-//         percentage: percent % 101,
-//         rate: { value: rate, units: "MB/s" },
-//         srcFilePath:
-//             "S:/Some really long directory name/directory1/directory2/directory3/directory4/directory5/directory6/directory7/The_file_to_migrate.mp4.a2fm",
-//         srcFileSize: { value: size, units: "TB" },
-//         elapsedTime: { value: elapsed, units: "s" },
-//         isIdle: false
-//     };
-// }
-
-// const header = new Header({ cols, marginCols: 1 });
-// const progress = new MigrationProgress({ cols, marginCols: 2 });
-// const queue = new MigrationQueue({ cols, limit: 10, marginCols: 2 });
-
-// setInterval(() => {
-//     percent += 1;
-//     eta = Math.floor(Math.random() * 200);
-//     size = Math.floor(Math.random() * 200);
-//     rate = Math.floor(Math.random() * 200);
-//     elapsed = Math.floor(Math.random() * 200);
-
-//     const screen = header.create({}) + progress.create(getProps()) + queue.create({ queue: getMigrations() });
-
-//     renderer.render(screen);
-// }, 1000);
 
 // import { watch } from "chokidar";
 

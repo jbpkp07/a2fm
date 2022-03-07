@@ -1,11 +1,14 @@
 import { isDeepStrictEqual as isEqual } from "util";
 
+import WaitUtils from "../common/WaitUtils";
 import FileCopier, { FileCopierEvents } from "./FileCopier";
 import FileCopyParams from "./FileCopyParams";
 import FileCopyParamsError from "./FileCopyParamsError";
 import FileCopyProgress from "./FileCopyProgress";
 import Queue from "./Queue";
 import SequentialFileCopyEventEmitter, { Events } from "./SequentialFileCopyEventEmitter";
+
+const { wait } = WaitUtils;
 
 type SeqFileCopierEvents = Extract<Events, "copy:start" | "copy:progress" | "copy:finish">;
 
@@ -46,9 +49,9 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
 
             this.progress = new FileCopyProgress(fileCopyParams);
 
-            this.updateQueue();
-
             await this.tryCopyFile(fileCopyParams); // eslint-disable-line no-await-in-loop
+
+            await wait(2000); // eslint-disable-line no-await-in-loop
         }
 
         this.updateIsIdle();
@@ -74,6 +77,15 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
         }
     }
 
+    private updateEnqueue(): void {
+        const { progress } = this;
+
+        if (progress) {
+            const queue = this.queue.peekQueue();
+            this.emit("enqueue", { progress, queue });
+        }
+    }
+
     private updateError(fileCopyParams: FileCopyParams, error: unknown): void {
         const fileCopyParamsError = FileCopyParamsError.from(fileCopyParams, error);
         this.emit("error", fileCopyParamsError);
@@ -89,20 +101,11 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
         this.emit("idle", undefined);
     }
 
-    private updateQueue(): void {
-        const { progress } = this;
-
-        if (progress) {
-            const queue = this.queue.peekQueue();
-            this.emit("queue", { progress, queue });
-        }
-    }
-
     public copyFile(fileCopyParams: FileCopyParams): this {
         this.enqueue(fileCopyParams);
 
         if (this.isActive) {
-            this.updateQueue();
+            this.updateEnqueue();
         } else {
             void this.activateWorker();
         }

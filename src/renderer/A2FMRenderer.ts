@@ -71,8 +71,6 @@ class A2FMRenderer extends ConsoleRenderer {
             elapsedSeconds += 1;
         };
 
-        renderScreen();
-
         this.idleInterval = setInterval(renderScreen, 1000);
     }
 
