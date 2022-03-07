@@ -65,9 +65,10 @@ class A2FMRendererProps {
         const { etaBytesPerSecond, progressEtaSeconds } = this;
 
         let queueEtaSeconds = progressEtaSeconds;
+        const waitSeconds = 2;
 
         const toProps = ({ fileSizeBytes, srcFilePath }: FileCopyParams) => {
-            queueEtaSeconds += calcEtaSeconds({ etaBytesPerSecond, fileSizeBytes });
+            queueEtaSeconds += waitSeconds + calcEtaSeconds({ etaBytesPerSecond, fileSizeBytes });
 
             return { eta: toTime(queueEtaSeconds), srcFileName: basename(srcFilePath) };
         };

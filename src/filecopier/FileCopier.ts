@@ -55,7 +55,7 @@ class FileCopier extends FileCopyEventEmitter {
         const [srcFileSizeBytes, destFileSizeBytes] = await Promise.all([
             readFileSizeBytes(srcFilePath),
             readFileSizeBytes(destFilePath),
-            wait(100)
+            wait(250) // normalizes validation time for ETA calculations
         ]);
 
         if (srcFileSizeBytes !== fileSizeBytes) {

@@ -1,6 +1,6 @@
 import ValueUnits, { Units } from "./components/common/ValueUnits";
 
-const { ceil, round } = Math;
+const { round } = Math;
 
 interface CalcEtaSecondsProps {
     readonly bytesWritten?: number;
@@ -17,9 +17,12 @@ class A2FMRendererUtils {
 
     public static calcEtaSeconds = (props: CalcEtaSecondsProps): number => {
         const { bytesWritten, etaBytesPerSecond, fileSizeBytes } = props;
-        const remainingBytes = fileSizeBytes - (bytesWritten ?? 0);
 
-        return remainingBytes / etaBytesPerSecond;
+        const remainingBytes = fileSizeBytes - (bytesWritten ?? 0);
+        const baseEta = remainingBytes / etaBytesPerSecond;
+        const validationSeconds = 0.25;
+
+        return baseEta === 0 ? baseEta : baseEta + validationSeconds;
     };
 
     public static toRate = (bytesPerSecond: number): ValueUnits => {
@@ -59,14 +62,14 @@ class A2FMRendererUtils {
     };
 
     public static toTime = (seconds: number): ValueUnits => {
-        let value = ceil(seconds);
+        let value = round(seconds);
         let units: Units = "s";
 
         const largerUnits: Units[] = ["m", "h"];
 
         for (const unit of largerUnits) {
             if (value >= 60) {
-                value = ceil(value / 60);
+                value = round(value / 60);
                 units = unit;
             }
         }

@@ -29,8 +29,7 @@ const root = __dirname;
 const fileSizeBytes = 1064551156;
 
 // const srcFilePath = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/jbtest/Movies/movie4/jbtest-x.mp4";
-// const srcFilePath =
-//     "C:/Users/jeremy.barnes/Desktop/Sprint Extras/jbtest/Movies/movie4/2021 Turkey Shoot Doubles Winners.jpg";
+// const srcFilePath = "C:/Users/jeremy.barnes/Desktop/Sprint Extras/jbtest/Movies/movie4/2021 Turkey Shoot Doubles Winners.jpg";
 // const root = "Z:";
 // const fileSizeBytes = 108663259;
 // const fileSizeBytes = 695157;
@@ -122,21 +121,21 @@ const int1 = setInterval(() => {
     if (params) {
         copier.copyFile(params);
     }
-}, 500);
+}, 100);
 
-// setTimeout(() => {
-//     clearInterval(int1);
-//     i = 0;
+setTimeout(() => {
+    clearInterval(int1);
+    i = 0;
 
-//     setInterval(() => {
-//         i += 1;
-//         const params = fileCopyParams[i];
+    setInterval(() => {
+        i += 1;
+        const params = fileCopyParams[i];
 
-//         if (params) {
-//             copier.copyFile(params);
-//         }
-//     }, 250);
-// }, 60000);
+        if (params) {
+            copier.copyFile(params);
+        }
+    }, 250);
+}, 60000);
 
 // import A2FMRenderer from "./renderer/A2FMRenderer";
 
