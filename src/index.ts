@@ -7,7 +7,7 @@ import FileSystemUtils from "./common/FileSystemUtils";
 import SequentialFileCopier from "./filecopier";
 import A2FMRenderer from "./renderer";
 
-const { deleteFile, exists, readFileSizeBytes, removeFileExt } = FileSystemUtils;
+const { deleteFile, exists, readFileSizeBytes, removeFileExt, trimFileExt } = FileSystemUtils;
 
 // const renderer = new A2FMRenderer();
 // const fileCopier = new SequentialFileCopier();
@@ -91,8 +91,7 @@ const onUnlinkCopyFile = async (srcFilePath: string) => {
 
     if (!isMetadataFile) return;
 
-    const { dir, name } = parse(srcFilePath);
-    const assetFilePath = join(dir, name);
+    const assetFilePath = trimFileExt(srcFilePath);
 
     const hasAssetFile = await exists(assetFilePath);
 

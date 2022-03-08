@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { once } from "events";
 import { existsSync } from "fs";
 import { mkdir, rm, writeFile } from "fs/promises";
-import { normalize, resolve } from "path";
+import { normalize, resolve, sep } from "path";
 
 import FileSystemUtils from "../src/common/FileSystemUtils";
 
@@ -751,6 +751,52 @@ describe("FileSystemUtils", () => {
             [],
             [],
             []
+        ];
+
+        expect(results).toStrictEqual(expected);
+    });
+
+    test("trimFileExt", () => {
+        const { trimFileExt } = FileSystemUtils;
+
+        const results: string[] = [
+            trimFileExt("/"),
+            trimFileExt("/C"),
+            trimFileExt("C"),
+            trimFileExt("C:/"),
+            trimFileExt("C:/a"),
+            trimFileExt("C:/."),
+            trimFileExt("C:/.a"),
+            trimFileExt("C:/.abc"),
+            trimFileExt("C:/.abc."),
+            trimFileExt("C:/.abc.x"),
+            trimFileExt("C:/.abc.x/"),
+            trimFileExt("C:/.abc.x/y"),
+            trimFileExt("C:/.abc.x/y.t"),
+            trimFileExt("C:/.abc.x/y.t.m"),
+            trimFileExt("C:/.abc.x/y.t.m."),
+            trimFileExt("C:/dir1/dir2/file.ext1.ext2"),
+            trimFileExt("C:/dirWithExt.ext//\\//")
+        ];
+
+        const expected: string[] = [
+            sep,
+            `${sep}C`,
+            "C",
+            `C:${sep}`,
+            `C:${sep}a`,
+            `C:${sep}`,
+            `C:${sep}.a`,
+            `C:${sep}.abc`,
+            `C:${sep}.abc`,
+            `C:${sep}.abc`,
+            `C:${sep}.abc.x${sep}`,
+            `C:${sep}.abc.x${sep}y`,
+            `C:${sep}.abc.x${sep}y`,
+            `C:${sep}.abc.x${sep}y.t`,
+            `C:${sep}.abc.x${sep}y.t.m`,
+            `C:${sep}dir1${sep}dir2${sep}file.ext1`,
+            `C:${sep}dirWithExt.ext${sep}`
         ];
 
         expect(results).toStrictEqual(expected);

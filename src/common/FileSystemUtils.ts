@@ -131,8 +131,7 @@ class FileSystemUtils {
     };
 
     public static removeFileExt = async (filePath: string): Promise<void> => {
-        const { dir, name } = parse(filePath);
-        const newPath = join(dir, name);
+        const newPath = this.trimFileExt(filePath);
 
         await this.renamePath(filePath, newPath);
     };
@@ -159,6 +158,16 @@ class FileSystemUtils {
         }
 
         return traversedPaths;
+    };
+
+    public static trimFileExt = (filePath: string): string => {
+        if (filePath.endsWith("/") || filePath.endsWith("\\")) {
+            return normalize(filePath);
+        }
+
+        const { dir, name } = parse(filePath);
+
+        return join(dir, name);
     };
 }
 
