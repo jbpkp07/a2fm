@@ -1,8 +1,9 @@
 import ValueUnits, { Units } from "./components/common/ValueUnits";
 
 const { round } = Math;
+const { isNaN } = Number;
 
-interface CalcEtaSecondsProps {
+interface CalcEtaSecondsParams {
     readonly bytesWritten?: number;
     readonly etaBytesPerSecond: number;
     readonly fileSizeBytes: number;
@@ -15,14 +16,18 @@ class A2FMRendererUtils {
         return value > 999 ? 999 : value;
     };
 
-    public static calcEtaSeconds = (props: CalcEtaSecondsProps): number => {
-        const { bytesWritten, etaBytesPerSecond, fileSizeBytes } = props;
+    public static calcEtaSeconds = (params: CalcEtaSecondsParams): number => {
+        const { bytesWritten, etaBytesPerSecond, fileSizeBytes } = params;
 
         const remainingBytes = fileSizeBytes - (bytesWritten ?? 0);
-        const baseEta = remainingBytes / etaBytesPerSecond;
+        const baseEtaSeconds = remainingBytes / etaBytesPerSecond;
         const validationSeconds = 0.25;
 
-        return baseEta === 0 ? baseEta : baseEta + validationSeconds;
+        if (baseEtaSeconds <= 0 || isNaN(baseEtaSeconds)) {
+            return 0;
+        }
+
+        return baseEtaSeconds + validationSeconds;
     };
 
     public static toRate = (bytesPerSecond: number): ValueUnits => {
