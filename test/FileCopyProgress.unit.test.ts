@@ -1,20 +1,28 @@
+import { randomUUID } from "crypto";
+
 import FileCopyProgress from "../src/filecopier/FileCopyProgress";
+
+const params = {
+    id: randomUUID(),
+    srcFilePath: "a",
+    destFilePath: "b"
+};
 
 describe("FileCopyProgress", () => {
     test("initialization", () => {
-        const progress = new FileCopyProgress({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10000 });
+        const progress = new FileCopyProgress({ ...params, fileSizeBytes: 1000 });
 
         expect(progress.bytesPerSecond).toBe(0);
         expect(progress.bytesWritten).toBe(0);
         expect(progress.elapsedSeconds).toBe(0);
-        expect(progress.fileSizeBytes).toBe(10000);
+        expect(progress.fileSizeBytes).toBe(1000);
         expect(progress.inProgress).toBe(true);
         expect(progress.percentage).toBe(0);
-        expect(progress.fileCopyParams).toStrictEqual({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10000 });
+        expect(progress.fileCopyParams).toStrictEqual({ ...params, fileSizeBytes: 1000 });
     });
 
     test("update (timer not started, no provided elapsed time)", () => {
-        const progress = new FileCopyProgress({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10000 });
+        const progress = new FileCopyProgress({ ...params, fileSizeBytes: 10000 });
         progress.update(10);
 
         expect(progress.bytesPerSecond).toBe(0);
@@ -26,7 +34,7 @@ describe("FileCopyProgress", () => {
     });
 
     test("update (timer started, no provided elapsed time)", () => {
-        const progress = new FileCopyProgress({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10000 });
+        const progress = new FileCopyProgress({ ...params, fileSizeBytes: 10000 });
         progress.startTimer();
         progress.update(10);
 
@@ -40,7 +48,7 @@ describe("FileCopyProgress", () => {
     });
 
     test("update (timer started, provided elapsed time)", () => {
-        const progress = new FileCopyProgress({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10000 });
+        const progress = new FileCopyProgress({ ...params, fileSizeBytes: 10000 });
         progress.startTimer();
         progress.update(5031.174256, 500);
 
@@ -53,7 +61,7 @@ describe("FileCopyProgress", () => {
     });
 
     test("update (no elapsed time, no bytes written)", () => {
-        const progress = new FileCopyProgress({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10000 });
+        const progress = new FileCopyProgress({ ...params, fileSizeBytes: 10000 });
         progress.update(0, 0);
 
         expect(progress.bytesPerSecond).toBe(0);
@@ -65,7 +73,7 @@ describe("FileCopyProgress", () => {
     });
 
     test("update (no elapsed time, bytes written)", () => {
-        const progress = new FileCopyProgress({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10000 });
+        const progress = new FileCopyProgress({ ...params, fileSizeBytes: 10000 });
         progress.update(10, 0);
 
         expect(progress.bytesPerSecond).toBe(0);
@@ -77,7 +85,7 @@ describe("FileCopyProgress", () => {
     });
 
     test("update (zero fileSizeBytes, no bytes written)", () => {
-        const progress = new FileCopyProgress({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 0 });
+        const progress = new FileCopyProgress({ ...params, fileSizeBytes: 0 });
         progress.update(0, 500);
 
         expect(progress.bytesPerSecond).toBe(0);
@@ -89,7 +97,7 @@ describe("FileCopyProgress", () => {
     });
 
     test("update (zero fileSizeBytes, bytes written)", () => {
-        const progress = new FileCopyProgress({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 0 });
+        const progress = new FileCopyProgress({ ...params, fileSizeBytes: 0 });
         progress.update(10, 500);
 
         expect(progress.bytesPerSecond).toBe(20000);
@@ -101,7 +109,7 @@ describe("FileCopyProgress", () => {
     });
 
     test("update (non-integer inputs)", () => {
-        const progress = new FileCopyProgress({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10000.789 });
+        const progress = new FileCopyProgress({ ...params, fileSizeBytes: 10000.789 });
         progress.update(120.789, 1000.789); // 120,693.77 Bps
 
         expect(progress.bytesPerSecond).toBe(119905);
@@ -113,7 +121,7 @@ describe("FileCopyProgress", () => {
     });
 
     test("update (no elapsed time, non-integer inputs)", () => {
-        const progress = new FileCopyProgress({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10000.789 });
+        const progress = new FileCopyProgress({ ...params, fileSizeBytes: 10000.789 });
         progress.update(220.789, 0);
 
         expect(progress.bytesPerSecond).toBe(0);
@@ -125,7 +133,7 @@ describe("FileCopyProgress", () => {
     });
 
     test("update (multiple)", () => {
-        const progress = new FileCopyProgress({ srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10000 });
+        const progress = new FileCopyProgress({ ...params, fileSizeBytes: 10000 });
         progress.update(5, 90000); // 55 Bps
         progress.update(100, 100000); // 1000 Bps
         progress.update(200, 1000000); // 200 Bps

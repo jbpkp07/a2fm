@@ -702,6 +702,35 @@ describe("FileSystemUtils", () => {
         expect(hasPassed).toBe(true);
     });
 
+    test("removeIllegalChars", () => {
+        const { removeIllegalChars } = FileSystemUtils;
+
+        const path = 'C://\\:*?"<>|dir123//... ex\t\n\rample file:*?"<>|.txt\t\n\r';
+
+        const result = removeIllegalChars(path);
+        const expected = `C:${sep}dir123${sep}... example file.txt`;
+
+        expect(result).toBe(expected);
+    });
+
+    test("sanitize", () => {
+        const { sanitize } = FileSystemUtils;
+
+        const results: string[] = [
+            sanitize('  C:// : * ? " < > |dir123//    ... ex\t\n\rample file:*?"<>|.txt . . \t\n\r . /  / ... / '),
+            sanitize("C:\\\\rootDir//dir123   /someOtherDir/ finalDir //////file   .txt /      "),
+            sanitize("    C:     \\  rootDir  //   dir123. . ./file.txt.///")
+        ];
+
+        const expected: string[] = [
+            `C:${sep}dir123${sep}... example file.txt`,
+            `C:${sep}rootDir${sep}dir123${sep}someOtherDir${sep}finalDir${sep}file   .txt`,
+            `C:${sep}rootDir${sep}dir123${sep}file.txt`
+        ];
+
+        expect(results).toStrictEqual(expected);
+    });
+
     test("traverseBack", () => {
         const { traverseBack } = FileSystemUtils;
 
@@ -800,5 +829,16 @@ describe("FileSystemUtils", () => {
         ];
 
         expect(results).toStrictEqual(expected);
+    });
+
+    test("trimSegments", () => {
+        const { trimSegments } = FileSystemUtils;
+
+        const path = "C://\\ \t dir123//  ... example file.txt . . . \\... /";
+
+        const result = trimSegments(path);
+        const expected = `C:${sep}dir123${sep}... example file.txt`;
+
+        expect(result).toBe(expected);
     });
 });

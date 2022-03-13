@@ -11,6 +11,10 @@ interface StreamOptions {
 class FileSystemUtils {
     private constructor() {}
 
+    private static readonly illegalPathChars = /[\t\n\r*?"<>|:]/g;
+
+    private static readonly illegalRootChars = /[\t\n\r*?"<>|]/g;
+
     private static calcHighWaterMark = (fileSizeBytes: number): number => {
         const defaultHighWaterMark = 65536; // 64 * 1024
         const drainCount = 100;
@@ -136,12 +140,31 @@ class FileSystemUtils {
         await this.renamePath(filePath, newPath);
     };
 
+    public static removeIllegalChars = (path: string): string => {
+        const segments = normalize(path).split(sep);
+
+        for (let i = 0; i < segments.length; i++) {
+            const segment = segments[i] as string;
+            const illegalChars = i === 0 ? this.illegalRootChars : this.illegalPathChars;
+
+            segments[i] = segment.replace(illegalChars, "");
+        }
+
+        return join(...segments);
+    };
+
     public static renamePath = async (oldPath: string, newPath: string): Promise<void> => {
         try {
             await rename(oldPath, newPath);
         } catch (error) {
             throw this.newError(error, `Failed to rename file at: ${oldPath}`);
         }
+    };
+
+    public static sanitize = (path: string): string => {
+        const legalPath = this.removeIllegalChars(path);
+
+        return this.trimSegments(legalPath);
     };
 
     public static traverseBack = (fromChildPath: string, toParentPath: string): string[] => {
@@ -168,6 +191,22 @@ class FileSystemUtils {
         const { dir, name } = parse(filePath);
 
         return join(dir, name);
+    };
+
+    public static trimSegments = (path: string): string => {
+        const segments = normalize(path).split(sep);
+
+        for (let i = 0; i < segments.length; i++) {
+            let segment = segments[i]?.trim() as string;
+
+            while (segment.endsWith(".")) {
+                segment = segment.substring(0, segment.length - 1).trimEnd();
+            }
+
+            segments[i] = segment;
+        }
+
+        return join(...segments);
     };
 }
 

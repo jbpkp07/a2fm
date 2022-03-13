@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import { isDeepStrictEqual as isEqual } from "util";
 
 import Queue from "../common/Queue";
@@ -49,10 +50,12 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
 
             this.progress = new FileCopyProgress(fileCopyParams);
 
-            await this.tryCopyFile(fileCopyParams); // eslint-disable-line no-await-in-loop
+            await this.tryCopyFile(fileCopyParams);
 
-            await wait(2000); // eslint-disable-line no-await-in-loop
+            await wait(2000);
         }
+
+        this.progress = undefined;
 
         this.updateIsIdle();
     }

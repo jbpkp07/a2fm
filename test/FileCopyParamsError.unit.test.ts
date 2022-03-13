@@ -2,7 +2,7 @@ import FileCopyParams from "../src/filecopier/FileCopyParams";
 import FileCopyParamsError from "../src/filecopier/FileCopyParamsError";
 
 // prettier-ignore
-const params: FileCopyParams = { srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10 };
+const params: FileCopyParams = { id: "123", srcFilePath: "a", destFilePath: "b", fileSizeBytes: 10 };
 
 //-----------------------------------------------------------------------------
 // Align errors with line numbers

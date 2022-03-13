@@ -11,6 +11,7 @@ let progressCount: number;
 let fileSizeBytes: number;
 
 const fileCopier = new FileCopier();
+const id = randomUUID();
 const srcFilePath = resolve(__dirname, ".tmp", randomUUID());
 const destFilePath = resolve(__dirname, ".tmp", randomUUID());
 
@@ -79,7 +80,7 @@ describe("FileCopier", () => {
         writeSrcFile();
 
         try {
-            await fileCopier.copyFile({ srcFilePath, destFilePath, fileSizeBytes });
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
 
             if (!existsSync(srcFilePath) || !existsSync(destFilePath)) {
                 hasPassed = false;
@@ -103,7 +104,7 @@ describe("FileCopier", () => {
         writeSrcFile();
 
         try {
-            await fileCopier.copyFile({ srcFilePath, destFilePath, fileSizeBytes });
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
 
             if (!existsSync(srcFilePath) || !existsSync(destFilePath)) {
                 hasPassed = false;
@@ -127,7 +128,7 @@ describe("FileCopier", () => {
         writeSrcFile();
 
         try {
-            await fileCopier.copyFile({ srcFilePath, destFilePath, fileSizeBytes });
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
 
             if (!existsSync(srcFilePath) || !existsSync(destFilePath)) {
                 hasPassed = false;
@@ -151,7 +152,7 @@ describe("FileCopier", () => {
         writeSrcFile();
 
         try {
-            await fileCopier.copyFile({ srcFilePath, destFilePath, fileSizeBytes });
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
 
             if (!existsSync(srcFilePath) || !existsSync(destFilePath)) {
                 hasPassed = false;
@@ -175,7 +176,7 @@ describe("FileCopier", () => {
         writeSrcFile();
 
         try {
-            await fileCopier.copyFile({ srcFilePath, destFilePath, fileSizeBytes });
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
 
             if (!existsSync(srcFilePath) || !existsSync(destFilePath)) {
                 hasPassed = false;
@@ -199,7 +200,7 @@ describe("FileCopier", () => {
         writeSrcFile();
 
         try {
-            await fileCopier.copyFile({ srcFilePath, destFilePath, fileSizeBytes });
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
 
             if (!existsSync(srcFilePath) || !existsSync(destFilePath)) {
                 hasPassed = false;
@@ -224,7 +225,7 @@ describe("FileCopier", () => {
         const altDestFilePath = resolve(baseDestFilePath, "dir2", "dir3", randomUUID());
 
         try {
-            await fileCopier.copyFile({ srcFilePath, destFilePath: altDestFilePath, fileSizeBytes });
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath: altDestFilePath, fileSizeBytes });
 
             hasPassed = false; // should throw, missing src file
         } catch {
