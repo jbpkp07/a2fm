@@ -1,5 +1,5 @@
 import { createReadStream, createWriteStream, ReadStream, Stats, WriteStream } from "fs";
-import { mkdir, readdir, rename, rm, rmdir, stat } from "fs/promises";
+import { mkdir, readdir, readFile, rename, rm, rmdir, stat } from "fs/promises";
 import { dirname, isAbsolute, join, normalize, parse, sep } from "path";
 
 export { ReadStream, WriteStream } from "fs";
@@ -117,6 +117,16 @@ class FileSystemUtils {
             return !isRootDir ? await mkdir(destDirPath, { recursive: true }) : undefined;
         } catch (error) {
             throw this.newError(error, `Failed to make directory for: ${destFilePath}`);
+        }
+    };
+
+    public static readFileJSON = async <T>(filePath: string): Promise<T> => {
+        try {
+            const json = await readFile(filePath, { encoding: "utf8" });
+
+            return JSON.parse(json) as T;
+        } catch (error) {
+            throw this.newError(error, `Failed to read/parse JSON at: ${filePath}`);
         }
     };
 

@@ -1,6 +1,5 @@
-/* eslint-disable sonarjs/no-duplicate-string */
-import { Stats } from "fs";
-import { extname } from "path";
+import { readFileSync, Stats } from "fs";
+import { extname, join, normalize } from "path";
 
 import { watch } from "chokidar";
 
@@ -8,12 +7,42 @@ import FileSystemUtils from "./common/FileSystemUtils";
 import SequentialFileCopier from "./filecopier";
 import { Update } from "./filecopier/SequentialFileCopyEventEmitter";
 import FileMigration from "./FileMigration";
+import FileMigrator from "./FileMigrator";
 import A2FMRenderer from "./renderer";
 
-const { deleteFile, exists, readFileSizeBytes, removeFileExt, trimFileExt } = FileSystemUtils;
+const { deleteFile, exists, readFileJSON, readFileSizeBytes, removeFileExt, trimFileExt } = FileSystemUtils;
+
+const srcDestRootDirPaths = new Map([["C:/AAA/Aspera", "C:/AAA/Facilis Sunset"]]);
 
 const renderer = new A2FMRenderer();
 const fileCopier = new SequentialFileCopier();
+const fileMigrator = new FileMigrator(fileCopier, srcDestRootDirPaths);
+
+// interface Config {
+//     migrationRoutes: {
+//         defaultDest: string;
+//         routes: { src: string; dest: string | null }[];
+//     };
+// }
+
+// async function getConfig() {
+//     const path = join(__dirname, "config.json");
+
+//     const config = await readFileJSON<Config>(path);
+//     const { defaultDest, routes } = config.migrationRoutes;
+
+//     const test2 = routes.map(({ src, dest }) => {
+//         return [normalize(src), normalize(dest ?? defaultDest)] as [string, string];
+//     });
+
+//     const srcDestRootDirPaths = new Map(test2);
+
+//     console.log(srcDestRootDirPaths);
+
+//     const migrator = new FileMigrator({ fileCopier, srcDestRootDirPaths });
+// }
+
+// void getConfig();
 
 fileCopier.on("enqueue", renderer.renderMigrationScreen);
 
@@ -31,7 +60,7 @@ fileCopier.on("error", ({ stack, fileCopyParams }) => {
 });
 
 const srcRootDirPath = "C:/AAA/Aspera";
-const destRootDirPath = "C:/AAA/Facilis Sunset";
+// const destRootDirPath = "C:/AAA/Facilis Sunset";
 
 const standardDelayMs = 1000;
 const stabilityThreshold = 5 * standardDelayMs;
@@ -44,6 +73,13 @@ const watcher = watch(srcRootDirPath, {
     // ignoreInitial: true
 });
 
+watcher.on("ready", () => {
+    console.log("Initial scan complete. Ready for changes...");
+    console.log(watcher.options);
+    console.log(watcher.getWatched());
+    console.log(watcher.eventNames());
+});
+
 const onAddCopyFile = async (filePath: string, stats?: Stats) => {
     const isMetadataFile = extname(filePath) === ".aspx";
 
@@ -53,29 +89,7 @@ const onAddCopyFile = async (filePath: string, stats?: Stats) => {
 
     if (hasMetadataTwin) return;
 
-    const params = {
-        fileCopier,
-        destRootDirPath,
-        srcRootDirPath,
-        srcFilePath: filePath,
-        srcFileSizeBytes: stats?.size ?? (await readFileSizeBytes(filePath))
-    };
-
-    const migration = new FileMigration(params);
-
-    const handler = (update: Update) => {
-        const { id } = update.progress.fileCopyParams;
-
-        if (migration.id === id) {
-            fileCopier.off("copy:finish", handler);
-
-            void migration.finish();
-        }
-    };
-
-    fileCopier.on("copy:finish", handler);
-
-    migration.start();
+    void fileMigrator.migrate(filePath, stats?.size);
 };
 
 // const onUnlinkCopyFile = async (srcFilePath: string) => {

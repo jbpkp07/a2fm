@@ -1,16 +1,11 @@
 import { randomUUID } from "crypto";
-import { join, normalize } from "path";
+import { join } from "path";
 
 import FileSystemUtils from "./common/FileSystemUtils";
 
-const { deleteDirIfEmpty, deleteFile, removeFileExt, sanitize, traverseBack } = FileSystemUtils;
-
-interface FileCopier {
-    copyFile: (params: FileMigration) => void;
-}
+const { sanitize, traverseBack } = FileSystemUtils;
 
 interface FileMigrationParams {
-    readonly fileCopier: FileCopier;
     readonly destRootDirPath: string;
     readonly srcRootDirPath: string;
     readonly srcFilePath: string;
@@ -18,13 +13,11 @@ interface FileMigrationParams {
 }
 
 class FileMigration {
-    private readonly fileCopier: FileCopier;
-
-    private readonly srcTopDirPath: string | undefined;
-
-    private readonly srcSubDirPaths: string[];
-
     public readonly id: string;
+
+    public readonly srcTopDirPath: string | undefined;
+
+    public readonly srcSubDirPaths: string[];
 
     public readonly srcFilePath: string;
 
@@ -33,16 +26,10 @@ class FileMigration {
     public readonly fileSizeBytes: number;
 
     constructor(params: FileMigrationParams) {
-        this.fileCopier = params.fileCopier;
-
-        const srcDirPaths = traverseBack(params.srcFilePath, params.srcRootDirPath);
-
-        srcDirPaths.pop(); // srcRootDirPath
-        this.srcTopDirPath = srcDirPaths.pop();
-        this.srcSubDirPaths = srcDirPaths;
-
         this.id = randomUUID();
-        this.srcFilePath = normalize(params.srcFilePath);
+        this.srcTopDirPath = this.getSrcTopDirPath(params);
+        this.srcSubDirPaths = this.getSrcSubDirPaths(params);
+        this.srcFilePath = params.srcFilePath;
         this.destFilePath = this.createDestFilePath(params);
         this.fileSizeBytes = params.srcFileSizeBytes;
     }
@@ -58,23 +45,19 @@ class FileMigration {
         return join(destRootDirPath, `${subPath}.a2fm`);
     }
 
-    public start(): void {
-        this.fileCopier.copyFile(this);
+    private getSrcTopDirPath(params: FileMigrationParams): string | undefined {
+        const srcDirPaths = traverseBack(params.srcFilePath, params.srcRootDirPath);
+        srcDirPaths.pop(); // srcRootDirPath
+
+        return srcDirPaths.pop();
     }
 
-    public async finish(): Promise<void> {
-        const { srcTopDirPath, srcSubDirPaths, srcFilePath, destFilePath } = this;
+    private getSrcSubDirPaths(params: FileMigrationParams): string[] {
+        const srcDirPaths = traverseBack(params.srcFilePath, params.srcRootDirPath);
+        srcDirPaths.pop(); // srcRootDirPath
+        srcDirPaths.pop(); // srcTopDirPath
 
-        await removeFileExt(destFilePath);
-        await deleteFile(srcFilePath);
-
-        for await (const srcSubDirPath of srcSubDirPaths) {
-            await deleteDirIfEmpty(srcSubDirPath);
-        }
-
-        if (srcTopDirPath?.endsWith(".aspera-package")) {
-            await deleteDirIfEmpty(srcTopDirPath);
-        }
+        return srcDirPaths;
     }
 }
 
