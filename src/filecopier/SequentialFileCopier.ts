@@ -1,6 +1,4 @@
 /* eslint-disable no-await-in-loop */
-import { isDeepStrictEqual as isEqual } from "util";
-
 import Queue from "../common/Queue";
 import WaitUtils from "../common/WaitUtils";
 import FileCopier, { FileCopierEvents } from "./FileCopier";
@@ -64,8 +62,10 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
         const queue = this.queue.peekQueue();
         const inProgressParams = this.progress?.fileCopyParams;
 
-        const isNotInQueue = !queue.find((inQueueParams) => isEqual(inQueueParams, fileCopyParams));
-        const isNotInProgress = !isEqual(inProgressParams, fileCopyParams);
+        const isEqualDestination = (a: FileCopyParams, b?: FileCopyParams) => a.destFilePath === b?.destFilePath;
+
+        const isNotInQueue = !queue.find((inQueueParams) => isEqualDestination(fileCopyParams, inQueueParams));
+        const isNotInProgress = !isEqualDestination(fileCopyParams, inProgressParams);
 
         if (isNotInQueue && isNotInProgress) {
             this.queue.enqueue(fileCopyParams);
