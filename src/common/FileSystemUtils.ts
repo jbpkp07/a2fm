@@ -1,6 +1,6 @@
 import { createReadStream, createWriteStream, ReadStream, Stats, WriteStream } from "fs";
 import { mkdir, readdir, readFile, rename, rm, rmdir, stat } from "fs/promises";
-import { dirname, isAbsolute, join, normalize, parse, sep } from "path";
+import { dirname, extname, isAbsolute, join, normalize, parse, sep } from "path";
 
 export { ReadStream, WriteStream } from "fs";
 
@@ -75,6 +75,13 @@ class FileSystemUtils {
         } catch {
             return false;
         }
+    };
+
+    public static hasExt = (filePath: string, ext: string): boolean => {
+        const fileExtLower = extname(filePath).toLowerCase();
+        const extLower = ext.toLowerCase();
+
+        return extLower.startsWith(".") ? extLower === fileExtLower : `.${extLower}` === fileExtLower;
     };
 
     public static hasParentDir = (path: string): boolean => {

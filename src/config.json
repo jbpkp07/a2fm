@@ -10,5 +10,25 @@
                 "src": "C:/AAA/Aspera/dir123"
             }
         ]
-    }
+    },
+    "excludedDirs": ["$RECYCLE.BIN", "OUTBOUND", "System Volume Information"],
+    "excludedFiles": [
+        "#chkpt_file#",
+        "#work_file#",
+        ".arena",
+        ".aspera-ckpt",
+        ".aspx",
+        ".crdownload",
+        ".DS_Store",
+        ".haspx",
+        ".part",
+        ".partial",
+        ".temp",
+        ".tmp",
+        "desktop.ini",
+        "Thumbs.db",
+        "Unconfirmed",
+        "~$"
+    ],
+    "progressMetadataExts": [".aspx", ".haspx", ".aspera-ckpt"]
 }

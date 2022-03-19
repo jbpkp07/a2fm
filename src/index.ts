@@ -7,6 +7,7 @@ import FileSystemUtils from "./common/FileSystemUtils";
 import SequentialFileCopier from "./filecopier";
 import { Update } from "./filecopier/SequentialFileCopyEventEmitter";
 import FileMigration from "./FileMigration";
+import FileMigrationExcluder from "./FileMigrationExcluder";
 import FileMigrator from "./FileMigrator";
 import A2FMRenderer from "./renderer";
 
@@ -17,6 +18,7 @@ const srcDestRootDirPaths = new Map([["C:/AAA/Aspera", "C:/AAA/Facilis Sunset"]]
 const renderer = new A2FMRenderer();
 const fileCopier = new SequentialFileCopier();
 const fileMigrator = new FileMigrator(fileCopier, srcDestRootDirPaths);
+const fileExcluder = new FileMigrationExcluder({ excludedDirs: [], excludedFiles: [], progressMetadataExts: [] });
 
 // interface Config {
 //     migrationRoutes: {
@@ -80,43 +82,31 @@ watcher.on("ready", () => {
     console.log(watcher.eventNames());
 });
 
-const onAddCopyFile = async (filePath: string, stats?: Stats) => {
-    const isMetadataFile = extname(filePath) === ".aspx";
+const onAddListener = async (filePath: string, stats?: Stats) => {
+    const isExcluded = await fileExcluder.isExcluded(filePath);
 
-    if (isMetadataFile) return;
-
-    const hasMetadataTwin = await exists(`${filePath}.aspx`);
-
-    if (hasMetadataTwin) return;
-
-    void fileMigrator.migrate(filePath, stats?.size);
+    if (!isExcluded) {
+        void fileMigrator.migrate(filePath, stats?.size);
+    }
 };
 
-// const onUnlinkCopyFile = async (srcFilePath: string) => {
-//     if (isOutbound(srcFilePath)) return;
+const onUnlinkListener = async (filePath: string) => {
+    const isMetaDataFile = fileExcluder.isProgressMetadataFile(filePath);
 
-//     const isMetadataFile = extname(srcFilePath) === ".aspx";
+    if (!isMetaDataFile) return;
 
-//     if (!isMetadataFile) return;
+    const srcFilePath = trimFileExt(filePath);
 
-//     const assetFilePath = trimFileExt(srcFilePath);
+    const isExcluded = await fileExcluder.isExcluded(srcFilePath);
 
-//     const hasAssetFile = await exists(assetFilePath);
+    if (!isExcluded) {
+        void fileMigrator.migrate(srcFilePath);
+    }
+};
 
-//     if (!hasAssetFile) return;
-
-//     const params = {
-//         srcFilePath: assetFilePath,
-//         destFilePath: createDestPath(assetFilePath),
-//         fileSizeBytes: await readFileSizeBytes(assetFilePath)
-//     };
-
-//     // fileCopier.copyFile(params);
-// };
-
-watcher.on("add", (srcFilePath, stats) => void onAddCopyFile(srcFilePath, stats));
-watcher.on("change", (srcFilePath, stats) => void onAddCopyFile(srcFilePath, stats));
-// watcher.on("unlink", (srcFilePath) => void onUnlinkCopyFile(srcFilePath));
+watcher.on("add", (srcFilePath, stats) => void onAddListener(srcFilePath, stats));
+watcher.on("change", (srcFilePath, stats) => void onAddListener(srcFilePath, stats));
+watcher.on("unlink", (srcFilePath) => void onUnlinkListener(srcFilePath));
 
 // const fileCopyParams = [
 //     {
