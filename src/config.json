@@ -1,13 +1,10 @@
 {
     "migrationRoutes": {
         "destDefault": "C:/AAA/Facilis Sunset",
-        "routes": [
+        "rootDirPaths": [
             {
                 "src": "C:/AAA/Aspera",
                 "dest": null
-            },
-            {
-                "src": "C:/AAA/Aspera/dir123"
             }
         ]
     },

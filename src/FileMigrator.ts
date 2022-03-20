@@ -34,7 +34,7 @@ class FileMigrator {
 
     private readonly srcRootDirPaths: string[];
 
-    constructor(fileCopier: FileCopier, srcDestRootDirPaths: Map<string, string>) {
+    constructor(fileCopier: FileCopier, srcDestRootDirPaths: Map<SrcRootDirPath, DestRootDirPath>) {
         const keys = srcDestRootDirPaths.keys();
         const byLengthDesc = (a: string, b: string) => (a.length < b.length ? 1 : -1);
 
