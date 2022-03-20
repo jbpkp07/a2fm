@@ -3,23 +3,19 @@ import { join } from "path";
 
 import { watch } from "chokidar";
 
-import FileSystemUtils from "./common/FileSystemUtils";
 import ConfigReader from "./configuration";
 import SequentialFileCopier from "./filecopier";
-import FileMigrationExcluder from "./FileMigrationExcluder";
-import FileMigrator from "./FileMigrator";
+import { FileMigrationUtils, FileMigrator } from "./migration";
 import A2FMRenderer from "./renderer";
 
-const { readConfig } = ConfigReader;
-const { trimFileExt } = FileSystemUtils;
-
 const configPath = join(__dirname, "config.json");
-const { excludedDirs, excludedFiles, progressMetadataExts, srcDestRootDirPaths } = readConfig(configPath);
+const config = ConfigReader.readConfig(configPath);
 
-const fileCopier = new SequentialFileCopier();
-const fileMigrator = new FileMigrator(fileCopier, srcDestRootDirPaths);
-const fileExcluder = new FileMigrationExcluder({ excludedDirs, excludedFiles, progressMetadataExts });
+const { isFileExcluded, toSrcFilePath } = new FileMigrationUtils(config);
+
 const renderer = new A2FMRenderer();
+const fileCopier = new SequentialFileCopier();
+const fileMigrator = new FileMigrator({ fileCopier, ...config });
 
 fileCopier.on("enqueue", renderer.renderMigrationScreen);
 
@@ -56,31 +52,19 @@ watcher.on("ready", () => {
     console.log(watcher.eventNames());
 });
 
-const onAddListener = async (filePath: string, stats?: Stats) => {
-    const isExcluded = await fileExcluder.isExcluded(filePath);
+const watcherListener = async (path: string, stats?: Stats) => {
+    const srcFilePath = toSrcFilePath(path);
+
+    const isExcluded = await isFileExcluded(srcFilePath);
 
     if (!isExcluded) {
-        void fileMigrator.migrate(filePath, stats?.size);
+        void fileMigrator.migrate(srcFilePath, stats?.size);
     }
 };
 
-const onUnlinkListener = async (filePath: string) => {
-    const isMetaDataFile = fileExcluder.isProgressMetadataFile(filePath);
-
-    if (!isMetaDataFile) return;
-
-    const srcFilePath = trimFileExt(filePath);
-
-    const isExcluded = await fileExcluder.isExcluded(srcFilePath);
-
-    if (!isExcluded) {
-        void fileMigrator.migrate(srcFilePath);
-    }
-};
-
-watcher.on("add", (srcFilePath, stats) => void onAddListener(srcFilePath, stats));
-watcher.on("change", (srcFilePath, stats) => void onAddListener(srcFilePath, stats));
-watcher.on("unlink", (srcFilePath) => void onUnlinkListener(srcFilePath));
+watcher.on("add", (srcFilePath, stats) => void watcherListener(srcFilePath, stats));
+watcher.on("change", (srcFilePath, stats) => void watcherListener(srcFilePath, stats));
+watcher.on("unlink", (srcFilePath) => void watcherListener(srcFilePath));
 
 // const watchDirectory = (watchDirpath: string) => {
 //     try {

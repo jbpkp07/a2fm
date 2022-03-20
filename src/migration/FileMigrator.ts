@@ -1,4 +1,4 @@
-import FileSystemUtils from "./common/FileSystemUtils";
+import FileSystemUtils from "../common/FileSystemUtils";
 import FileMigration from "./FileMigration";
 
 const { deleteDirIfEmpty, deleteFile, isChildPath, readFileSizeBytes, removeFileExt } = FileSystemUtils;
@@ -25,6 +25,11 @@ interface FileCopier {
     on(event: "copy:finish", listener: (update: Update) => void): void;
 }
 
+interface FileMigratorParams {
+    readonly fileCopier: FileCopier;
+    readonly srcDestRootDirPaths: Map<SrcRootDirPath, DestRootDirPath>;
+}
+
 class FileMigrator {
     private readonly fileCopier: FileCopier;
 
@@ -34,7 +39,7 @@ class FileMigrator {
 
     private readonly srcRootDirPaths: string[];
 
-    constructor(fileCopier: FileCopier, srcDestRootDirPaths: Map<SrcRootDirPath, DestRootDirPath>) {
+    constructor({ fileCopier, srcDestRootDirPaths }: FileMigratorParams) {
         const keys = srcDestRootDirPaths.keys();
         const byLengthDesc = (a: string, b: string) => (a.length < b.length ? 1 : -1);
 

@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { join } from "path";
 
-import FileSystemUtils from "./common/FileSystemUtils";
+import FileSystemUtils from "../common/FileSystemUtils";
 
 const { sanitize, traverseBack } = FileSystemUtils;
 
