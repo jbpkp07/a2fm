@@ -1,5 +1,5 @@
-import { createReadStream, createWriteStream, ReadStream, Stats, WriteStream } from "fs";
-import { mkdir, readdir, readFile, rename, rm, rmdir, stat } from "fs/promises";
+import { createReadStream, createWriteStream, readFileSync, ReadStream, Stats, WriteStream } from "fs";
+import { mkdir, readdir, rename, rm, rmdir, stat } from "fs/promises";
 import { dirname, extname, isAbsolute, join, normalize, parse, sep } from "path";
 
 export { ReadStream, WriteStream } from "fs";
@@ -127,9 +127,9 @@ class FileSystemUtils {
         }
     };
 
-    public static readFileJSON = async <T>(filePath: string): Promise<T> => {
+    public static readFileSyncJSON = <T>(filePath: string): T => {
         try {
-            const json = await readFile(filePath, { encoding: "utf8" });
+            const json = readFileSync(filePath, { encoding: "utf8" });
 
             return JSON.parse(json) as T;
         } catch (error) {

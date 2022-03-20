@@ -1,7 +1,7 @@
 import FileSystemUtils from "../common/FileSystemUtils";
 import ValidationUtils from "../common/ValidationUtils";
 
-const { readFileJSON, sanitize } = FileSystemUtils;
+const { readFileSyncJSON, sanitize } = FileSystemUtils;
 const { isNullableString, isObject, isObjectArray, isString, isStringArray } = ValidationUtils;
 
 type SrcRootDirPath = string;
@@ -99,8 +99,8 @@ class ConfigReader {
         }
     };
 
-    public static readConfig = async (configPath: string): Promise<AppConfig> => {
-        const fileConfig = await readFileJSON<FileConfig>(configPath);
+    public static readConfig = (configPath: string): AppConfig => {
+        const fileConfig = readFileSyncJSON<FileConfig>(configPath);
 
         this.validateConfig(fileConfig);
 

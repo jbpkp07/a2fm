@@ -1,50 +1,25 @@
-import { readFileSync, Stats } from "fs";
-import { extname, join, normalize } from "path";
+import { Stats } from "fs";
+import { join } from "path";
 
 import { watch } from "chokidar";
 
 import FileSystemUtils from "./common/FileSystemUtils";
+import ConfigReader from "./configuration";
 import SequentialFileCopier from "./filecopier";
-import { Update } from "./filecopier/SequentialFileCopyEventEmitter";
-import FileMigration from "./FileMigration";
 import FileMigrationExcluder from "./FileMigrationExcluder";
 import FileMigrator from "./FileMigrator";
 import A2FMRenderer from "./renderer";
 
-const { deleteFile, exists, readFileJSON, readFileSizeBytes, removeFileExt, trimFileExt } = FileSystemUtils;
+const { readConfig } = ConfigReader;
+const { trimFileExt } = FileSystemUtils;
 
-const srcDestRootDirPaths = new Map([["C:/AAA/Aspera", "C:/AAA/Facilis Sunset"]]);
+const configPath = join(__dirname, "config.json");
+const { excludedDirs, excludedFiles, progressMetadataExts, srcDestRootDirPaths } = readConfig(configPath);
 
-const renderer = new A2FMRenderer();
 const fileCopier = new SequentialFileCopier();
 const fileMigrator = new FileMigrator(fileCopier, srcDestRootDirPaths);
-const fileExcluder = new FileMigrationExcluder({ excludedDirs: [], excludedFiles: [], progressMetadataExts: [] });
-
-// interface Config {
-//     migrationRoutes: {
-//         defaultDest: string;
-//         routes: { src: string; dest: string | null }[];
-//     };
-// }
-
-// async function getConfig() {
-//     const path = join(__dirname, "config.json");
-
-//     const config = await readFileJSON<Config>(path);
-//     const { defaultDest, routes } = config.migrationRoutes;
-
-//     const test2 = routes.map(({ src, dest }) => {
-//         return [normalize(src), normalize(dest ?? defaultDest)] as [string, string];
-//     });
-
-//     const srcDestRootDirPaths = new Map(test2);
-
-//     console.log(srcDestRootDirPaths);
-
-//     const migrator = new FileMigrator({ fileCopier, srcDestRootDirPaths });
-// }
-
-// void getConfig();
+const fileExcluder = new FileMigrationExcluder({ excludedDirs, excludedFiles, progressMetadataExts });
+const renderer = new A2FMRenderer();
 
 fileCopier.on("enqueue", renderer.renderMigrationScreen);
 
@@ -62,7 +37,6 @@ fileCopier.on("error", ({ stack, fileCopyParams }) => {
 });
 
 const srcRootDirPath = "C:/AAA/Aspera";
-// const destRootDirPath = "C:/AAA/Facilis Sunset";
 
 const standardDelayMs = 1000;
 const stabilityThreshold = 5 * standardDelayMs;
@@ -107,80 +81,6 @@ const onUnlinkListener = async (filePath: string) => {
 watcher.on("add", (srcFilePath, stats) => void onAddListener(srcFilePath, stats));
 watcher.on("change", (srcFilePath, stats) => void onAddListener(srcFilePath, stats));
 watcher.on("unlink", (srcFilePath) => void onUnlinkListener(srcFilePath));
-
-// const fileCopyParams = [
-//     {
-//         srcFilePath: `${srcDir}/1GB_test_01.mp4`,
-//         destFilePath: `${destDir}/1GB_test_01.mp4.a2fm`,
-//         fileSizeBytes
-//     },
-//     {
-//         srcFilePath: `${srcDir}/1GB_test_02.mp4`,
-//         destFilePath: `${destDir}/1GB_test_02.mp4.a2fm`,
-//         fileSizeBytes
-//     },
-//     {
-//         srcFilePath: `${srcDir}/1GB_test_03.mp4`,
-//         destFilePath: `${destDir}/1GB_test_03.mp4.a2fm`,
-//         fileSizeBytes
-//     },
-//     {
-//         srcFilePath: `${srcDir}/1GB_test_04.mp4`,
-//         destFilePath: `${destDir}/1GB_test_04.mp4.a2fm`,
-//         fileSizeBytes
-//     },
-//     {
-//         srcFilePath: `${srcDir}/1GB_test_05.mp4`,
-//         destFilePath: `${destDir}/1GB_test_05.mp4.a2fm`,
-//         fileSizeBytes
-//     },
-//     {
-//         srcFilePath: `${srcDir}/1GB_test_06.mp4`,
-//         destFilePath: `${destDir}/1GB_test_06.mp4.a2fm`,
-//         fileSizeBytes
-//     },
-//     {
-//         srcFilePath: `${srcDir}/1GB_test_07.mp4`,
-//         destFilePath: `${destDir}/1GB_test_07.mp4.a2fm`,
-//         fileSizeBytes
-//     },
-//     {
-//         srcFilePath: `${srcDir}/1GB_test_08.mp4`,
-//         destFilePath: `${destDir}/1GB_test_08.mp4.a2fm`,
-//         fileSizeBytes
-//     },
-//     {
-//         srcFilePath: `${srcDir}/1GB_test_09.mp4`,
-//         destFilePath: `${destDir}/1GB_test_09.mp4.a2fm`,
-//         fileSizeBytes
-//     },
-//     {
-//         srcFilePath: `${srcDir}/1GB_test_10.mp4`,
-//         destFilePath: `${destDir}/1GB_test_10.mp4.a2fm`,
-//         fileSizeBytes
-//     },
-//     {
-//         srcFilePath: `${srcDir}/1GB_test_11.mp4`,
-//         destFilePath: `${destDir}/1GB_test_11.mp4.a2fm`,
-//         fileSizeBytes
-//     },
-//     {
-//         srcFilePath: `${srcDir}/1GB_test_12.mp4`,
-//         destFilePath: `${destDir}/1GB_test_12.mp4.a2fm`,
-//         fileSizeBytes
-//     }
-// ];
-
-// let i = 0;
-
-// setInterval(() => {
-//     const params = fileCopyParams[i];
-//     i += 1;
-
-//     if (params) {
-//         fileCopier.copyFile(params);
-//     }
-// }, 250);
 
 // const watchDirectory = (watchDirpath: string) => {
 //     try {
