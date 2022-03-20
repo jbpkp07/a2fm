@@ -1,11 +1,11 @@
-import A2FMRendererProps from "./A2FMRendererProps";
 import Header from "./components/Header";
 import MigrationIdle from "./components/MigrationIdle";
 import MigrationProgress from "./components/MigrationProgress";
 import MigrationQueue from "./components/MigrationQueue";
 import ConsoleRenderer from "./console/ConsoleRenderer";
+import RendererProps from "./RendererProps";
 
-import type { ProgressQueueParams } from "./A2FMRendererParams";
+import type { ProgressQueueParams } from "./RendererParams";
 
 interface Components {
     readonly header: Header;
@@ -14,10 +14,10 @@ interface Components {
     readonly queue: MigrationQueue;
 }
 
-class A2FMRenderer extends ConsoleRenderer {
+class Renderer extends ConsoleRenderer {
     private readonly components: Components;
 
-    private readonly props: A2FMRendererProps;
+    private readonly props: RendererProps;
 
     private idleInterval: NodeJS.Timeout | undefined;
 
@@ -31,7 +31,7 @@ class A2FMRenderer extends ConsoleRenderer {
             queue: new MigrationQueue({ cols, limit, marginCols: 2 })
         };
 
-        this.props = new A2FMRendererProps(cols);
+        this.props = new RendererProps(cols);
 
         this.renderIdleScreen();
     }
@@ -83,4 +83,4 @@ class A2FMRenderer extends ConsoleRenderer {
     };
 }
 
-export default A2FMRenderer;
+export default Renderer;

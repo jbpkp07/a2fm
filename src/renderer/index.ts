@@ -1,3 +1,3 @@
-import A2FMRenderer from "./A2FMRenderer";
+import Renderer from "./Renderer";
 
-export default A2FMRenderer;
+export default Renderer;

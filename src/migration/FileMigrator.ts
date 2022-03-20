@@ -83,10 +83,10 @@ class FileMigrator {
     }
 
     private startMigration(fileMigration: FileMigration): void {
-        const { id } = fileMigration;
+        const { id, srcFilePath, destFilePath, fileSizeBytes } = fileMigration;
 
         this.fileMigrations.set(id, fileMigration);
-        this.fileCopier.copyFile(fileMigration);
+        this.fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
     }
 
     private async finishMigration(fileMigration: FileMigration): Promise<void> {

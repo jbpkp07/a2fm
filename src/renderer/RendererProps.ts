@@ -1,21 +1,21 @@
 import { basename } from "path";
 
 import MovingMedian from "../common/MovingMedian";
-import A2FMRendererUtils from "./A2FMRendererUtils";
+import RendererUtils from "./RendererUtils";
 
-import type { FileCopyParams, ProgressParams, ProgressQueueParams, QueueParams } from "./A2FMRendererParams";
 import type { MigrationIdleProps } from "./components/MigrationIdle";
 import type { MigrationProgressProps } from "./components/MigrationProgress";
 import type { MigrationQueueProps } from "./components/MigrationQueue";
+import type { FileCopyParams, ProgressParams, ProgressQueueParams, QueueParams } from "./RendererParams";
 
-const { calcEtaSeconds, toRate, toSize, toTime } = A2FMRendererUtils;
+const { calcEtaSeconds, toRate, toSize, toTime } = RendererUtils;
 
 interface ProgressQueueProps {
     readonly progressProps: MigrationProgressProps;
     readonly queueProps: MigrationQueueProps;
 }
 
-class A2FMRendererProps {
+class RendererProps {
     private readonly cols: number;
 
     private readonly etaBytesPerSecondHistory = new MovingMedian(15);
@@ -94,4 +94,4 @@ class A2FMRendererProps {
     };
 }
 
-export default A2FMRendererProps;
+export default RendererProps;

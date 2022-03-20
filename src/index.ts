@@ -6,14 +6,14 @@ import { watch } from "chokidar";
 import ConfigReader from "./configuration";
 import SequentialFileCopier from "./filecopier";
 import { FileMigrationUtils, FileMigrator } from "./migration";
-import A2FMRenderer from "./renderer";
+import Renderer from "./renderer";
 
 const configPath = join(__dirname, "config.json");
 const config = ConfigReader.readConfig(configPath);
 
 const { isFileExcluded, toSrcFilePath } = new FileMigrationUtils(config);
 
-const renderer = new A2FMRenderer();
+const renderer = new Renderer();
 const fileCopier = new SequentialFileCopier();
 const fileMigrator = new FileMigrator({ fileCopier, ...config });
 

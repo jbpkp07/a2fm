@@ -9,7 +9,7 @@ interface CalcEtaSecondsParams {
     readonly fileSizeBytes: number;
 }
 
-class A2FMRendererUtils {
+class RendererUtils {
     private constructor() {}
 
     private static limit = (value: number): number => {
@@ -85,4 +85,4 @@ class A2FMRendererUtils {
     };
 }
 
-export default A2FMRendererUtils;
+export default RendererUtils;
