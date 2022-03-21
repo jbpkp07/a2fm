@@ -82,8 +82,17 @@ class FileMigrator {
         return fileSizeBytes ?? (await readFileSizeBytes(srcFilePath));
     }
 
+    private isMigrating(srcFilePath: string): boolean {
+        const srcFilePathLower = srcFilePath.toLowerCase();
+        const migrations = [...this.fileMigrations.values()];
+
+        return migrations.some((migration) => migration.srcFilePath.toLowerCase() === srcFilePathLower);
+    }
+
     private startMigration(fileMigration: FileMigration): void {
         const { id, srcFilePath, destFilePath, fileSizeBytes } = fileMigration;
+
+        if (this.isMigrating(srcFilePath)) return;
 
         this.fileMigrations.set(id, fileMigration);
         this.fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
@@ -107,6 +116,8 @@ class FileMigrator {
     }
 
     public async migrate(srcFilePath: string, fileSizeBytes?: number): Promise<void> {
+        if (this.isMigrating(srcFilePath)) return;
+
         const fileMigration = await this.createFileMigration(srcFilePath, fileSizeBytes);
 
         if (fileMigration) {

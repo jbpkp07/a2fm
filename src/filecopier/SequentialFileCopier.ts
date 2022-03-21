@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import Queue from "../common/Queue";
 import WaitUtils from "../common/WaitUtils";
 import FileCopier, { FileCopierEvents } from "./FileCopier";
@@ -58,20 +57,6 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
         this.updateIsIdle();
     }
 
-    private enqueue(fileCopyParams: FileCopyParams): void {
-        const queue = this.queue.peekQueue();
-        const inProgressParams = this.progress?.fileCopyParams;
-
-        const isEqualDestination = (a: FileCopyParams, b?: FileCopyParams) => a.destFilePath === b?.destFilePath;
-
-        const isNotInQueue = !queue.find((inQueueParams) => isEqualDestination(fileCopyParams, inQueueParams));
-        const isNotInProgress = !isEqualDestination(fileCopyParams, inProgressParams);
-
-        if (isNotInQueue && isNotInProgress) {
-            this.queue.enqueue(fileCopyParams);
-        }
-    }
-
     private async tryCopyFile(fileCopyParams: FileCopyParams): Promise<void> {
         try {
             await this.fileCopier.copyFile(fileCopyParams);
@@ -105,7 +90,7 @@ class SequentialFileCopier extends SequentialFileCopyEventEmitter {
     }
 
     public copyFile(fileCopyParams: FileCopyParams): this {
-        this.enqueue(fileCopyParams);
+        this.queue.enqueue(fileCopyParams);
 
         if (this.isActive) {
             this.updateEnqueue();

@@ -127,6 +127,18 @@ class FileSystemUtils {
         }
     };
 
+    public static readFileMtimeMs = async (filePath: string): Promise<number> => {
+        const { mtimeMs } = await this.readStats(filePath);
+
+        return mtimeMs;
+    };
+
+    public static readFileSizeBytes = async (filePath: string): Promise<number> => {
+        const { size } = await this.readStats(filePath);
+
+        return size;
+    };
+
     public static readFileSyncJSON = <T>(filePath: string): T => {
         try {
             const json = readFileSync(filePath, { encoding: "utf8" });
@@ -135,12 +147,6 @@ class FileSystemUtils {
         } catch (error) {
             throw this.newError(error, `Failed to read/parse JSON at: ${filePath}`);
         }
-    };
-
-    public static readFileSizeBytes = async (filePath: string): Promise<number> => {
-        const { size } = await this.readStats(filePath);
-
-        return size;
     };
 
     public static readStats = async (path: string): Promise<Stats> => {
