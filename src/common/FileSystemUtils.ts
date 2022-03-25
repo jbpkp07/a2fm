@@ -112,6 +112,18 @@ class FileSystemUtils {
         }
     };
 
+    public static isFileWriting = async (filePath: string, stabilityMs: number): Promise<boolean> => {
+        const fileExists = await this.exists(filePath);
+
+        if (!fileExists) {
+            return false;
+        }
+
+        const modifiedTime = await this.readFileMtimeMs(filePath);
+
+        return Date.now() - modifiedTime < stabilityMs;
+    };
+
     public static isRelative = (path: string): boolean => {
         return !isAbsolute(path);
     };
