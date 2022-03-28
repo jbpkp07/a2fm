@@ -8,6 +8,12 @@ class WaitUtils {
 
         return new Promise(executor);
     };
+
+    public static waitForever = (): Promise<void> => {
+        const executor = () => undefined;
+
+        return new Promise(executor);
+    };
 }
 
 export default WaitUtils;

@@ -50,7 +50,7 @@ class FileMigrationUtils {
         return this.progressMetadataExts.some((ext) => hasExt(path, ext));
     };
 
-    public isFileExcluded = async (srcFilePath: string): Promise<boolean> => {
+    public isSrcFileExcluded = async (srcFilePath: string): Promise<boolean> => {
         const fileExists = await exists(srcFilePath);
 
         if (!fileExists) {
@@ -69,11 +69,7 @@ class FileMigrationUtils {
             return true;
         }
 
-        if (this.isExcludedFile(srcFilePath)) {
-            return true;
-        }
-
-        return false;
+        return this.isExcludedFile(srcFilePath);
     };
 
     public toSrcFilePath = (path: string): string => {

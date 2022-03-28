@@ -1,6 +1,7 @@
 import { resolve } from "path";
 import { env } from "process";
 
+import CopyWebpackPlugin from "copy-webpack-plugin";
 import ESLintWebpackPlugin from "eslint-webpack-plugin";
 import TerserPlugin from "terser-webpack-plugin";
 import { DefinePlugin, Configuration as WebpackConfig } from "webpack";
@@ -59,6 +60,12 @@ const config: WebpackConfig = {
         path: outputPath
     },
     plugins: [
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: resolve(__dirname, "../src/config.json"), to: outputPath, info: { minimized: true } },
+                { from: resolve(__dirname, "../src/daemon.js"), to: outputPath, info: { minimized: true } }
+            ]
+        }),
         new DefinePlugin({
             "process.env.npm_package_name": JSON.stringify(env.npm_package_name),
             "process.env.npm_package_description": JSON.stringify(env.npm_package_description),

@@ -101,8 +101,6 @@ class FileMigrator {
     private async finishMigration(fileMigration: FileMigration): Promise<void> {
         const { id, srcTopDirPath, srcSubDirPaths, srcFilePath, destFilePath } = fileMigration;
 
-        this.fileMigrations.delete(id);
-
         await removeFileExt(destFilePath);
         await deleteFile(srcFilePath);
 
@@ -113,6 +111,8 @@ class FileMigrator {
         if (srcTopDirPath?.endsWith(".aspera-package")) {
             await deleteDirIfEmpty(srcTopDirPath);
         }
+
+        this.fileMigrations.delete(id);
     }
 
     public async migrate(srcFilePath: string, fileSizeBytes?: number): Promise<void> {

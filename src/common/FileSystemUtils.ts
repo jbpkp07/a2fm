@@ -112,16 +112,17 @@ class FileSystemUtils {
         }
     };
 
-    public static isFileWriting = async (filePath: string, stabilityMs: number): Promise<boolean> => {
-        const fileExists = await this.exists(filePath);
+    public static isFileModifying = async (filePath: string, stabilityMs: number): Promise<boolean> => {
+        const { exists, readFileMtimeMs } = this;
 
-        if (!fileExists) {
-            return false;
+        if (await exists(filePath)) {
+            const currentTimeMs = Date.now();
+            const modifiedTimeMs = await readFileMtimeMs(filePath);
+
+            return currentTimeMs - modifiedTimeMs < stabilityMs;
         }
 
-        const modifiedTime = await this.readFileMtimeMs(filePath);
-
-        return Date.now() - modifiedTime < stabilityMs;
+        return false;
     };
 
     public static isRelative = (path: string): boolean => {

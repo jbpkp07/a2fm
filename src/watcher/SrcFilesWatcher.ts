@@ -1,11 +1,15 @@
 import { Stats } from "fs";
+import { join } from "path";
 
 import { FSWatcher, watch, WatchOptions } from "chokidar";
 
+import ExitOnError from "../common/ExitOnError";
 import FileSystemUtils from "../common/FileSystemUtils";
 import WaitUtils from "../common/WaitUtils";
+import ConfigReader from "../configuration";
 
-const { exists, isFileWriting } = FileSystemUtils;
+const { exitOnError } = ExitOnError;
+const { exists, isFileModifying } = FileSystemUtils;
 const { wait } = WaitUtils;
 
 const TEN_SECONDS = 10 * 1000;
@@ -42,7 +46,7 @@ class SrcFilesWatcher {
             followSymlinks: false
         };
 
-        setInterval(() => void this.restartWatcher(), ONE_HOUR);
+        setInterval(() => void this.startWatching(), ONE_HOUR);
     }
 
     private closeWatcher = async (): Promise<void> => {
@@ -52,42 +56,47 @@ class SrcFilesWatcher {
     };
 
     private onAddListener = async (filePath: string, stats?: Stats): Promise<void> => {
-        const isWriting = async () => isFileWriting(filePath, TEN_MINUTES);
+        const isModifying = async () => isFileModifying(filePath, TEN_MINUTES);
 
-        while (await isWriting()) {
-            await wait(ONE_MINUTE);
+        while (await isModifying()) {
+            await wait(TEN_SECONDS);
         }
 
         if (await exists(filePath)) {
-            void this.handler(filePath, stats);
+            await this.handler(filePath, stats);
         }
     };
 
-    private onErrorListener = async (error: Error): Promise<void> => {
+    private onUnlinkListener = async (filePath: string): Promise<void> => {
+        await wait(TEN_SECONDS);
+
+        await this.handler(filePath);
+    };
+
+    public startWatching = async (): Promise<void> => {
         await this.closeWatcher();
 
-        console.log(error);
-
-        setTimeout(() => void this.restartWatcher(), TEN_MINUTES);
-    };
-
-    private onUnlinkListener = (filePath: string): void => {
-        setTimeout(() => void this.handler(filePath), ONE_MINUTE);
-    };
-
-    private restartWatcher = async (): Promise<void> => {
-        await this.closeWatcher();
-
-        this.startWatching();
-    };
-
-    public startWatching = (): void => {
         this.watcher = watch(this.srcRootDirPaths, this.watcherOptions);
 
         this.watcher.on("add", (filePath, stats) => void this.onAddListener(filePath, stats));
-        this.watcher.on("error", (error) => void this.onErrorListener(error));
-        this.watcher.on("unlink", (filePath) => this.onUnlinkListener(filePath));
+        this.watcher.on("unlink", (filePath) => void this.onUnlinkListener(filePath));
+        this.watcher.on("error", exitOnError);
     };
 }
 
 export default SrcFilesWatcher;
+
+console.clear();
+
+const { readConfig } = ConfigReader;
+
+const configPath = join(__dirname, "../config.json");
+const config = readConfig(configPath);
+
+const watchHandler = (path: string, stats?: Stats) => {
+    console.log(path, stats?.size);
+};
+
+const watcher = new SrcFilesWatcher({ watchHandler, ...config });
+
+void watcher.startWatching();
