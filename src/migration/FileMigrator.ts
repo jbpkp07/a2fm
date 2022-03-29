@@ -6,6 +6,7 @@ const { deleteDirIfEmpty, deleteFile, isChildPath, removeFileExt } = FileSystemU
 type Id = string;
 type SrcRootDirPath = string;
 type DestRootDirPath = string;
+type MigrateParams = { srcFilePath: string; fileSizeBytes: number };
 
 interface FileCopyParams {
     readonly id: string;
@@ -109,7 +110,9 @@ class FileMigrator {
         this.fileMigrations.delete(id);
     }
 
-    public migrate = (srcFilePath: string, fileSizeBytes: number): void => {
+    public migrate = (params: MigrateParams): void => {
+        const { srcFilePath, fileSizeBytes } = params;
+
         if (this.isMigrating(srcFilePath)) return;
 
         const fileMigration = this.createFileMigration(srcFilePath, fileSizeBytes);

@@ -4,6 +4,7 @@ import ExitOnError from "../common/ExitOnError";
 import FileSystemUtils from "../common/FileSystemUtils";
 import WaitUtils from "../common/WaitUtils";
 import SrcFilesWatcherUtils from "./SrcFilesWatcherUtils";
+import SrcFilesWatchEventEmitter from "./SrcFilesWatchEventEmitter";
 
 const { exitOnError } = ExitOnError;
 const { exists, readFileSizeBytes, waitWhileModifying } = FileSystemUtils;
@@ -16,19 +17,15 @@ const ONE_HOUR = 3600 * 1000;
 
 type SrcRootDirPath = string;
 type DestRootDirPath = string;
-type MigrateHandler = (srcFilePath: string, fileSizeBytes: number) => void;
 
 interface FileWatcherParams {
-    readonly migrate: MigrateHandler;
     readonly excludedDirs: string[];
     readonly excludedFiles: string[];
     readonly progressMetadataExts: string[];
     readonly srcDestRootDirPaths: Map<SrcRootDirPath, DestRootDirPath>;
 }
 
-class SrcFilesWatcher {
-    private readonly migrate: MigrateHandler;
-
+class SrcFilesWatcher extends SrcFilesWatchEventEmitter {
     private readonly srcRootDirPaths: string[];
 
     private readonly utils: SrcFilesWatcherUtils;
@@ -38,7 +35,7 @@ class SrcFilesWatcher {
     private watcher: FSWatcher | undefined;
 
     constructor(params: FileWatcherParams) {
-        this.migrate = params.migrate;
+        super();
 
         this.srcRootDirPaths = [...params.srcDestRootDirPaths.keys()];
 
@@ -59,7 +56,15 @@ class SrcFilesWatcher {
         }
     };
 
-    private listener = async (filePath: string): Promise<void> => {
+    private emitFileReady = async (srcFilePath: string): Promise<void> => {
+        if (await exists(srcFilePath)) {
+            const fileSizeBytes = await readFileSizeBytes(srcFilePath);
+
+            this.emit("file:ready", { srcFilePath, fileSizeBytes });
+        }
+    };
+
+    private listen = async (filePath: string): Promise<void> => {
         await wait(ONE_MINUTE);
 
         const srcFilePath = this.utils.toSrcFilePath(filePath);
@@ -69,15 +74,15 @@ class SrcFilesWatcher {
         if (isEligible) {
             await waitWhileModifying(srcFilePath, TEN_MINUTES);
 
-            await this.migrateSrcFile(srcFilePath);
+            await this.emitFileReady(srcFilePath);
         }
     };
 
-    private migrateSrcFile = async (srcFilePath: string): Promise<void> => {
-        if (await exists(srcFilePath)) {
-            const fileSizeBytes = await readFileSizeBytes(srcFilePath);
-
-            this.migrate(srcFilePath, fileSizeBytes);
+    private tryListen = async (filePath: string): Promise<void> => {
+        try {
+            await this.listen(filePath);
+        } catch (error) {
+            this.emit("error", error);
         }
     };
 
@@ -86,8 +91,8 @@ class SrcFilesWatcher {
 
         this.watcher = watch(this.srcRootDirPaths, this.watchOptions);
 
-        this.watcher.on("add", (filePath) => void this.listener(filePath));
-        this.watcher.on("unlink", (filePath) => void this.listener(filePath));
+        this.watcher.on("add", (filePath) => void this.tryListen(filePath));
+        this.watcher.on("unlink", (filePath) => void this.tryListen(filePath));
         this.watcher.on("error", exitOnError);
     };
 }

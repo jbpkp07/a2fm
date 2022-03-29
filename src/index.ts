@@ -17,7 +17,6 @@ const app = async (): Promise<void> => {
     const config = readConfig(configPath);
 
     const fileCopier = new SequentialFileCopier();
-
     const { renderIdleScreen, renderMigrationScreen } = new Renderer();
 
     fileCopier.on("enqueue", renderMigrationScreen);
@@ -27,9 +26,11 @@ const app = async (): Promise<void> => {
     fileCopier.on("idle", renderIdleScreen);
     fileCopier.on("error", exitOnFileCopyError);
 
+    const watcher = new SrcFilesWatcher(config);
     const { migrate } = new FileMigrator({ fileCopier, ...config });
 
-    const watcher = new SrcFilesWatcher({ migrate, ...config });
+    watcher.on("file:ready", migrate);
+    watcher.on("error", exitOnError);
 
     await watcher.startWatching();
 
