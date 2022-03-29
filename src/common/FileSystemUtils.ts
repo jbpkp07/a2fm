@@ -2,7 +2,10 @@ import { createReadStream, createWriteStream, readFileSync, ReadStream, Stats, W
 import { mkdir, readdir, rename, rm, rmdir, stat } from "fs/promises";
 import { dirname, extname, isAbsolute, join, normalize, parse, sep } from "path";
 
-export { ReadStream, WriteStream } from "fs";
+import WaitUtils from "./WaitUtils";
+
+const { ceil } = Math;
+const { wait } = WaitUtils;
 
 interface StreamOptions {
     readonly highWaterMark: number;
@@ -20,7 +23,7 @@ class FileSystemUtils {
         const drainCount = 100;
         const isLargeFile = fileSizeBytes >= defaultHighWaterMark * drainCount;
 
-        return isLargeFile ? Math.ceil(fileSizeBytes / drainCount) : defaultHighWaterMark;
+        return isLargeFile ? ceil(fileSizeBytes / drainCount) : defaultHighWaterMark;
     };
 
     private static createStreamOptions = (fileSizeBytes: number): StreamOptions => {
@@ -244,6 +247,17 @@ class FileSystemUtils {
 
         return join(...segments);
     };
+
+    public static waitWhileModifying = async (filePath: string, stabilityMs: number): Promise<void> => {
+        const isModifying = async () => this.isFileModifying(filePath, stabilityMs);
+
+        const pollMs = stabilityMs >= 1000 ? ceil(stabilityMs / 10) : 100;
+
+        while (await isModifying()) {
+            await wait(pollMs);
+        }
+    };
 }
 
 export default FileSystemUtils;
+export { ReadStream, WriteStream } from "fs";

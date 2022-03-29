@@ -1,7 +1,7 @@
 import FileSystemUtils from "../common/FileSystemUtils";
 import FileMigration from "./FileMigration";
 
-const { deleteDirIfEmpty, deleteFile, isChildPath, readFileSizeBytes, removeFileExt } = FileSystemUtils;
+const { deleteDirIfEmpty, deleteFile, isChildPath, removeFileExt } = FileSystemUtils;
 
 type Id = string;
 type SrcRootDirPath = string;
@@ -57,15 +57,13 @@ class FileMigrator {
         });
     }
 
-    private async createFileMigration(srcFilePath: string, fileSizeBytes?: number): Promise<FileMigration | undefined> {
+    private createFileMigration(srcFilePath: string, srcFileSizeBytes: number): FileMigration | undefined {
         const srcRootDirPath = this.getSrcRootDirPath(srcFilePath);
         const destRootDirPath = this.getDestRootDirPath(srcRootDirPath);
 
         if (!srcRootDirPath || !destRootDirPath) {
             return undefined;
         }
-
-        const srcFileSizeBytes = await this.getFileSizeBytes(srcFilePath, fileSizeBytes);
 
         return new FileMigration({ destRootDirPath, srcRootDirPath, srcFilePath, srcFileSizeBytes });
     }
@@ -76,10 +74,6 @@ class FileMigrator {
 
     private getDestRootDirPath(srcRootDirPath?: string): string | undefined {
         return srcRootDirPath ? this.srcDestRootDirPaths.get(srcRootDirPath) : undefined;
-    }
-
-    private async getFileSizeBytes(srcFilePath: string, fileSizeBytes?: number): Promise<number> {
-        return fileSizeBytes ?? (await readFileSizeBytes(srcFilePath));
     }
 
     private isMigrating(srcFilePath: string): boolean {
@@ -115,15 +109,15 @@ class FileMigrator {
         this.fileMigrations.delete(id);
     }
 
-    public async migrate(srcFilePath: string, fileSizeBytes?: number): Promise<void> {
+    public migrate = (srcFilePath: string, fileSizeBytes: number): void => {
         if (this.isMigrating(srcFilePath)) return;
 
-        const fileMigration = await this.createFileMigration(srcFilePath, fileSizeBytes);
+        const fileMigration = this.createFileMigration(srcFilePath, fileSizeBytes);
 
         if (fileMigration) {
             this.startMigration(fileMigration);
         }
-    }
+    };
 }
 
 export default FileMigrator;

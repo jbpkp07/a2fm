@@ -1,15 +1,12 @@
-import { Stats } from "fs";
-import { join } from "path";
-
 import { FSWatcher, watch, WatchOptions } from "chokidar";
 
 import ExitOnError from "../common/ExitOnError";
 import FileSystemUtils from "../common/FileSystemUtils";
 import WaitUtils from "../common/WaitUtils";
-import ConfigReader from "../configuration";
+import SrcFilesWatcherUtils from "./SrcFilesWatcherUtils";
 
 const { exitOnError } = ExitOnError;
-const { exists, isFileModifying } = FileSystemUtils;
+const { exists, readFileSizeBytes, waitWhileModifying } = FileSystemUtils;
 const { wait } = WaitUtils;
 
 const TEN_SECONDS = 10 * 1000;
@@ -19,31 +16,38 @@ const ONE_HOUR = 3600 * 1000;
 
 type SrcRootDirPath = string;
 type DestRootDirPath = string;
-type Handler = (filePath: string, stats?: Stats) => void | Promise<void>;
+type MigrateHandler = (srcFilePath: string, fileSizeBytes: number) => void;
 
 interface FileWatcherParams {
-    readonly watchHandler: Handler;
+    readonly migrate: MigrateHandler;
+    readonly excludedDirs: string[];
+    readonly excludedFiles: string[];
+    readonly progressMetadataExts: string[];
     readonly srcDestRootDirPaths: Map<SrcRootDirPath, DestRootDirPath>;
 }
 
 class SrcFilesWatcher {
-    private readonly handler: Handler;
+    private readonly migrate: MigrateHandler;
 
     private readonly srcRootDirPaths: string[];
 
-    private readonly watcherOptions: WatchOptions;
+    private readonly utils: SrcFilesWatcherUtils;
+
+    private readonly watchOptions: WatchOptions;
 
     private watcher: FSWatcher | undefined;
 
-    constructor({ watchHandler, srcDestRootDirPaths }: FileWatcherParams) {
-        this.handler = watchHandler;
+    constructor(params: FileWatcherParams) {
+        this.migrate = params.migrate;
 
-        this.srcRootDirPaths = [...srcDestRootDirPaths.keys()];
+        this.srcRootDirPaths = [...params.srcDestRootDirPaths.keys()];
 
-        this.watcherOptions = {
-            alwaysStat: true,
+        this.utils = new SrcFilesWatcherUtils(params);
+
+        this.watchOptions = {
             awaitWriteFinish: { stabilityThreshold: ONE_MINUTE, pollInterval: TEN_SECONDS },
-            followSymlinks: false
+            followSymlinks: false,
+            ignored: [this.utils.hasExcludedDir]
         };
 
         setInterval(() => void this.startWatching(), ONE_HOUR);
@@ -55,48 +59,37 @@ class SrcFilesWatcher {
         }
     };
 
-    private onAddListener = async (filePath: string, stats?: Stats): Promise<void> => {
-        const isModifying = async () => isFileModifying(filePath, TEN_MINUTES);
+    private listener = async (filePath: string): Promise<void> => {
+        await wait(ONE_MINUTE);
 
-        while (await isModifying()) {
-            await wait(TEN_SECONDS);
-        }
+        const srcFilePath = this.utils.toSrcFilePath(filePath);
 
-        if (await exists(filePath)) {
-            await this.handler(filePath, stats);
+        const isEligible = await this.utils.isSrcFileEligible(srcFilePath);
+
+        if (isEligible) {
+            await waitWhileModifying(srcFilePath, TEN_MINUTES);
+
+            await this.migrateSrcFile(srcFilePath);
         }
     };
 
-    private onUnlinkListener = async (filePath: string): Promise<void> => {
-        await wait(TEN_SECONDS);
+    private migrateSrcFile = async (srcFilePath: string): Promise<void> => {
+        if (await exists(srcFilePath)) {
+            const fileSizeBytes = await readFileSizeBytes(srcFilePath);
 
-        await this.handler(filePath);
+            this.migrate(srcFilePath, fileSizeBytes);
+        }
     };
 
     public startWatching = async (): Promise<void> => {
         await this.closeWatcher();
 
-        this.watcher = watch(this.srcRootDirPaths, this.watcherOptions);
+        this.watcher = watch(this.srcRootDirPaths, this.watchOptions);
 
-        this.watcher.on("add", (filePath, stats) => void this.onAddListener(filePath, stats));
-        this.watcher.on("unlink", (filePath) => void this.onUnlinkListener(filePath));
+        this.watcher.on("add", (filePath) => void this.listener(filePath));
+        this.watcher.on("unlink", (filePath) => void this.listener(filePath));
         this.watcher.on("error", exitOnError);
     };
 }
 
 export default SrcFilesWatcher;
-
-console.clear();
-
-const { readConfig } = ConfigReader;
-
-const configPath = join(__dirname, "../config.json");
-const config = readConfig(configPath);
-
-const watchHandler = (path: string, stats?: Stats) => {
-    console.log(path, stats?.size);
-};
-
-const watcher = new SrcFilesWatcher({ watchHandler, ...config });
-
-void watcher.startWatching();

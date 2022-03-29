@@ -4,20 +4,20 @@ import FileSystemUtils from "../common/FileSystemUtils";
 
 const { exists, hasExt, trimFileExt } = FileSystemUtils;
 
-interface FileMigrationUtilsParams {
+interface SrcFilesWatcherUtilsParams {
     readonly excludedDirs: string[];
     readonly excludedFiles: string[];
     readonly progressMetadataExts: string[];
 }
 
-class FileMigrationUtils {
+class SrcFilesWatcherUtils {
     private readonly excludedDirs: string[];
 
     private readonly excludedFiles: string[];
 
     private readonly progressMetadataExts: string[];
 
-    constructor(params: FileMigrationUtilsParams) {
+    constructor(params: SrcFilesWatcherUtilsParams) {
         const toLower = (str: string) => str.trim().toLowerCase();
         const toExt = (ext: string) => (ext.startsWith(".") ? ext : "." + ext);
 
@@ -25,12 +25,6 @@ class FileMigrationUtils {
         this.excludedFiles = params.excludedFiles.map(toLower);
         this.progressMetadataExts = params.progressMetadataExts.map(toLower).map(toExt);
     }
-
-    private hasExcludedDir = (srcFilePath: string): boolean => {
-        const srcDirPath = dirname(srcFilePath).toLowerCase();
-
-        return this.excludedDirs.some((dir) => srcDirPath.includes(dir));
-    };
 
     private hasProgressMetadataFile = async (srcFilePath: string): Promise<boolean> => {
         const checkingExists = this.progressMetadataExts.map((ext) => exists(srcFilePath + ext));
@@ -46,37 +40,43 @@ class FileMigrationUtils {
         return this.excludedFiles.some((file) => srcFileName.includes(file));
     };
 
-    private isProgressMetadataFile = (path: string): boolean => {
-        return this.progressMetadataExts.some((ext) => hasExt(path, ext));
+    private isProgressMetadataFile = (srcFilePath: string): boolean => {
+        return this.progressMetadataExts.some((ext) => hasExt(srcFilePath, ext));
     };
 
-    public isSrcFileExcluded = async (srcFilePath: string): Promise<boolean> => {
+    public hasExcludedDir = (srcFilePath: string): boolean => {
+        const srcDirPath = dirname(srcFilePath).toLowerCase();
+
+        return this.excludedDirs.some((dir) => srcDirPath.includes(dir));
+    };
+
+    public isSrcFileEligible = async (srcFilePath: string): Promise<boolean> => {
         const fileExists = await exists(srcFilePath);
 
         if (!fileExists) {
-            return true;
+            return false;
         }
 
         if (this.isProgressMetadataFile(srcFilePath)) {
-            return true;
+            return false;
         }
 
         if (await this.hasProgressMetadataFile(srcFilePath)) {
-            return true;
+            return false;
         }
 
         if (this.hasExcludedDir(srcFilePath)) {
-            return true;
+            return false;
         }
 
-        return this.isExcludedFile(srcFilePath);
+        return !this.isExcludedFile(srcFilePath);
     };
 
-    public toSrcFilePath = (path: string): string => {
-        const isMetaDataFile = this.isProgressMetadataFile(path);
+    public toSrcFilePath = (filePath: string): string => {
+        const isMetaDataFile = this.isProgressMetadataFile(filePath);
 
-        return isMetaDataFile ? trimFileExt(path) : path;
+        return isMetaDataFile ? trimFileExt(filePath) : filePath;
     };
 }
 
-export default FileMigrationUtils;
+export default SrcFilesWatcherUtils;

@@ -1,11 +1,10 @@
-import { Stats } from "fs";
 import { join } from "path";
 
 import ExitOnError from "./common/ExitOnError";
 import WaitUtils from "./common/WaitUtils";
 import ConfigReader from "./configuration";
 import SequentialFileCopier from "./filecopier";
-import { FileMigrationUtils, FileMigrator } from "./migration";
+import FileMigrator from "./migration";
 import Renderer from "./renderer";
 import SrcFilesWatcher from "./watcher";
 
@@ -18,9 +17,7 @@ const app = async (): Promise<void> => {
     const config = readConfig(configPath);
 
     const fileCopier = new SequentialFileCopier();
-    const fileMigrator = new FileMigrator({ fileCopier, ...config });
 
-    const { isSrcFileExcluded, toSrcFilePath } = new FileMigrationUtils(config);
     const { renderIdleScreen, renderMigrationScreen } = new Renderer();
 
     fileCopier.on("enqueue", renderMigrationScreen);
@@ -30,16 +27,9 @@ const app = async (): Promise<void> => {
     fileCopier.on("idle", renderIdleScreen);
     fileCopier.on("error", exitOnFileCopyError);
 
-    const watchHandler = async (path: string, stats?: Stats) => {
-        const srcFilePath = toSrcFilePath(path);
-        const isExcluded = await isSrcFileExcluded(srcFilePath);
+    const { migrate } = new FileMigrator({ fileCopier, ...config });
 
-        if (!isExcluded) {
-            void fileMigrator.migrate(srcFilePath, stats?.size);
-        }
-    };
-
-    const watcher = new SrcFilesWatcher({ watchHandler, ...config });
+    const watcher = new SrcFilesWatcher({ migrate, ...config });
 
     await watcher.startWatching();
 
