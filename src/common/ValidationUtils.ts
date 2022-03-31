@@ -1,6 +1,19 @@
 class ValidationUtils {
     private constructor() {}
 
+    public static isFlatObject = (value: unknown): boolean => {
+        const { isObject } = this;
+        const { isArray } = Array;
+
+        if (isObject(value)) {
+            const objectValues = Object.values(value as object);
+
+            return !objectValues.some(isObject) && !objectValues.some(isArray);
+        }
+
+        return false;
+    };
+
     public static isNullableString = (value: unknown): boolean => {
         const { isString } = this;
 

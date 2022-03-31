@@ -1,4 +1,5 @@
-import { createReadStream, createWriteStream, readFileSync, ReadStream, Stats, WriteStream } from "fs";
+// prettier-ignore
+import { createReadStream, createWriteStream, existsSync, readFileSync, ReadStream, Stats, writeFileSync, WriteStream } from "fs";
 import { mkdir, readdir, rename, rm, rmdir, stat } from "fs/promises";
 import { dirname, extname, isAbsolute, join, normalize, parse, sep } from "path";
 
@@ -80,6 +81,10 @@ class FileSystemUtils {
         }
     };
 
+    public static existsSync = (path: string): boolean => {
+        return existsSync(path);
+    };
+
     public static hasExt = (filePath: string, ext: string): boolean => {
         const fileExtLower = extname(filePath).toLowerCase();
         const extLower = ext.toLowerCase();
@@ -155,9 +160,17 @@ class FileSystemUtils {
         return size;
     };
 
+    public static readFileSync = (filePath: string): string => {
+        try {
+            return readFileSync(filePath, { encoding: "utf8" });
+        } catch (error) {
+            throw this.newError(error, `Failed to read file at: ${filePath}`);
+        }
+    };
+
     public static readFileSyncJSON = <T>(filePath: string): T => {
         try {
-            const json = readFileSync(filePath, { encoding: "utf8" });
+            const json = this.readFileSync(filePath);
 
             return JSON.parse(json) as T;
         } catch (error) {
@@ -255,6 +268,14 @@ class FileSystemUtils {
 
         while (await isModifying()) {
             await wait(pollMs);
+        }
+    };
+
+    public static writeFileSync = (filePath: string, data: string): void => {
+        try {
+            writeFileSync(filePath, data, { encoding: "utf8" });
+        } catch (error) {
+            throw this.newError(error, `Failed to write file at: ${filePath}`);
         }
     };
 }

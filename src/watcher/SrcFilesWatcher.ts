@@ -1,12 +1,10 @@
 import { FSWatcher, watch, WatchOptions } from "chokidar";
 
-import ExitOnError from "../common/ExitOnError";
 import FileSystemUtils from "../common/FileSystemUtils";
 import WaitUtils from "../common/WaitUtils";
 import SrcFilesWatcherUtils from "./SrcFilesWatcherUtils";
 import SrcFilesWatchEventEmitter from "./SrcFilesWatchEventEmitter";
 
-const { exitOnError } = ExitOnError;
 const { exists, readStats, waitWhileModifying } = FileSystemUtils;
 const { wait } = WaitUtils;
 
@@ -101,7 +99,7 @@ class SrcFilesWatcher extends SrcFilesWatchEventEmitter {
 
         this.watcher.on("add", (filePath) => void this.tryListen(filePath));
         this.watcher.on("unlink", (filePath) => void this.tryListen(filePath));
-        this.watcher.on("error", exitOnError);
+        this.watcher.on("error", (error) => this.emit("error", error));
     };
 }
 

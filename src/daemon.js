@@ -3,7 +3,7 @@ const { execSync } = require("child_process");
 const { join } = require("path");
 
 const APP_PATH = join(__dirname, "index.js");
-const TEN_MINUTES = 10 * 1000;
+const TEN_MINUTES = 600 * 1000;
 
 const wait = async (ms) => {
     return new Promise((resolve) => {

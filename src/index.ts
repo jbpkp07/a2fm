@@ -1,6 +1,6 @@
 import { join } from "path";
 
-import ExitOnError from "./common/ExitOnError";
+import ErrorHandler from "./common/ErrorHandler";
 import WaitUtils from "./common/WaitUtils";
 import ConfigReader from "./configuration";
 import SequentialFileCopier from "./filecopier";
@@ -8,13 +8,15 @@ import FileMigrator from "./migration";
 import Renderer from "./renderer";
 import SrcFilesWatcher from "./watcher";
 
+const CONFIG_JSON_PATH = join(__dirname, "config.json");
+const ERROR_LOG_PATH = join(__dirname, "error.log");
+
 const { readConfig } = ConfigReader;
-const { exitOnError, exitOnFileCopyError } = ExitOnError;
 const { waitForever } = WaitUtils;
+const { exitOnError, exitOnFileCopyError } = new ErrorHandler(ERROR_LOG_PATH);
 
 const app = async (): Promise<void> => {
-    const configPath = join(__dirname, "config.json");
-    const config = readConfig(configPath);
+    const config = readConfig(CONFIG_JSON_PATH);
 
     const fileCopier = new SequentialFileCopier();
     const { renderIdleScreen, renderMigrationScreen } = new Renderer();
