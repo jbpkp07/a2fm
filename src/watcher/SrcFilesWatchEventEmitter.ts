@@ -2,7 +2,8 @@ import SimplifiedEventEmitter from "../common/SimplifiedEventEmitter";
 
 interface FileReady {
     readonly srcFilePath: string;
-    readonly fileSizeBytes: number;
+    readonly srcFileSizeBytes: number;
+    readonly srcModifiedTimeMs: number;
 }
 
 // prettier-ignore

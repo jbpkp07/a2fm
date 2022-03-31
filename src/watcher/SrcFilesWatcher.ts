@@ -7,7 +7,7 @@ import SrcFilesWatcherUtils from "./SrcFilesWatcherUtils";
 import SrcFilesWatchEventEmitter from "./SrcFilesWatchEventEmitter";
 
 const { exitOnError } = ExitOnError;
-const { exists, readFileSizeBytes, waitWhileModifying } = FileSystemUtils;
+const { exists, readStats, waitWhileModifying } = FileSystemUtils;
 const { wait } = WaitUtils;
 
 const TEN_SECONDS = 10 * 1000;
@@ -58,9 +58,12 @@ class SrcFilesWatcher extends SrcFilesWatchEventEmitter {
 
     private emitFileReady = async (srcFilePath: string): Promise<void> => {
         if (await exists(srcFilePath)) {
-            const fileSizeBytes = await readFileSizeBytes(srcFilePath);
+            const srcFileStats = await readStats(srcFilePath);
 
-            this.emit("file:ready", { srcFilePath, fileSizeBytes });
+            const srcFileSizeBytes = srcFileStats.size;
+            const srcModifiedTimeMs = srcFileStats.mtimeMs;
+
+            this.emit("file:ready", { srcFilePath, srcFileSizeBytes, srcModifiedTimeMs });
         }
     };
 

@@ -10,6 +10,7 @@ interface FileMigrationParams {
     readonly srcRootDirPath: string;
     readonly srcFilePath: string;
     readonly srcFileSizeBytes: number;
+    readonly srcModifiedTimeMs: number;
 }
 
 class FileMigration {
@@ -25,6 +26,8 @@ class FileMigration {
 
     public readonly fileSizeBytes: number;
 
+    public readonly modifiedTimeMs: number;
+
     constructor(params: FileMigrationParams) {
         this.id = randomUUID();
         this.srcTopDirPath = this.getSrcTopDirPath(params);
@@ -32,6 +35,7 @@ class FileMigration {
         this.srcFilePath = params.srcFilePath;
         this.destFilePath = this.createDestFilePath(params);
         this.fileSizeBytes = params.srcFileSizeBytes;
+        this.modifiedTimeMs = params.srcModifiedTimeMs;
     }
 
     private createDestFilePath(params: FileMigrationParams): string {

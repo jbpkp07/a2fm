@@ -1,18 +1,24 @@
 import FileSystemUtils from "../common/FileSystemUtils";
 import FileMigration from "./FileMigration";
 
-const { deleteDirIfEmpty, deleteFile, isChildPath, removeFileExt } = FileSystemUtils;
+const { deleteDirIfEmpty, deleteFile, exists, isChildPath, removeFileExt } = FileSystemUtils;
 
 type Id = string;
 type SrcRootDirPath = string;
 type DestRootDirPath = string;
-type MigrateParams = { srcFilePath: string; fileSizeBytes: number };
+
+interface MigrateParams {
+    readonly srcFilePath: string;
+    readonly srcFileSizeBytes: number;
+    readonly srcModifiedTimeMs: number;
+}
 
 interface FileCopyParams {
     readonly id: string;
     readonly srcFilePath: string;
     readonly destFilePath: string;
     readonly fileSizeBytes: number;
+    readonly modifiedTimeMs: number;
 }
 
 interface Update {
@@ -58,7 +64,9 @@ class FileMigrator {
         });
     }
 
-    private createFileMigration(srcFilePath: string, srcFileSizeBytes: number): FileMigration | undefined {
+    private createFileMigration(params: MigrateParams): FileMigration | undefined {
+        const { srcFilePath, srcFileSizeBytes, srcModifiedTimeMs } = params;
+
         const srcRootDirPath = this.getSrcRootDirPath(srcFilePath);
         const destRootDirPath = this.getDestRootDirPath(srcRootDirPath);
 
@@ -66,7 +74,7 @@ class FileMigrator {
             return undefined;
         }
 
-        return new FileMigration({ destRootDirPath, srcRootDirPath, srcFilePath, srcFileSizeBytes });
+        return new FileMigration({ destRootDirPath, srcRootDirPath, srcFilePath, srcFileSizeBytes, srcModifiedTimeMs });
     }
 
     private getSrcRootDirPath(srcFilePath: string): string | undefined {
@@ -85,19 +93,21 @@ class FileMigrator {
     }
 
     private startMigration(fileMigration: FileMigration): void {
-        const { id, srcFilePath, destFilePath, fileSizeBytes } = fileMigration;
+        const { id, srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs } = fileMigration;
 
         if (this.isMigrating(srcFilePath)) return;
 
         this.fileMigrations.set(id, fileMigration);
-        this.fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
+        this.fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs });
     }
 
     private async finishMigration(fileMigration: FileMigration): Promise<void> {
         const { id, srcTopDirPath, srcSubDirPaths, srcFilePath, destFilePath } = fileMigration;
 
-        await removeFileExt(destFilePath);
-        await deleteFile(srcFilePath);
+        if (await exists(destFilePath)) {
+            await removeFileExt(destFilePath);
+            await deleteFile(srcFilePath);
+        }
 
         for await (const srcSubDirPath of srcSubDirPaths) {
             await deleteDirIfEmpty(srcSubDirPath);
@@ -111,11 +121,11 @@ class FileMigrator {
     }
 
     public migrate = (params: MigrateParams): void => {
-        const { srcFilePath, fileSizeBytes } = params;
+        const { srcFilePath } = params;
 
         if (this.isMigrating(srcFilePath)) return;
 
-        const fileMigration = this.createFileMigration(srcFilePath, fileSizeBytes);
+        const fileMigration = this.createFileMigration(params);
 
         if (fileMigration) {
             this.startMigration(fileMigration);

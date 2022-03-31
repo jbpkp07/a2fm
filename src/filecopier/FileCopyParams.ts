@@ -3,6 +3,7 @@ interface FileCopyParams {
     readonly srcFilePath: string;
     readonly destFilePath: string;
     readonly fileSizeBytes: number;
+    readonly modifiedTimeMs: number;
 }
 
 export default FileCopyParams;

@@ -6,7 +6,7 @@ import FileCopyParamsError from "./FileCopyParamsError";
 import FileCopyProgress from "./FileCopyProgress";
 import FileCopyStreams from "./FileCopyStreams";
 
-const { deleteDirIfEmpty, deleteFile, makeDestDir, readFileSizeBytes, traverseBack } = FileSystemUtils;
+const { deleteDirIfEmpty, deleteFile, makeDestDir, readFileSizeBytes, readStats, traverseBack } = FileSystemUtils;
 const { wait } = WaitUtils;
 
 class FileCopier extends FileCopyEventEmitter {
@@ -50,16 +50,23 @@ class FileCopier extends FileCopyEventEmitter {
     }
 
     private async validateFileCopy(fileCopyParams: FileCopyParams): Promise<void> {
-        const { srcFilePath, destFilePath, fileSizeBytes } = fileCopyParams;
+        const { srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs } = fileCopyParams;
 
-        const [srcFileSizeBytes, destFileSizeBytes] = await Promise.all([
-            readFileSizeBytes(srcFilePath),
+        const [srcFileStats, destFileSizeBytes] = await Promise.all([
+            readStats(srcFilePath),
             readFileSizeBytes(destFilePath),
             wait(250) // normalizes validation time for ETA calculations
         ]);
 
+        const srcFileSizeBytes = srcFileStats.size;
+        const srcModifiedTimeMs = srcFileStats.mtimeMs;
+
         if (srcFileSizeBytes !== fileSizeBytes) {
             throw new Error(`Source file size (${srcFileSizeBytes}) has changed, original size: ${fileSizeBytes}`);
+        }
+
+        if (srcModifiedTimeMs !== modifiedTimeMs) {
+            throw new Error(`Source file mTime (${srcModifiedTimeMs}) has changed, original mTime: ${modifiedTimeMs}`);
         }
 
         if (srcFileSizeBytes !== destFileSizeBytes) {
