@@ -26,9 +26,11 @@ interface FileWatcherParams {
 }
 
 class SrcFilesWatcher extends SrcFilesWatchEventEmitter {
-    private readonly srcRootDirPaths: string[];
+    private readonly isSrcFileEligible: (srcFilePath: string) => Promise<boolean>;
 
-    private readonly utils: SrcFilesWatcherUtils;
+    private readonly toSrcFilePath: (filePath: string) => string;
+
+    private readonly srcRootDirPaths: string[];
 
     private readonly watchOptions: WatchOptions;
 
@@ -37,14 +39,17 @@ class SrcFilesWatcher extends SrcFilesWatchEventEmitter {
     constructor(params: FileWatcherParams) {
         super();
 
-        this.srcRootDirPaths = [...params.srcDestRootDirPaths.keys()];
+        const { hasExcludedDir, isSrcFileEligible, toSrcFilePath } = new SrcFilesWatcherUtils(params);
 
-        this.utils = new SrcFilesWatcherUtils(params);
+        this.isSrcFileEligible = isSrcFileEligible;
+        this.toSrcFilePath = toSrcFilePath;
+
+        this.srcRootDirPaths = [...params.srcDestRootDirPaths.keys()];
 
         this.watchOptions = {
             awaitWriteFinish: { stabilityThreshold: ONE_MINUTE, pollInterval: TEN_SECONDS },
             followSymlinks: false,
-            ignored: [this.utils.hasExcludedDir]
+            ignored: [hasExcludedDir]
         };
 
         setInterval(() => void this.startWatching(), ONE_HOUR);
@@ -70,9 +75,9 @@ class SrcFilesWatcher extends SrcFilesWatchEventEmitter {
     private listen = async (filePath: string): Promise<void> => {
         await wait(ONE_MINUTE);
 
-        const srcFilePath = this.utils.toSrcFilePath(filePath);
+        const srcFilePath = this.toSrcFilePath(filePath);
 
-        const isEligible = await this.utils.isSrcFileEligible(srcFilePath);
+        const isEligible = await this.isSrcFileEligible(srcFilePath);
 
         if (isEligible) {
             await waitWhileModifying(srcFilePath, TEN_MINUTES);

@@ -5,7 +5,8 @@ import FileCopyProgress from "../src/filecopier/FileCopyProgress";
 const params = {
     id: randomUUID(),
     srcFilePath: "a",
-    destFilePath: "b"
+    destFilePath: "b",
+    modifiedTimeMs: Date.now()
 };
 
 describe("FileCopyProgress", () => {

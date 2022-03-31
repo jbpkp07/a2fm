@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { existsSync, writeFileSync } from "fs";
-import { rm } from "fs/promises";
+import { rm, stat } from "fs/promises";
 import { resolve } from "path";
 
 import FileCopier from "../src/filecopier/FileCopier";
@@ -80,7 +80,9 @@ describe("FileCopier", () => {
         writeSrcFile();
 
         try {
-            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
+            const modifiedTimeMs = (await stat(srcFilePath)).mtimeMs;
+
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs });
 
             if (!existsSync(srcFilePath) || !existsSync(destFilePath)) {
                 hasPassed = false;
@@ -104,7 +106,9 @@ describe("FileCopier", () => {
         writeSrcFile();
 
         try {
-            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
+            const modifiedTimeMs = (await stat(srcFilePath)).mtimeMs;
+
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs });
 
             if (!existsSync(srcFilePath) || !existsSync(destFilePath)) {
                 hasPassed = false;
@@ -128,7 +132,9 @@ describe("FileCopier", () => {
         writeSrcFile();
 
         try {
-            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
+            const modifiedTimeMs = (await stat(srcFilePath)).mtimeMs;
+
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs });
 
             if (!existsSync(srcFilePath) || !existsSync(destFilePath)) {
                 hasPassed = false;
@@ -152,7 +158,9 @@ describe("FileCopier", () => {
         writeSrcFile();
 
         try {
-            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
+            const modifiedTimeMs = (await stat(srcFilePath)).mtimeMs;
+
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs });
 
             if (!existsSync(srcFilePath) || !existsSync(destFilePath)) {
                 hasPassed = false;
@@ -176,7 +184,9 @@ describe("FileCopier", () => {
         writeSrcFile();
 
         try {
-            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
+            const modifiedTimeMs = (await stat(srcFilePath)).mtimeMs;
+
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs });
 
             if (!existsSync(srcFilePath) || !existsSync(destFilePath)) {
                 hasPassed = false;
@@ -200,7 +210,9 @@ describe("FileCopier", () => {
         writeSrcFile();
 
         try {
-            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes });
+            const modifiedTimeMs = (await stat(srcFilePath)).mtimeMs;
+
+            await fileCopier.copyFile({ id, srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs });
 
             if (!existsSync(srcFilePath) || !existsSync(destFilePath)) {
                 hasPassed = false;
@@ -225,7 +237,13 @@ describe("FileCopier", () => {
         const altDestFilePath = resolve(baseDestFilePath, "dir2", "dir3", randomUUID());
 
         try {
-            await fileCopier.copyFile({ id, srcFilePath, destFilePath: altDestFilePath, fileSizeBytes });
+            await fileCopier.copyFile({
+                id,
+                srcFilePath,
+                destFilePath: altDestFilePath,
+                fileSizeBytes,
+                modifiedTimeMs: Date.now()
+            });
 
             hasPassed = false; // should throw, missing src file
         } catch {

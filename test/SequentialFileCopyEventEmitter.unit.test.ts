@@ -66,15 +66,27 @@ describe("SequentialFileCopyEventEmitter", () => {
     test("emit and capture events", () => {
         results = [];
 
-        const progress = new FileCopyProgress({ id: "123", srcFilePath: "p", destFilePath: "p", fileSizeBytes: 1 });
+        const progress = new FileCopyProgress({
+            id: "123",
+            srcFilePath: "p",
+            destFilePath: "p",
+            fileSizeBytes: 1,
+            modifiedTimeMs: Date.now()
+        });
         const queue = [
-            { id: "abc", srcFilePath: "q1", destFilePath: "q1", fileSizeBytes: 5 },
-            { id: "def", srcFilePath: "q2", destFilePath: "q2", fileSizeBytes: 6 }
+            { id: "abc", srcFilePath: "q1", destFilePath: "q1", fileSizeBytes: 5, modifiedTimeMs: Date.now() },
+            { id: "def", srcFilePath: "q2", destFilePath: "q2", fileSizeBytes: 6, modifiedTimeMs: Date.now() }
         ];
 
         const update = { progress, queue };
 
-        const error = new FileCopyParamsError({ id: "456", srcFilePath: "e", destFilePath: "e", fileSizeBytes: 2 });
+        const error = new FileCopyParamsError({
+            id: "456",
+            srcFilePath: "e",
+            destFilePath: "e",
+            fileSizeBytes: 2,
+            modifiedTimeMs: Date.now()
+        });
 
         eventEmitter.emit("active", undefined);
         eventEmitter.emit("copy:start", update);
@@ -88,10 +100,16 @@ describe("SequentialFileCopyEventEmitter", () => {
     });
 
     test("wait", async () => {
-        const progress = new FileCopyProgress({ id: "123", srcFilePath: "p", destFilePath: "p", fileSizeBytes: 1 });
+        const progress = new FileCopyProgress({
+            id: "123",
+            srcFilePath: "p",
+            destFilePath: "p",
+            fileSizeBytes: 1,
+            modifiedTimeMs: Date.now()
+        });
         const queue = [
-            { id: "abc", srcFilePath: "c3", destFilePath: "c3", fileSizeBytes: 1 },
-            { id: "def", srcFilePath: "c4", destFilePath: "c4", fileSizeBytes: 2 }
+            { id: "abc", srcFilePath: "c3", destFilePath: "c3", fileSizeBytes: 1, modifiedTimeMs: Date.now() },
+            { id: "def", srcFilePath: "c4", destFilePath: "c4", fileSizeBytes: 2, modifiedTimeMs: Date.now() }
         ];
 
         process.nextTick(() => {

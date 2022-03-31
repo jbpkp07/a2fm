@@ -9,6 +9,7 @@ const id = randomUUID();
 const srcFilePath = resolve(__dirname, ".tmp", randomUUID());
 const destFilePath = resolve(__dirname, ".tmp", randomUUID());
 const fileSizeBytes = 10000000;
+const modifiedTimeMs = Date.now();
 
 writeFileSync(srcFilePath, new Array(fileSizeBytes).fill("*").join(""));
 
@@ -31,7 +32,7 @@ describe("FileCopyStreams", () => {
         let bytesWritten;
         let hasPassed = true;
 
-        const fileCopyParams = { id, srcFilePath, destFilePath, fileSizeBytes };
+        const fileCopyParams = { id, srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs };
         const streams = new FileCopyStreams(fileCopyParams);
 
         streams.addStartListener((bytes: number) => {
@@ -63,7 +64,7 @@ describe("FileCopyStreams", () => {
         let bytesWritten;
         let hasPassed = true;
 
-        const fileCopyParams = { id, srcFilePath: `${srcFilePath}X`, destFilePath, fileSizeBytes };
+        const fileCopyParams = { id, srcFilePath: `${srcFilePath}X`, destFilePath, fileSizeBytes, modifiedTimeMs };
         const streams = new FileCopyStreams(fileCopyParams);
 
         streams.addStartListener((bytes: number) => {
@@ -93,7 +94,7 @@ describe("FileCopyStreams", () => {
         let bytesWritten;
         let hasPassed = true;
 
-        const fileCopyParams = { id, srcFilePath, destFilePath: `${destFilePath}/X`, fileSizeBytes };
+        const fileCopyParams = { id, srcFilePath, destFilePath: `${destFilePath}/X`, fileSizeBytes, modifiedTimeMs };
         const streams = new FileCopyStreams(fileCopyParams);
 
         streams.addStartListener((bytes: number) => {
@@ -123,7 +124,13 @@ describe("FileCopyStreams", () => {
         let bytesWritten;
         let hasPassed = true;
 
-        const fileCopyParams = { id, srcFilePath: `${srcFilePath}X`, destFilePath: `${destFilePath}/X`, fileSizeBytes };
+        const fileCopyParams = {
+            id,
+            srcFilePath: `${srcFilePath}X`,
+            destFilePath: `${destFilePath}/X`,
+            fileSizeBytes,
+            modifiedTimeMs
+        };
         const streams = new FileCopyStreams(fileCopyParams);
 
         streams.addStartListener((bytes: number) => {
@@ -153,7 +160,7 @@ describe("FileCopyStreams", () => {
         let bytesWritten;
         let hasPassed = true;
 
-        const fileCopyParams = { id, srcFilePath, destFilePath, fileSizeBytes };
+        const fileCopyParams = { id, srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs };
         const streams = new FileCopyStreams(fileCopyParams);
 
         streams.addStartListener((bytes: number) => {
@@ -190,7 +197,7 @@ describe("FileCopyStreams", () => {
         let bytesWritten;
         let hasPassed = true;
 
-        const fileCopyParams = { id, srcFilePath, destFilePath, fileSizeBytes };
+        const fileCopyParams = { id, srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs };
         const streams = new FileCopyStreams(fileCopyParams);
 
         streams.addStartListener((bytes: number) => {
@@ -227,7 +234,7 @@ describe("FileCopyStreams", () => {
         let bytesWritten;
         let hasPassed = true;
 
-        const fileCopyParams = { id, srcFilePath, destFilePath, fileSizeBytes };
+        const fileCopyParams = { id, srcFilePath, destFilePath, fileSizeBytes, modifiedTimeMs };
         const streams = new FileCopyStreams(fileCopyParams);
 
         streams.addStartListener((bytes: number) => {
