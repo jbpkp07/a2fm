@@ -1,9 +1,17 @@
 {
     "migrationRoutes": {
-        "destDefault": "//10.7.30.13/aaa/Facilis",
+        "destDefault": "C:/Volumes/Jellyroll/_From_Aspera/Aspera",
         "rootDirPaths": [
             {
-                "src": "//10.7.30.13/aaa/Aspera",
+                "src": "//10.7.10.78/BBCWORLDWIDE",
+                "dest": null
+            },
+            {
+                "src": "//10.7.10.78/EnteractiveGmbH",
+                "dest": null
+            },
+            {
+                "src": "//10.7.10.78/faspex01packages",
                 "dest": null
             }
         ]
