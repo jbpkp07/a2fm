@@ -3,15 +3,15 @@
         "destDefault": "C:/Volumes/Jellyroll/_From_Aspera/Aspera",
         "rootDirPaths": [
             {
-                "src": "//10.7.10.78/BBCWORLDWIDE",
+                "src": "//10.7.10.78/uslahubAspera01/BBCWORLDWIDE",
                 "dest": null
             },
             {
-                "src": "//10.7.10.78/EnteractiveGmbH",
+                "src": "//10.7.10.78/uslahubAspera01/EnteractiveGmbH",
                 "dest": null
             },
             {
-                "src": "//10.7.10.78/faspex01packages",
+                "src": "//10.7.10.78/uslahubAspera01/faspex01packages",
                 "dest": null
             }
         ]

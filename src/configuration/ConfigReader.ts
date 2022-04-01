@@ -1,7 +1,7 @@
 import FileSystemUtils from "../common/FileSystemUtils";
 import ValidationUtils from "../common/ValidationUtils";
 
-const { readFileSyncJSON, sanitize } = FileSystemUtils;
+const { existsSync, readFileSyncJSON, sanitize } = FileSystemUtils;
 const { isNullableString, isObject, isObjectArray, isString, isStringArray } = ValidationUtils;
 
 type SrcRootDirPath = string;
@@ -111,6 +111,22 @@ class ConfigReader {
 
         if (!hasUniqueSrcRootDirPaths(migrationRoutes.rootDirPaths)) {
             throw new Error("[config.json] config.migrationRoutes.rootDirPaths has duplicate src paths");
+        }
+
+        this.validateSrcDirRootPathsExist(migrationRoutes.rootDirPaths);
+    };
+
+    private static validateSrcDirRootPathsExist = (rootDirPaths: RootDirPaths[]): void => {
+        const toSrcRootDirPath = ({ src }: RootDirPaths) => sanitize(src);
+
+        const srcRootDirPaths = rootDirPaths.map(toSrcRootDirPath);
+
+        for (const srcRootDirPath of srcRootDirPaths) {
+            if (!existsSync(srcRootDirPath)) {
+                throw new Error(
+                    `[config.json] config.migrationRoutes.rootDirPaths src path does not exist ${srcRootDirPath}`
+                );
+            }
         }
     };
 
