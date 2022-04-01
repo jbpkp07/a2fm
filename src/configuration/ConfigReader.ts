@@ -35,6 +35,15 @@ interface AppConfig {
 class ConfigReader {
     private constructor() {}
 
+    private static hasUniqueSrcRootDirPaths = (rootDirPaths: RootDirPaths[]): boolean => {
+        const toSrcRootDirPath = ({ src }: RootDirPaths) => sanitize(src).toLowerCase();
+
+        const srcRootDirPaths = rootDirPaths.map(toSrcRootDirPath);
+        const uniqueSrcRootDirPaths = new Set<string>(srcRootDirPaths);
+
+        return srcRootDirPaths.length === uniqueSrcRootDirPaths.size;
+    };
+
     private static isRootDirPathObject = (obj: RootDirPaths) => {
         const { length } = Object.keys(obj);
 
@@ -61,41 +70,47 @@ class ConfigReader {
 
     private static validateConfig = (config: FileConfig): void => {
         if (!isObject(config)) {
-            throw new Error("config is not an object");
+            throw new Error("[config.json] config is not an object");
         }
 
         this.validateMigrationRoutes(config.migrationRoutes);
 
         if (!isStringArray(config.excludedDirs)) {
-            throw new Error("config.excludedDirs is not a string array");
+            throw new Error("[config.json] config.excludedDirs is not a string array");
         }
 
         if (!isStringArray(config.excludedFiles)) {
-            throw new Error("config.excludedFiles is not a string array");
+            throw new Error("[config.json] config.excludedFiles is not a string array");
         }
 
         if (!isStringArray(config.progressMetadataExts)) {
-            throw new Error("config.progressMetadataExts is not a string array");
+            throw new Error("[config.json] config.progressMetadataExts is not a string array");
         }
     };
 
     private static validateMigrationRoutes = (migrationRoutes: MigrationRoutes): void => {
-        const { isRootDirPathObject } = this;
+        const { hasUniqueSrcRootDirPaths, isRootDirPathObject } = this;
 
         if (!isObject(migrationRoutes)) {
-            throw new Error("config.migrationRoutes is not an object");
+            throw new Error("[config.json] config.migrationRoutes is not an object");
         }
 
         if (!isString(migrationRoutes.destDefault)) {
-            throw new Error("config.migrationRoutes.destDefault is not a string");
+            throw new Error("[config.json] config.migrationRoutes.destDefault is not a string");
         }
 
         if (!isObjectArray(migrationRoutes.rootDirPaths)) {
-            throw new Error("config.migrationRoutes.rootDirPaths is not an object array");
+            throw new Error("[config.json] config.migrationRoutes.rootDirPaths is not an object array");
         }
 
         if (!migrationRoutes.rootDirPaths.every(isRootDirPathObject)) {
-            throw Error("config.migrationRoutes.rootDirPaths is not an array of: { src: string; dest: string | null }");
+            throw new Error(
+                "[config.json] config.migrationRoutes.rootDirPaths is not an array of: { src: string; dest: string | null }"
+            );
+        }
+
+        if (!hasUniqueSrcRootDirPaths(migrationRoutes.rootDirPaths)) {
+            throw new Error("[config.json] config.migrationRoutes.rootDirPaths has duplicate src paths");
         }
     };
 

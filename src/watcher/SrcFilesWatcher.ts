@@ -46,8 +46,11 @@ class SrcFilesWatcher extends SrcFilesWatchEventEmitter {
 
         this.watchOptions = {
             awaitWriteFinish: { stabilityThreshold: ONE_MINUTE, pollInterval: TEN_SECONDS },
+            binaryInterval: TEN_SECONDS,
             followSymlinks: false,
-            ignored: [hasExcludedDir]
+            ignored: [hasExcludedDir],
+            interval: TEN_SECONDS,
+            usePolling: true
         };
 
         setInterval(() => void this.startWatching(), ONE_HOUR);

@@ -2,7 +2,7 @@ import FileSystemUtils from "./FileSystemUtils";
 import ValidationUtils from "./ValidationUtils";
 
 const { existsSync, readFileSync, writeFileSync } = FileSystemUtils;
-const { isFlatObject, isObject } = ValidationUtils;
+const { isObject } = ValidationUtils;
 
 const MAX_LINES = 1000;
 
@@ -59,11 +59,7 @@ class ErrorHandler {
     };
 
     private stringifyValue = (value: unknown): string => {
-        if (!isFlatObject(value)) {
-            return JSON.stringify(value);
-        }
-
-        return JSON.stringify(value).replace(/{/g, "{\n    ").replace(/,/g, ",\n    ").replace(/}/g, "\n}");
+        return JSON.stringify(value, undefined, 4);
     };
 
     private updateLogFile = (error: unknown): void => {

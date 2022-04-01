@@ -85,6 +85,13 @@ class FileSystemUtils {
         return existsSync(path);
     };
 
+    public static extractLeadingSeps = (path: string): string => {
+        const leadingSeps = new RegExp(`^\\${sep}+`);
+        const leadingSepsMatch = normalize(path).match(leadingSeps);
+
+        return leadingSepsMatch?.index === 0 ? leadingSepsMatch[0] ?? "" : "";
+    };
+
     public static hasExt = (filePath: string, ext: string): boolean => {
         const fileExtLower = extname(filePath).toLowerCase();
         const extLower = ext.toLowerCase();
@@ -202,7 +209,7 @@ class FileSystemUtils {
             segments[i] = segment.replace(illegalChars, "");
         }
 
-        return join(...segments);
+        return this.extractLeadingSeps(path) + join(...segments);
     };
 
     public static renamePath = async (oldPath: string, newPath: string): Promise<void> => {
@@ -258,7 +265,7 @@ class FileSystemUtils {
             segments[i] = segment;
         }
 
-        return join(...segments);
+        return this.extractLeadingSeps(path) + join(...segments);
     };
 
     public static waitWhileModifying = async (filePath: string, stabilityMs: number): Promise<void> => {

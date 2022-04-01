@@ -281,6 +281,11 @@ describe("FileSystemUtils", () => {
             hasParentDir("/a/b"),
             hasParentDir("/a/"),
             hasParentDir("/a"),
+            hasParentDir("//a/b/c/d"),
+            hasParentDir("//a/b/c"),
+            hasParentDir("\\\\a/b/c"),
+            hasParentDir("\\\\a\\b\\c"),
+            hasParentDir("\\\\a"),
 
             hasParentDir("C:/"),
             hasParentDir("C:\\"),
@@ -296,7 +301,9 @@ describe("FileSystemUtils", () => {
             hasParentDir("."),
             hasParentDir(".."),
             hasParentDir("~/"),
-            hasParentDir("~")
+            hasParentDir("~"),
+            hasParentDir("//a/b"),
+            hasParentDir("\\\\a\\b")
         ];
 
         const expected: boolean[] = [
@@ -311,7 +318,14 @@ describe("FileSystemUtils", () => {
             true,
             true,
             true,
+            true,
+            true,
+            true,
+            true,
+            true,
 
+            false,
+            false,
             false,
             false,
             false,
@@ -347,6 +361,8 @@ describe("FileSystemUtils", () => {
             isChildPath("/a/b", "/"),
             isChildPath("\\a", "/"),
             isChildPath("C:/a/b/c/../..", "C:/a/.."),
+            isChildPath("//a/b/c", "//a/b"),
+            isChildPath("\\\\a\\b\\c", "\\\\a\\b"),
 
             isChildPath("C:/", "C:/"),
             isChildPath("C:/", "C:/a"),
@@ -361,7 +377,8 @@ describe("FileSystemUtils", () => {
             isChildPath(".", "/"),
             isChildPath("..", "/"),
             isChildPath("~/", "/"),
-            isChildPath("~", "/")
+            isChildPath("~", "/"),
+            isChildPath("//a/b/c", "//a")
         ];
 
         const expected: boolean[] = [
@@ -376,7 +393,10 @@ describe("FileSystemUtils", () => {
             true,
             true,
             true,
+            true,
+            true,
 
+            false,
             false,
             false,
             false,
@@ -491,6 +511,12 @@ describe("FileSystemUtils", () => {
             isRelative("/a"),
             isRelative("/"),
             isRelative("\\"),
+            isRelative("\\\\a\\b\\c"),
+            isRelative("//a/b/c"),
+            isRelative("//a/b"),
+            isRelative("//a"),
+            isRelative("//"),
+            isRelative("\\\\"),
 
             isRelative("C:"),
             isRelative("C"),
@@ -505,6 +531,12 @@ describe("FileSystemUtils", () => {
         ];
 
         const expected: boolean[] = [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
             false,
             false,
             false,
@@ -705,12 +737,19 @@ describe("FileSystemUtils", () => {
     test("removeIllegalChars", () => {
         const { removeIllegalChars } = FileSystemUtils;
 
-        const path = 'C://\\:*?"<>|dir123//... ex\t\n\rample file:*?"<>|.txt\t\n\r';
+        const results: string[] = [
+            removeIllegalChars('C://\\:*?"<>|dir123//... ex\t\n\rample file:*?"<>|.txt\t\n\r'),
+            removeIllegalChars('/:*?"<>|dir123//... ex\t\n\rample file:*?"<>|.txt\t\n\r'),
+            removeIllegalChars('\\\\:*?"<>|dir123//... ex\t\n\rample file:*?"<>|.txt\t\n\r')
+        ];
 
-        const result = removeIllegalChars(path);
-        const expected = `C:${sep}dir123${sep}... example file.txt`;
+        const expected: string[] = [
+            `C:${sep}dir123${sep}... example file.txt`,
+            `${sep}dir123${sep}... example file.txt`,
+            `${sep}${sep}dir123${sep}... example file.txt`
+        ];
 
-        expect(result).toBe(expected);
+        expect(results).toStrictEqual(expected);
     });
 
     test("sanitize", () => {
@@ -719,13 +758,27 @@ describe("FileSystemUtils", () => {
         const results: string[] = [
             sanitize('  C:// : * ? " < > |dir123//    ... ex\t\n\rample file:*?"<>|.txt . . \t\n\r . /  / ... / '),
             sanitize("C:\\\\rootDir//dir123   /someOtherDir/ finalDir //////file   .txt /      "),
-            sanitize("    C:     \\  rootDir  //   dir123. . ./file.txt.///")
+            sanitize("    C:     \\  rootDir  //   dir123. . ./file.txt.///"),
+            sanitize("1.2.3.4/dir1///dir2//file.txt/"),
+            sanitize("/1.2.3.4/dir1///dir2//file.txt/"),
+            sanitize("\\1.2.3.4/dir1///dir2//file.txt/"),
+            sanitize("//1.2.3.4/dir1///dir2//file.txt/"),
+            sanitize("\\\\1.2.3.4/dir1///dir2//file.txt/"),
+            sanitize("///1.2.3.4/dir1///dir2//file.txt/"),
+            sanitize("\\\\\\1.2.3.4/dir1///dir2//file.txt/")
         ];
 
         const expected: string[] = [
             `C:${sep}dir123${sep}... example file.txt`,
             `C:${sep}rootDir${sep}dir123${sep}someOtherDir${sep}finalDir${sep}file   .txt`,
-            `C:${sep}rootDir${sep}dir123${sep}file.txt`
+            `C:${sep}rootDir${sep}dir123${sep}file.txt`,
+            `1.2.3.4${sep}dir1${sep}dir2${sep}file.txt`,
+            `${sep}1.2.3.4${sep}dir1${sep}dir2${sep}file.txt`,
+            `${sep}1.2.3.4${sep}dir1${sep}dir2${sep}file.txt`,
+            `${sep}${sep}1.2.3.4${sep}dir1${sep}dir2${sep}file.txt`,
+            `${sep}${sep}1.2.3.4${sep}dir1${sep}dir2${sep}file.txt`,
+            `${sep}1.2.3.4${sep}dir1${sep}dir2${sep}file.txt`,
+            `${sep}1.2.3.4${sep}dir1${sep}dir2${sep}file.txt`
         ];
 
         expect(results).toStrictEqual(expected);
@@ -743,6 +796,10 @@ describe("FileSystemUtils", () => {
             traverseBack("/a/b/c", "/"),
             traverseBack("/a/b/c/..", "/"),
             traverseBack("/a/b/c/..", "/../.."),
+            traverseBack("\\\\a\\b\\c\\d", "//a/b/c"),
+            traverseBack("//a/b/c/d", "//a/b"),
+            traverseBack("//a/b/c/d", "//"),
+            traverseBack("//a/b/c", "//a/b"),
 
             traverseBack("C:/a/b/c", "C:/a/b/c"),
             traverseBack("C:/a/b/c", "C:/a/b/c/d"),
@@ -755,7 +812,8 @@ describe("FileSystemUtils", () => {
             traverseBack("C:/abc/def", "C:/ab"),
             traverseBack("a/b/c", "a"),
             traverseBack("./a/b/c", "./a"),
-            traverseBack("./a/b/c", ".")
+            traverseBack("./a/b/c", "."),
+            traverseBack("//a/b/c/d", "//a")
         ];
 
         const expected: string[][] = [
@@ -767,7 +825,12 @@ describe("FileSystemUtils", () => {
             [normalize("/a/b"), normalize("/a"), normalize("/")],
             [normalize("/a"), normalize("/")],
             [normalize("/a"), normalize("/")],
+            [normalize("//a/b/c")],
+            [normalize("//a/b/c"), normalize("//a/b")],
+            [normalize("//a/b/c"), normalize("//a/b")],
+            [normalize("//a/b")],
 
+            [],
             [],
             [],
             [],
@@ -834,11 +897,18 @@ describe("FileSystemUtils", () => {
     test("trimSegments", () => {
         const { trimSegments } = FileSystemUtils;
 
-        const path = "C://\\ \t dir123//  ... example file.txt . . . \\... /";
+        const results: string[] = [
+            trimSegments("C://\\ \t dir123//  ... example file.txt . . . \\... /"),
+            trimSegments("/ \t dir123//  ... example file.txt . . . \\... /"),
+            trimSegments("\\\\ \t dir123//  ... example file.txt . . . \\... /")
+        ];
 
-        const result = trimSegments(path);
-        const expected = `C:${sep}dir123${sep}... example file.txt`;
+        const expected: string[] = [
+            `C:${sep}dir123${sep}... example file.txt`,
+            `${sep}dir123${sep}... example file.txt`,
+            `${sep}${sep}dir123${sep}... example file.txt`
+        ];
 
-        expect(result).toBe(expected);
+        expect(results).toStrictEqual(expected);
     });
 });
