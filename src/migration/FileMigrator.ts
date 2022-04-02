@@ -118,6 +118,10 @@ class FileMigrator {
         }
 
         this.fileMigrations.delete(id);
+
+        if (global.gc) {
+            global.gc();
+        }
     }
 
     public migrate = (params: MigrateParams): void => {

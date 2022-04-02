@@ -13,7 +13,7 @@ const wait = async (ms) => {
 
 const execAppSync = () => {
     try {
-        execSync(`node --enable-source-maps ${APP_PATH}`, { stdio: "inherit" });
+        execSync(`node --enable-source-maps --expose-gc ${APP_PATH}`, { stdio: "inherit" });
     } catch (error) {
         console.log(`\n  ERROR: Process exited with status code = ${error.status ?? 0}`);
         console.log(`         ${error.message}`);
