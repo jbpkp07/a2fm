@@ -5,7 +5,7 @@ import { dirname, extname, isAbsolute, join, normalize, parse, sep } from "path"
 
 import WaitUtils from "./WaitUtils";
 
-const { ceil } = Math;
+const { ceil, min } = Math;
 const { wait } = WaitUtils;
 
 interface StreamOptions {
@@ -19,14 +19,6 @@ class FileSystemUtils {
 
     private static readonly illegalRootChars = /[\t\n\r*?"<>|]/g;
 
-    private static calcHighWaterMark = (fileSizeBytes: number): number => {
-        const defaultHighWaterMark = 65536; // 64 * 1024
-        const drainCount = 100;
-        const isLargeFile = fileSizeBytes >= defaultHighWaterMark * drainCount;
-
-        return isLargeFile ? ceil(fileSizeBytes / drainCount) : defaultHighWaterMark;
-    };
-
     private static createStreamOptions = (fileSizeBytes: number): StreamOptions => {
         const highWaterMark = this.calcHighWaterMark(fileSizeBytes);
 
@@ -37,6 +29,18 @@ class FileSystemUtils {
         const msg = error instanceof Error ? `\n${defaultMessage}\n${error.message}` : defaultMessage;
 
         return new Error(msg);
+    };
+
+    public static calcHighWaterMark = (fileSizeBytes: number): number => {
+        const defaultHighWaterMark = 65536; // 64 * 1024 (Node.js default)
+        const maxHighWaterMark = 2147483647; // 2^31 - 1 (Node.js limit; Bug fix for file sizes > 214 GB)
+
+        const drainCount = 100;
+        const isLargeFile = fileSizeBytes >= defaultHighWaterMark * drainCount;
+
+        const highWaterMark = isLargeFile ? ceil(fileSizeBytes / drainCount) : defaultHighWaterMark;
+
+        return min(highWaterMark, maxHighWaterMark);
     };
 
     public static createReadStream = (filePath: string, fileSizeBytes: number): ReadStream => {

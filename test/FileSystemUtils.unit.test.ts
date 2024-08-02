@@ -9,6 +9,29 @@ import FileSystemUtils from "../src/common/FileSystemUtils";
 const RANDOM_PATH = resolve(__dirname, ".tmp", randomUUID());
 
 describe("FileSystemUtils", () => {
+    test("calcHighWaterMark", () => {
+        const { calcHighWaterMark } = FileSystemUtils;
+
+        const defaultHighWaterMark = 2 ** 16; // 65,536        (Node.js default)
+        const maxHighWaterMark = 2 ** 31 - 1; // 2,147,483,647 (Node.js limit)
+
+        expect(calcHighWaterMark(0)).toBe(defaultHighWaterMark);
+
+        expect(calcHighWaterMark(10 ** 4)).toBe(defaultHighWaterMark); // 10,000
+
+        expect(calcHighWaterMark((defaultHighWaterMark - 1) * 100)).toBe(defaultHighWaterMark);
+        expect(calcHighWaterMark((defaultHighWaterMark + 0) * 100)).toBe(defaultHighWaterMark);
+        expect(calcHighWaterMark((defaultHighWaterMark + 1) * 100)).toBe(defaultHighWaterMark + 1);
+
+        expect(calcHighWaterMark(10 ** 9)).toBe(10 ** 7); // 1,000,000,000
+
+        expect(calcHighWaterMark((maxHighWaterMark - 1) * 100)).toBe(maxHighWaterMark - 1);
+        expect(calcHighWaterMark((maxHighWaterMark + 0) * 100)).toBe(maxHighWaterMark);
+        expect(calcHighWaterMark((maxHighWaterMark + 1) * 100)).toBe(maxHighWaterMark);
+
+        expect(calcHighWaterMark(Number.MAX_SAFE_INTEGER)).toBe(maxHighWaterMark); // 9,007,199,254,740,991
+    });
+
     test("createReadStream (initialization and destroy)", async () => {
         await writeFile(RANDOM_PATH, "abc");
 
