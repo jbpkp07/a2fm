@@ -34,8 +34,8 @@ class FileSystemUtils {
     public static calcHighWaterMark = (fileSizeBytes: number): number => {
         const defaultHighWaterMark = 65536; // 64 * 1024 (Node.js default)
         const maxHighWaterMark = 2147483647; // 2^31 - 1 (Node.js limit; Bug fix for file sizes > 214 GB)
-
         const drainCount = 100;
+
         const isLargeFile = fileSizeBytes >= defaultHighWaterMark * drainCount;
 
         const highWaterMark = isLargeFile ? ceil(fileSizeBytes / drainCount) : defaultHighWaterMark;
